@@ -1,0 +1,382 @@
+<div class="container mt-4">
+  <h2 class="text-center mb-4">Lista de Inquéritos Policiais</h2>
+
+  <div class="table-responsive">
+    <table class="table table-dark table-striped table-bordered text-center align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Número da Justiça</th>
+          <th>Ordem Inquérito Policial</th>
+          <th>Data</th>
+          <th>Peça</th>
+          <th>Relator</th>
+          <th>Origem Força Policial</th>
+          <th>Investigado</th>
+          <th>Vítima</th>
+          <th>Natureza do Delito</th>
+          <th>Situação</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let inquerito of inqueritos | paginate: { itemsPerPage: pageSize, currentPage: page }">
+          <td>{{ inquerito.id }}</td>
+          <td>{{ inquerito.numeroJustica }}</td>
+          <td>{{ inquerito.ordemIp }}</td>
+          <td>{{ inquerito.data | date: 'dd/MM/yyyy' }}</td>
+          <td>{{ inquerito.peca }}</td>
+          <td>{{ inquerito.relator }}</td>
+          <td>{{ inquerito.origemForcaPolicial }}</td>
+          <td>{{ inquerito.investigado }}</td>
+          <td>{{ inquerito.vitima }}</td>
+          <td>{{ inquerito.naturezaDoDelito }}</td>
+          <td>
+            <span class="badge" [ngClass]="{
+              'bg-success': inquerito.situacaoInquerito === 'Aberto',
+              'bg-warning text-dark': inquerito.situacaoInquerito === 'Em Andamento',
+              'bg-danger': inquerito.situacaoInquerito === 'Encerrado'
+            }">{{ inquerito.situacaoInquerito }}</span>
+          </td>
+          <td>
+            <button class="btn btn-outline-secondary" (click)="verMais(inquerito.id)">
+              <i class="bi bi-three-dots-vertical"></i> Ver mais
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <pagination-controls (pageChange)="page = $event"></pagination-controls>
+
+  <div class="d-flex gap-2 mt-3">
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inqueritoModal">
+      <i class="bi bi-clipboard-plus"></i> Cadastrar novo inquérito
+    </button>
+    <button class="btn btn-primary" (click)="gerarRelatorio()">Gerar Relatório</button>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="inqueritoModal" tabindex="-1" aria-labelledby="inqueritoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="inqueritoModalLabel">Cadastrar Inquérito</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="inquerito-tab" data-bs-toggle="tab" data-bs-target="#inquerito"
+              type="button" role="tab">Inquérito</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="armas-tab" data-bs-toggle="tab" data-bs-target="#armas" type="button"
+              role="tab">Armas</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="drogas-tab" data-bs-toggle="tab" data-bs-target="#drogas" type="button"
+              role="tab">Drogas</button>
+          </li>
+        </ul>
+
+        <form [formGroup]="inqueritoForm" (ngSubmit)="onSubmit()">
+          <div class="tab-content">
+
+            <div class="tab-pane fade show active" id="inquerito" role="tabpanel">
+              <div class="mb-3">
+                <label class="form-label">Número Justiça</label>
+                <input type="text" class="form-control" formControlName="numeroJustica">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Ordem IP</label>
+                <input type="number" class="form-control" formControlName="ordemIp">
+              </div>
+
+              <div class="mb-3">
+                <label for="dataInquerito" class="form-label">Data do Inquérito</label>
+                <input type="date" class="form-control" id="dataInquerito" formControlName="data">
+              </div>
+
+              <div class="mb-3">
+                <label for="peca" class="form-label"> Peça </label>
+                <select id="peca" formControlName="peca" class="form-select">
+                  <option *ngFor="let p of pecas" [value]="p">{{ p }}</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label"> Relator </label>
+                <input type="text" class="form-control" formControlName="relator">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label"> Origem Força Policial </label>
+                <select id="origemForcaPolicial" formControlName="origemForcaPolicial" class="form-select">
+                  <option *ngFor="let o of origens" [value]="o">{{ o }}</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Investigado</label>
+                <input type="text" class="form-control" formControlName="investigado">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Vítima</label>
+                <input type="text" class="form-control" formControlName="vitima">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Natureza do Delito</label>
+                <input type="text" class="form-control" formControlName="naturezaDoDelito">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Observação do Inquérito</label>
+                <textarea class="form-control" formControlName="observacaoInquerito"></textarea>
+              </div>
+
+              <div class="mb-3">
+                <label for="situacaoInquerito" class="form-label">Situação do Inquérito</label>
+                <select id="situacaoInquerito" formControlName="situacaoInquerito" class="form-select">
+                  <option *ngFor="let s of situacoes" [value]="s">{{ s }}</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Aba Armas -->
+            <div class="tab-pane fade" id="armas" role="tabpanel" [formGroup]="inqueritoForm">
+              <div formArrayName="armas">
+                <button type="button" class="btn btn-sm btn-success mb-2" (click)="addArma()">Adicionar Arma</button>
+                <div *ngFor="let arma of armas.controls; let i = index" [formGroupName]="i"
+                  class="border p-3 mb-2 rounded bg-dark">
+                  <div class="row">
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label">Tipo de arma de fogo</label>
+                      <select formControlName="tipoArmaFogo" class="form-select">
+                        <option *ngFor="let tipo of tipoArmaFogos" [value]="tipo">{{ tipo }}</option>
+                      </select>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label">Espécie</label>
+                      <input type="text" class="form-control" formControlName="especie">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label">Marca</label>
+                      <input type="text" class="form-control" formControlName="marca">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label">Calibre</label>
+                      <input type="text" class="form-control" formControlName="calibre">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label">Número do Porte</label>
+                      <input type="text" class="form-control" formControlName="numeroPorte">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label">Número de Série</label>
+                      <input type="text" class="form-control" formControlName="numeroSerie">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label">Número de Registro</label>
+                      <input type="text" class="form-control" formControlName="numeroRegistro">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label">Capacidade</label>
+                      <input type="number" class="form-control" formControlName="capacidade">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label">Quantidade</label>
+                      <input type="number" class="form-control" formControlName="quantidade">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label">Número do Lacre</label>
+                      <input type="text" class="form-control" formControlName="numeroLacre">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label">Valor</label>
+                      <input type="number" class="form-control" formControlName="valor" step="0.01">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label">Local da Arma</label>
+                      <input type="text" class="form-control" formControlName="localArma">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label">Situação</label>
+                      <select formControlName="situacaoArma" class="form-select">
+                        <option *ngFor="let s of situacoes" [value]="s">{{ s }}</option>
+                      </select>
+                    </div>
+
+                    <div class="col-md-1 d-flex align-items-end">
+                      <button type="button" class="btn btn-danger btn-sm" (click)="removeArma(i)">Remover</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Aba Drogas -->
+            <div class="tab-pane fade" id="drogas" role="tabpanel" [formGroup]="inqueritoForm">
+              <div formArrayName="drogas">
+                <button type="button" class="btn btn-sm btn-success mb-2" (click)="addDroga()">Adicionar Droga</button>
+                <div *ngFor="let droga of drogas.controls; let i = index" [formGroupName]="i"
+                  class="border p-3 mb-2 rounded bg-dark">
+                  <div class="row g-2">
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label">Tipo de droga</label>
+                      <select formControlName="tipoDroga" class="form-select">
+                        <option *ngFor="let t of tipoDrogas" [value]="t">{{ t }}</option>
+                      </select>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label">Nome Popular</label>
+                      <input type="text" class="form-control" formControlName="nomePopular">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label"> Unidade de Medida </label>
+                      <select formControlName="unidadeMedida" class="form-select">
+                        <option *ngFor="let u of unidadeMedida" [value]="u">{{ u }}</option>
+                      </select>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label">Quantidade</label>
+                      <input type="number" class="form-control" formControlName="quantidade">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label">Quantidade Perícia</label>
+                      <input type="number" class="form-control" formControlName="quantidadePericia">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label">Quantidade Por Extenso</label>
+                      <input type="text" class="form-control" formControlName="quantidadePorExtenso">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label">Observação</label>
+                      <input type="text" class="form-control" formControlName="observacao">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label">Número Lacre</label>
+                      <input type="number" class="form-control" formControlName="numeroLacre">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label">Local Droga</label>
+                      <input type="text" class="form-control" formControlName="localDroga">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label">Situação Droga</label>
+                      <input type="text" class="form-control" formControlName="situacaoDroga">
+                    </div>
+
+                    <div class="col-md-1 d-flex align-items-end">
+                      <button type="button" class="btn btn-danger btn-sm" (click)="removeDroga(i)">Remover</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary" (click)="onSubmit()">Salvar Inquérito</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editarInqueritoModal" tabindex="-1" aria-labelledby="editarInqueritoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+
+      <!-- Cabeçalho -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="editarInqueritoModalLabel">Editar Inquérito</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+
+      <!-- Corpo -->
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#editar-inquerito" type="button" role="tab">
+              Inquérito
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#editar-armas" type="button" role="tab">
+              Armas
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#editar-drogas" type="button" role="tab">
+              Drogas
+            </button>
+          </li>
+        </ul>
+
+        <form [formGroup]="inqueritoForm" (ngSubmit)="salvarEdicao()">
+          <div class="tab-content">
+
+            <!-- Aba Inquérito -->
+            <div class="tab-pane fade show active" id="editar-inquerito" role="tabpanel">
+              <!-- Mesmos campos da aba "Inquérito" do cadastro -->
+              <!-- ... copie o conteúdo da aba "inquerito" aqui ... -->
+            </div>
+
+            <!-- Aba Armas -->
+            <div class="tab-pane fade" id="editar-armas" role="tabpanel">
+              <!-- Mesmos campos da aba "armas" do cadastro -->
+              <!-- ... copie a estrutura da aba "armas" aqui ... -->
+            </div>
+
+            <!-- Aba Drogas -->
+            <div class="tab-pane fade" id="editar-drogas" role="tabpanel">
+              <!-- Mesmos campos da aba "drogas" do cadastro -->
+              <!-- ... copie a estrutura da aba "drogas" aqui ... -->
+            </div>
+
+          </div>
+
+          <!-- Rodapé -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary" [disabled]="inqueritoForm.invalid">Salvar Alterações</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,120 @@
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+  <div class="w-100" style="max-width: 720px;">
+    <h2 class="mb-4 text-primary text-center fw-bold">Cadastro de Instituição</h2>
+
+    <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+    <form [formGroup]="instituicaoForm" (ngSubmit)="submitForm()">
+      <fieldset class="mb-4">
+        <legend class="text-secondary fs-5">Informações da Instituição</legend>
+
+        <div class="mb-3">
+          <label for="secretaria" class="form-label">Secretaria</label>
+          <input id="secretaria" formControlName="secretaria" type="text" class="form-control"
+            [ngClass]="{'is-invalid': instituicaoForm.get('secretaria')?.invalid && instituicaoForm.get('secretaria')?.touched}"
+            placeholder="Nome Secretaria vinculada" autocomplete="organization" />
+
+          <div class="invalid-feedback">Nome da Secretaria é obrigatória</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="nomeFantasia" class="form-label">Nome Fantasia</label>
+          <input id="nomeFantasia" formControlName="nomeFantasia" type="text" class="form-control"
+            placeholder="Nome comercial" autocomplete="organization" />
+          <div class="invalid-feedback">Nome Fantasia é obrigatório</div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="telefoneFixo" class="form-label">Telefone Fixo</label>
+            <input id="telefoneFixo" formControlName="telefoneFixo" type="text" class="form-control"
+              placeholder="(00) 0000-0000" autocomplete="tel" />
+            <div class="invalid-feedback">Telefone Fixo é obrigatório</div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="telefoneCelular" class="form-label">Telefone Celular</label>
+            <input id="telefoneCelular" formControlName="telefoneCelular" type="text" class="form-control"
+              placeholder="(00) 90000-0000" autocomplete="tel" />
+            <div class="invalid-feedback">Telefone Celular é obrigatório</div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="email" class="form-label">E-mail</label>
+          <input id="email" formControlName="email" type="email" class="form-control" placeholder="email@exemplo.com"
+            autocomplete="email" />
+          <div class="invalid-feedback">E-mail inválido</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="senha" class="form-label">Senha</label>
+          <div class="input-group">
+            <input [type]="showPassword ? 'text' : 'password'" formControlName="senha" class="form-control" id="senha"
+              placeholder="Senha" autocomplete="new-password" />
+          </div>
+          <div class="invalid-feedback">Senha é obrigatória</div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend class="text-secondary fs-5">Endereço</legend>
+        <div class="row">
+          <div class="col-md-8 mb-3">
+            <label for="logradouro" class="form-label">Logradouro</label>
+            <input id="logradouro" formControlName="logradouro" type="text" class="form-control"
+              placeholder="Rua, Avenida..." />
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <label for="numero" class="form-label">Número</label>
+            <input id="numero" formControlName="numero" type="text" class="form-control" placeholder="123" />
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="bairro" class="form-label">Bairro</label>
+            <input id="bairro" formControlName="bairro" type="text" class="form-control"
+              placeholder="Centro, Bairro X..." />
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="cep" class="form-label">CEP</label>
+            <input id="cep" formControlName="cep" type="text" class="form-control" placeholder="00000-000" />
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="municipio" class="form-label">Município</label>
+            <input id="municipio" formControlName="municipio" type="text" class="form-control" />
+          </div>
+
+          <div class="col-md-3 mb-3">
+            <label for="uf" class="form-label">UF</label>
+            <select id="uf" formControlName="uf" class="form-select">
+              <option *ngFor="let u of ufs" [value]="u">{{ u }}</option>
+            </select>
+          </div>
+
+          <div class="col-md-3 mb-3">
+            <label for="pais" class="form-label">País</label>
+            <select id="pais" formControlName="pais" class="form-select">
+              <option *ngFor="let p of paises" [value]="p">{{ p }}</option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="d-grid gap-2 mt-4">
+        <button type="submit" class="btn btn-primary" [disabled]="instituicaoForm.invalid || isSubmitting">
+          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+          Cadastrar
+        </button>
+      </div>
+
+      <p class="text-center mt-3 mb-0">
+        Já possui uma conta?
+        <button type="button" class="btn btn-link p-0" (click)="navigateToLogin()">Login</button>
+      </p>
+    </form>
+  </div>
+</div>

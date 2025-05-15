@@ -1,1 +1,333 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --color-light-bg: #f3f3f3;
+  --color-light-text: #212529;
+  --color-light-box: #f2f2f2;
+
+  --color-dark-bg: #121212;
+  --color-dark-text: #e0e0e0;
+  --color-dark-box: #1e1e1e;
+
+  --color-primary: #0d6efd;
+  --border-radius: 1rem;
+
+  --shadow-light: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  --shadow-dark: 0 0.5rem 1rem rgba(255, 255, 255, 0.05);
+}
+
+/* ==========================
+   Modo Claro
+   ========================== */
+body.light-mode {
+  background-color: var(--color-light-bg);
+  color: var(--color-light-text);
+}
+
+/* ==========================
+   Modo Escuro
+   ========================== */
+body.dark-mode {
+  background-color: var(--color-dark-bg);
+  color: var(--color-dark-text);
+}
+
+/* ==========================
+   Container principal centralizado
+   ========================== */
+.selector-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* ==========================
+   Card estilizado (compatível com o Bootstrap)
+   ========================== */
+.selector-card {
+  background-color: var(--color-light-box);
+  color: var(--color-light-text);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  max-width: 600px;
+  width: 100%;
+  padding: 2rem;
+  transition: all 0.3s ease;
+}
+
+body.dark-mode .selector-card {
+  background-color: var(--color-dark-box);
+  color: var(--color-dark-text);
+  box-shadow: var(--shadow-dark);
+}
+
+/* ==========================
+   Título
+   ========================== */
+.selector-card h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+/* ==========================
+   Select estilizado (compatível com Bootstrap)
+   ========================== */
+.selector-card select.form-select {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #ced4da;
+  background-color: #fff;
+  color: #212529;
+}
+
+body.dark-mode .selector-card select.form-select {
+  background-color: #2c2c2c;
+  color: var(--color-dark-text);
+  border-color: #444;
+}
+
+/* ==========================
+   Botão estilizado (compatível com Bootstrap)
+   ========================== */
+.selector-card .btn-primary {
+  margin-top: 1.5rem;
+  font-weight: 600;
+  padding: 0.6rem 1.5rem;
+  border-radius: 0.5rem;
+  transition: transform 0.2s ease;
+}
+
+.selector-card .btn-primary:hover {
+  transform: scale(1.03);
+}
+
+/* ==========================
+   Mensagem de erro (compatível com Bootstrap)
+   ========================== */
+.selector-card .text-danger {
+  margin-top: 1rem;
+  font-size: 0.95rem;
+}
+
+/* ==========================
+   Adaptando elementos gerais do Bootstrap
+   ========================== */
+
+/* Remover bordas do formulário no modo escuro */
+body.dark-mode .form-control {
+  background-color: #2c2c2c;
+  color: var(--color-dark-text);
+  border-color: #444;
+}
+
+body.dark-mode .form-control:focus {
+  border-color: var(--color-primary);
+}
+
+/* Definir o botão primário */
+body.dark-mode .btn-primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+body.light-mode .btn-primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* Ajuste para o card no modo claro e escuro */
+.welcome-card {
+  background-color: var(--color-light-box);
+  color: var(--color-light-text);
+  box-shadow: var(--shadow-light);
+  border-radius: var(--border-radius);
+}
+
+body.dark-mode .welcome-card {
+  background-color: var(--color-dark-box);
+  color: var(--color-dark-text);
+  box-shadow: var(--shadow-dark);
+}
+
+/* Estilo global para o modo claro e escuro */
+body.light-mode .login-card {
+  background-color: var(--color-light-box);
+  color: var(--color-light-text);
+  box-shadow: var(--shadow-light);
+}
+
+body.dark-mode .login-card {
+  background-color: var(--color-dark-box);
+  color: var(--color-dark-text);
+  box-shadow: var(--shadow-dark);
+}
+
+/* Estilo para os inputs com erros */
+body.light-mode .form-control.is-invalid {
+  border-color: #dc3545;
+}
+
+body.dark-mode .form-control.is-invalid {
+  border-color: #dc3545;
+  background-color: #3a3a3a;  /* Levemente mais escuro no modo escuro */
+}
+
+/* Estilo para a mensagem de erro */
+body.light-mode .invalid-feedback {
+  color: #dc3545;
+}
+
+body.dark-mode .invalid-feedback {
+  color: #dc3545;
+}
+
+/* Estilo para o botão */
+body.light-mode .btn-primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+body.dark-mode .btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+body.dark-mode .btn-primary:hover {
+  background-color: #0a5bcf;
+  border-color: #0a5bcf;
+}
+
+/* ==========================
+   Modal container
+   ========================== */
+   .modal-content {
+    background-color: var(--color-light-box);
+    color: var(--color-light-text);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    transition: all 0.3s ease;
+  }
+  
+  body.dark-mode .modal-content {
+    background-color: var(--color-dark-box);
+    color: var(--color-dark-text);
+    box-shadow: var(--shadow-dark);
+  }
+  
+  /* ==========================
+     Modal header
+     ========================== */
+  .modal-header {
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  body.dark-mode .modal-header {
+    border-bottom: 1px solid #444;
+  }
+  
+  .modal-header h5 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  /* ==========================
+     Modal body
+     ========================== */
+  .modal-body {
+    font-size: 1rem;
+  }
+  
+  /* ==========================
+     Modal footer
+     ========================== */
+  .modal-footer {
+    border-top: 1px solid #dee2e6;
+  }
+  
+  body.dark-mode .modal-footer {
+    border-top: 1px solid #444;
+  }
+  
+  /* ==========================
+     Títulos gerais (h1-h6)
+     ========================== */
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--color-light-text);
+  }
+  
+  body.dark-mode h1,
+  body.dark-mode h2,
+  body.dark-mode h3,
+  body.dark-mode h4,
+  body.dark-mode h5,
+  body.dark-mode h6 {
+    color: var(--color-dark-text);
+  }
+  
+  /* ==========================
+     Texto geral (parágrafos, spans, labels)
+     ========================== */
+  p, span, label {
+    color: var(--color-light-text);
+  }
+  
+  body.dark-mode p,
+  body.dark-mode span,
+  body.dark-mode label {
+    color: var(--color-dark-text);
+  }
+  
+  /* ==========================
+     Botões no modal
+     ========================== */
+  .modal-content .btn-primary {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+  
+  body.dark-mode .modal-content .btn-primary {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+  
+  .modal-content .btn-primary:hover {
+    transform: scale(1.03);
+  }
+  
+  body.dark-mode .modal-content .btn-primary:hover {
+    background-color: #0a5bcf;
+    border-color: #0a5bcf;
+  }
+  
+  /* ==========================
+     Inputs no modal
+     ========================== */
+  .modal-content .form-control {
+    background-color: #fff;
+    color: #212529;
+    border: 1px solid #ced4da;
+  }
+  
+  body.dark-mode .modal-content .form-control {
+    background-color: #2c2c2c;
+    color: var(--color-dark-text);
+    border-color: #444;
+  }
+  
+  body.dark-mode .modal-content .form-control:focus {
+    border-color: var(--color-primary);
+  }
+
+  body.dark-mode input[type="date"] {
+    background-color: #2c2c2c;
+    color: var(--color-dark-text);
+    border: 1px solid #444;
+  }
+  
+  body.dark-mode input[type="date"]:focus {
+    border-color: var(--color-primary);
+  }
+  
