@@ -44,18 +44,18 @@ export interface InqueritoPolicial {
   ordemIp: number;
   data: string;
   peca: string;
-  situacaoInquerito: string;
+  situacao: string;
   relator: string;
   origemForcaPolicial: string;
   investigado: string;
   vitima: string;
   naturezaDoDelito: string;
-  arma: Arma[];
-  droga: Droga[];
+  armas: Arma[];
+  drogas: Droga[];
   instituicao: {
     id: number;
   };
-  observacaoInquerito: string;
+  observacao: string;
 }
 
 @Injectable({
@@ -72,7 +72,7 @@ export class InqueritoPolicialService {
   }
 
   getInqueritoById(id: number): Observable<InqueritoPolicial> {
-    return this.http.get<InqueritoPolicial>(`${this.apiUrl}/list/${id}`).pipe(catchError(this.handleError));
+    return this.http.get<InqueritoPolicial>(`${this.apiUrl}/getById/${id}`).pipe(catchError(this.handleError));
   }
 
   getInqueritosByInstituicao(instituicaoId: number): Observable<InqueritoPolicial[]> {
@@ -93,12 +93,19 @@ export class InqueritoPolicialService {
     return this.http.delete<void>(`${this.apiUrl}/delete/${id}`).pipe(catchError(this.handleError));
   }
 
-  public prepareFormData(inquerito: InqueritoPolicial, arquivo?: File): FormData {
+
+  downloadExcelAll(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/export/excel`, { responseType: 'blob' });
+  }
+
+  downloadExcelByInstituicao(id: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/export/excel/instituicao/${id}`, { responseType: 'blob' });
+  }
+
+  public prepareFormData(inquerito: InqueritoPolicial): FormData {
     const formData = new FormData();
     formData.append('inquerito', new Blob([JSON.stringify(inquerito)], { type: 'application/json' }));
-    if (arquivo) {
-      formData.append('file', arquivo, arquivo.name);
-    }
+
     return formData;
   }
 

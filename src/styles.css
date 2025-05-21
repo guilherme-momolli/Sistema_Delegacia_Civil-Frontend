@@ -171,7 +171,8 @@ body.light-mode .form-control.is-invalid {
 
 body.dark-mode .form-control.is-invalid {
   border-color: #dc3545;
-  background-color: #3a3a3a;  /* Levemente mais escuro no modo escuro */
+  background-color: #3a3a3a;
+  /* Levemente mais escuro no modo escuro */
 }
 
 /* Estilo para a mensagem de erro */
@@ -202,132 +203,283 @@ body.dark-mode .btn-primary:hover {
 /* ==========================
    Modal container
    ========================== */
-   .modal-content {
-    background-color: var(--color-light-box);
-    color: var(--color-light-text);
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-light);
-    transition: all 0.3s ease;
-  }
-  
-  body.dark-mode .modal-content {
-    background-color: var(--color-dark-box);
-    color: var(--color-dark-text);
-    box-shadow: var(--shadow-dark);
-  }
-  
-  /* ==========================
+.modal-content {
+  background-color: var(--color-light-box);
+  color: var(--color-light-text);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  transition: all 0.3s ease;
+}
+
+body.dark-mode .modal-content {
+  background-color: var(--color-dark-box);
+  color: var(--color-dark-text);
+  box-shadow: var(--shadow-dark);
+}
+
+/* ==========================
      Modal header
      ========================== */
-  .modal-header {
-    border-bottom: 1px solid #dee2e6;
-  }
-  
-  body.dark-mode .modal-header {
-    border-bottom: 1px solid #444;
-  }
-  
-  .modal-header h5 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin: 0;
-  }
-  
-  /* ==========================
+.modal-header {
+  border-bottom: 1px solid #dee2e6;
+}
+
+body.dark-mode .modal-header {
+  border-bottom: 1px solid #444;
+}
+
+.modal-header h5 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ==========================
      Modal body
      ========================== */
-  .modal-body {
-    font-size: 1rem;
-  }
-  
-  /* ==========================
+.modal-body {
+  font-size: 1rem;
+}
+
+/* ==========================
      Modal footer
      ========================== */
-  .modal-footer {
-    border-top: 1px solid #dee2e6;
-  }
-  
-  body.dark-mode .modal-footer {
-    border-top: 1px solid #444;
-  }
-  
-  /* ==========================
+.modal-footer {
+  border-top: 1px solid #dee2e6;
+}
+
+body.dark-mode .modal-footer {
+  border-top: 1px solid #444;
+}
+
+/* ==========================
      Títulos gerais (h1-h6)
      ========================== */
-  h1, h2, h3, h4, h5, h6 {
-    color: var(--color-light-text);
-  }
-  
-  body.dark-mode h1,
-  body.dark-mode h2,
-  body.dark-mode h3,
-  body.dark-mode h4,
-  body.dark-mode h5,
-  body.dark-mode h6 {
-    color: var(--color-dark-text);
-  }
-  
-  /* ==========================
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--color-light-text);
+}
+
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6 {
+  color: var(--color-dark-text);
+}
+
+/* ==========================
      Texto geral (parágrafos, spans, labels)
      ========================== */
-  p, span, label {
-    color: var(--color-light-text);
-  }
-  
-  body.dark-mode p,
-  body.dark-mode span,
-  body.dark-mode label {
-    color: var(--color-dark-text);
-  }
-  
-  /* ==========================
+p,
+span,
+label {
+  color: var(--color-light-text);
+}
+
+body.dark-mode p,
+body.dark-mode span,
+body.dark-mode label {
+  color: var(--color-dark-text);
+}
+
+/* ==========================
      Botões no modal
      ========================== */
-  .modal-content .btn-primary {
-    background-color: var(--color-primary);
-    border-color: var(--color-primary);
-  }
-  
-  body.dark-mode .modal-content .btn-primary {
-    background-color: var(--color-primary);
-    border-color: var(--color-primary);
-  }
-  
-  .modal-content .btn-primary:hover {
-    transform: scale(1.03);
-  }
-  
-  body.dark-mode .modal-content .btn-primary:hover {
-    background-color: #0a5bcf;
-    border-color: #0a5bcf;
-  }
-  
-  /* ==========================
+.modal-content .btn-primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+body.dark-mode .modal-content .btn-primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.modal-content .btn-primary:hover {
+  transform: scale(1.03);
+}
+
+body.dark-mode .modal-content .btn-primary:hover {
+  background-color: #0a5bcf;
+  border-color: #0a5bcf;
+}
+
+/* ==========================
      Inputs no modal
      ========================== */
-  .modal-content .form-control {
-    background-color: #fff;
-    color: #212529;
-    border: 1px solid #ced4da;
-  }
-  
-  body.dark-mode .modal-content .form-control {
-    background-color: #2c2c2c;
-    color: var(--color-dark-text);
-    border-color: #444;
-  }
-  
-  body.dark-mode .modal-content .form-control:focus {
-    border-color: var(--color-primary);
-  }
+.modal-content .form-control {
+  background-color: #fff;
+  color: #212529;
+  border: 1px solid #ced4da;
+}
 
-  body.dark-mode input[type="date"] {
-    background-color: #2c2c2c;
-    color: var(--color-dark-text);
-    border: 1px solid #444;
-  }
-  
-  body.dark-mode input[type="date"]:focus {
-    border-color: var(--color-primary);
-  }
-  
+body.dark-mode .modal-content .form-control {
+  background-color: #2c2c2c;
+  color: var(--color-dark-text);
+  border-color: #444;
+}
+
+body.dark-mode .modal-content .form-control:focus {
+  border-color: var(--color-primary);
+}
+
+body.dark-mode input[type="date"] {
+  background-color: #2c2c2c;
+  color: var(--color-dark-text);
+  border: 1px solid #444;
+}
+
+body.dark-mode input[type="date"]:focus {
+  border-color: var(--color-primary);
+}
+
+/* Estilo customizado para container de arma/droga no modo escuro */
+.inquerito-item {
+  border: 1px solid #444;
+  /* Borda mais suave para modo escuro */
+  padding: 1rem;
+  /* padding equivalente a p-3 */
+  margin-bottom: 0.5rem;
+  /* margin equivalente a mb-2 */
+  border-radius: 0.375rem;
+  /* border-radius equivalente a rounded */
+  background-color: #222;
+  /* fundo escuro, mas não puro preto */
+  color: #eee;
+  /* texto claro para contraste */
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+  /* leve sombra para destaque */
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Efeito ao focar ou passar mouse (opcional) */
+.inquerito-item:hover,
+.inquerito-item:focus-within {
+  background-color: #333;
+  border-color: #666;
+}
+
+/* Container principal */
+.container {
+  background-color: #121212;
+  /* fundo escuro */
+  color: #e0e0e0;
+  /* texto claro */
+  padding: 20px;
+  border-radius: 10px;
+}
+
+/* Tabela */
+.table {
+  background-color: #1e1e1e;
+  /* fundo um pouco mais claro que o container */
+  border: 1px solid #333;
+  /* borda escura */
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Cabeçalho da tabela */
+.table thead {
+  background-color: #272727;
+  /* tom um pouco mais claro que o fundo da tabela */
+  color: #fff;
+  border-bottom: 2px solid #444;
+}
+
+/* Linhas da tabela - alternadas */
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #2c2c2c;
+}
+
+.table-striped tbody tr:nth-of-type(even) {
+  background-color: #222;
+}
+
+/* Hover nas linhas */
+.table tbody tr:hover {
+  background-color: #3a3a3a;
+  cursor: pointer;
+}
+
+/* Células */
+.table td,
+.table th {
+  border-color: #444;
+  vertical-align: middle;
+}
+
+/* Badges de situação */
+.badge.bg-danger {
+  background-color: #e55353 !important;
+  /* vermelho suave */
+  color: #fff;
+}
+
+.badge.bg-warning {
+  background-color: #e5c453 !important;
+  /* amarelo quente */
+  color: #222 !important;
+}
+
+.badge.bg-success {
+  background-color: #53e57a !important;
+  /* verde suave */
+  color: #fff !important;
+}
+
+.badge.bg-dark {
+  background-color: #444 !important;
+  /* cinza escuro */
+  color: #ccc !important;
+}
+
+/* Botões */
+.btn-outline-secondary {
+  color: #bbb;
+  border-color: #555;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #555;
+  color: #fff;
+  border-color: #777;
+}
+
+.btn-outline-success {
+  color: #8bc34a;
+  border-color: #8bc34a;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-success:hover {
+  background-color: #8bc34a;
+  color: #121212;
+  border-color: #7aad3d;
+}
+
+/* Ícones dentro dos botões */
+.btn i {
+  vertical-align: middle;
+}
+
+/* Scroll horizontal para responsividade */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ajustes de alinhamento para texto */
+th,
+td {
+  text-align: center;
+  white-space: nowrap;
+}
+

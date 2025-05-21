@@ -19,7 +19,8 @@
           <td>{{ usuario.email }}</td>
           <td>{{ usuario.privilegio }}</td>
           <td>
-            <button class="btn btn-outline-secondary" (click)="verMais(usuario.id)">
+            <button class="btn btn-outline-secondary" (click)="verMais(usuario.id)" data-bs-target="#modalEditInstance"
+              data-bs-toggle="modal">
               <i class="bi bi-three-dots-vertical"></i> Ver Mais
             </button>
           </td>
@@ -90,39 +91,30 @@
   </div>
 </div>
 
-<div class="modal fade" id="modalEditInstance" #usuarioEditModal tabindex="-1" aria-labelledby="UsuarioEditModalLabel"
-  aria-hidden="true">
+<div class="modal fade" id="modalEditInstance" #usuarioEditModal tabindex="-1" aria-labelledby="modalEditLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
-    <div class="modal-content bg-dark text-white">
-      <div class="modal-header bg-primary">
-        <h5 class="modal-title">Editar Usuário</h5>
+    <div class="modal-content bg-dark text-white rounded-4 shadow">
+
+      <div class="modal-header bg-primary text-white rounded-top-4">
+        <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Usuário</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body">
-        <div *ngIf="successMessage" class="alert alert-success text-center">{{ successMessage }}</div>
-        <div *ngIf="errorMessage" class="alert alert-danger text-center">{{ errorMessage }}</div>
 
-        <form [formGroup]="usuarioForm" (ngSubmit)="onSubmit()">
+      <div class="modal-body">
+        <form [formGroup]="usuarioForm" (ngSubmit)="salvarEdicao()">
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label">Nome</label>
               <input type="text" class="form-control" formControlName="nome">
             </div>
-
             <div class="col-md-6">
-              <label class="form-label">E-mail</label>
-              <input type="email" class="form-control" formControlName="email" placeholder="Digite seu e-mail"
-                [class.is-invalid]="usuarioForm.get('email')?.invalid && usuarioForm.get('email')?.touched">
-              <div class="invalid-feedback">E-mail inválido</div>
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" formControlName="email">
             </div>
-
             <div class="col-md-6">
               <label class="form-label">Senha</label>
-              <input type="password" class="form-control" formControlName="senha" placeholder="Digite sua senha"
-                [class.is-invalid]="usuarioForm.get('senha')?.invalid && usuarioForm.get('senha')?.touched">
-              <div class="invalid-feedback">Senha obrigatória</div>
+              <input type="password" class="form-control" formControlName="senha">
             </div>
-
             <div class="col-md-6">
               <label class="form-label">Privilégio</label>
               <select class="form-select" formControlName="privilegio">
@@ -131,26 +123,24 @@
             </div>
           </div>
 
-          <div class="modal-footer">
-            <div *ngIf="!modoEdicaoAtivado" class="d-flex justify-content-start w-100">
-              <button type="button" class="btn btn-primary" (click)="habilitarEdicao()"><i
-                  class="bi bi-pencil-square"></i> Edição </button>
-            </div>
+          <div *ngIf="successMessage" class="alert alert-success mt-3 text-center">{{ successMessage }}</div>
+          <div *ngIf="errorMessage" class="alert alert-danger mt-3 text-center">{{ errorMessage }}</div>
 
-            <div *ngIf="modoEdicaoAtivado" class="d-flex justify-content-end w-100 gap-2">
-              <!-- <button class="btn btn-danger" (click)="deletarUsuario(usuarioSelecionado?.id)">
-                <i class="bi bi-trash"></i> Excluir Hardware
-              </button> -->
-              <button type="button" class="btn btn-success" (click)="salvarEdicao()">
-                <i class="bi bi-save"></i> Salvar
-              </button>
-              <button type="button" class="btn btn-secondary" (click)="cancelarEdicao()">
-                <i class="bi bi-x-circle"></i> Cancelar
+          <div class="d-flex justify-content-between mt-4">
+            <button type="button" class="btn btn-outline-danger" (click)="deletarUsuario(usuarioForm.value.id)">
+              <i class="bi bi-trash"></i> Deletar
+            </button>
+            <div>
+              <button type="button" class="btn btn-secondary me-2" (click)="cancelarEdicao()">Cancelar</button>
+              <button type="submit" class="btn btn-primary" [disabled]="usuarioForm.invalid || isSubmitting">
+                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+                Salvar
               </button>
             </div>
           </div>
         </form>
       </div>
+
     </div>
   </div>
 </div>

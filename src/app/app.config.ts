@@ -12,8 +12,7 @@ export const appConfig: ApplicationConfig = {
     
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideClientHydration(),
-    provideHttpClient(withFetch(), withInterceptorsFromDi()),
+      provideHttpClient(withFetch(), withInterceptorsFromDi()),
     importProvidersFrom(FormsModule),
     {
       provide: HTTP_INTERCEPTORS, 

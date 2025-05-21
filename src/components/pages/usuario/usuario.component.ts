@@ -3,7 +3,7 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angula
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { NgxPaginationModule } from 'ngx-pagination';
-import { User, UsuarioService} from '../../../core/service/usuario/usuario.service';
+import { User, UsuarioService } from '../../../core/service/usuario/usuario.service';
 import { AuthService } from '../../../core/service/auth/auth.service';
 import { Privilegio } from './privilegio.enum';
 
@@ -47,7 +47,7 @@ export class UsuarioComponent implements OnInit, AfterViewInit {
       id: [null],
       nome: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      senha: ['', Validators.required],
+      senha: [''],
       instituicaoId: [''],
       privilegio: ['', Validators.required]
     });
@@ -86,21 +86,24 @@ export class UsuarioComponent implements OnInit, AfterViewInit {
 
   abrirModal(): void {
     this.resetForm();
+    this.successMessage = null;
+    this.errorMessage = null;
     this.modalCreateInstance.show();
   }
 
+
   editarUsuario(usuarioId: number): void {
-    console.log("editando")
+    this.successMessage = null;
+    this.errorMessage = null;
 
     this.usuarioService.getUsuarioById(usuarioId).subscribe((usuario) => {
       this.usuarioSelecionado = usuario;
       this.usuarioForm.patchValue(usuario);
-      this.modalEditInstance.show();      
+      this.modalEditInstance.show();
     });
   }
 
   salvarEdicao(): void {
-
     if (this.usuarioForm.invalid || this.isSubmitting) {
       return;
     }
@@ -109,7 +112,13 @@ export class UsuarioComponent implements OnInit, AfterViewInit {
     const id = this.usuarioForm.value.id;
     if (!id) return;
 
-    const usuarioData: User = this.usuarioForm.value;
+    // Copia o valor do formulário
+    const usuarioData: any = { ...this.usuarioForm.value };
+
+    // Se a senha estiver vazia, remove do objeto para não atualizar
+    if (!usuarioData.senha) {
+      delete usuarioData.senha;
+    }
 
     this.usuarioService.updateUsuario(id, usuarioData).subscribe({
       next: (usuarioAtualizado) => {
@@ -128,6 +137,7 @@ export class UsuarioComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
 
   onSubmit(event?: Event): void {
     if (event) {
@@ -170,7 +180,7 @@ export class UsuarioComponent implements OnInit, AfterViewInit {
       console.error('ID inválido: undefined');
       return;
     }
-  
+
     if (confirm('Tem certeza que deseja excluir este usuario?')) {
       this.usuarioService.deleteUsuario(id).subscribe(
         () => {
@@ -185,6 +195,8 @@ export class UsuarioComponent implements OnInit, AfterViewInit {
   }
 
   cancelarEdicao(): void {
+    this.successMessage = null;
+    this.errorMessage = null;
     this.usuarioForm.reset();
     this.modalEditInstance.hide();
   }
@@ -193,7 +205,7 @@ export class UsuarioComponent implements OnInit, AfterViewInit {
     this.usuarioForm.reset();
   }
 
-  habilitarEdicao(): void{
+  habilitarEdicao(): void {
     this.modoEdicaoAtivado = true;
   }
 
