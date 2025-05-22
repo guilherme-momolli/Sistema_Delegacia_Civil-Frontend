@@ -18,8 +18,6 @@ export interface InstituicaoDTO {
   razaoSocial: string;
 }
 
-
-
 export interface AuthRequestDTO {
   email: string;
   senha: string;
