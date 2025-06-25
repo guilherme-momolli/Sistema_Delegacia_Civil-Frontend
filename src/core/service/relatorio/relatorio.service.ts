@@ -129,7 +129,6 @@ export class RelatorioService {
 
     let yAtual = doc.lastAutoTable.finalY + 10;
 
-    // Tabela de Armas
     if (Array.isArray(inquerito.armas) && inquerito.armas.length > 0) {
       doc.setFontSize(12);
       doc.text('Armas Apreendidas:', 14, yAtual);

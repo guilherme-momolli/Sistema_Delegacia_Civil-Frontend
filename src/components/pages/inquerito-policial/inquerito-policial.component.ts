@@ -1,19 +1,20 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { Arma, Droga, InqueritoPolicial, InqueritoPolicialService } from '../../../core/service/inquerito-policial/inquerito-policial.service';
 import { AuthService } from '../../../core/service/auth/auth.service';
 import { RelatorioService } from '../../../core/service/relatorio/relatorio.service';
 import { Origem, Peca, Situacao, TipoArmaFogo, TipoDroga, UnidadeMedida } from './enum';
+import { ModalService } from '../../../core/service/modal/modal.service';
 
 declare var bootstrap: any;
 
 @Component({
   selector: 'app-inquerito-policial',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, NgxPaginationModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, NgxPaginationModule, FormsModule],
   templateUrl: './inquerito-policial.component.html',
   styleUrls: ['./inquerito-policial.component.css']
 })
@@ -27,6 +28,7 @@ export class InqueritoPolicialComponent implements OnInit, AfterViewInit {
   instituicaoId: number | null = null;
   modoEdicao = false;
   editandoInqueritoId: number | null = null;
+  filtro: string = '';
 
   private backupInquerito: any;
 
@@ -51,7 +53,8 @@ export class InqueritoPolicialComponent implements OnInit, AfterViewInit {
     private inqueritoService: InqueritoPolicialService,
     private router: Router,
     private authService: AuthService,
-    private relatorioService: RelatorioService
+    private relatorioService: RelatorioService,
+    private modalService: ModalService
   ) {
     this.inqueritoForm = this.fb.group({
       id: [null],
@@ -279,9 +282,6 @@ export class InqueritoPolicialComponent implements OnInit, AfterViewInit {
     });
   }
 
-
-
-
   abrirModal(): void {
     this.resetForm();
     this.modalCreateInstance.show();
@@ -394,7 +394,20 @@ export class InqueritoPolicialComponent implements OnInit, AfterViewInit {
     });
   }
 
+  inqueritosFiltrados(): InqueritoPolicial[] {
+  if (!this.filtro) return this.inqueritos;
 
+  const termo = this.filtro.toLowerCase();
+
+  return this.inqueritos.filter(i =>
+    i.numeroJustica?.toLowerCase().includes(termo) ||
+    i.ordemIp?.toString().toLowerCase().includes(termo) ||
+    i.investigado?.toLowerCase().includes(termo) ||
+    i.vitima?.toLowerCase().includes(termo) ||
+    i.naturezaDoDelito?.toLowerCase().includes(termo) ||
+    i.relator?.toLowerCase().includes(termo)
+  );
+}
   private formatDate(data: string | Date): string {
     const date = new Date(data);
     return date.toISOString().split('T')[0];

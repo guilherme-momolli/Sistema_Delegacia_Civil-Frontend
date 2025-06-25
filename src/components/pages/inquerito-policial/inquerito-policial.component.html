@@ -1,26 +1,30 @@
 <div class="container mt-4">
+  <div class="mb-3">
+    <input type="text" class="form-control" placeholder="Pesquisar inquéritos..." [(ngModel)]="filtro" />
+  </div>
+
   <h2 class="text-center mb-4">Lista de Inquéritos Policiais</h2>
 
   <div class="table-responsive">
-    <table class="table table-dark table-striped table-bordered text-center align-middle">
-      <thead class="table-dark">
+    <table class="table table-dark table-striped table-bordered align-middle text-center">
+       <thead>
         <tr>
-          <th> ID </th>
-          <th> Número da Justiça </th>
-          <th> Ordem Inquérito Policial </th>
-          <th> Data </th>
-          <th> Peça </th>
-          <th> Relator </th>
-          <th> Origem Força Policial </th>
-          <th> Investigado </th>
-          <th> Vítima </th>
-          <th> Natureza do Delito </th>
-          <th> Situação </th>
-          <th> Ações </th>
+          <th>ID</th>
+          <th>Número da Justiça</th>
+          <th>Ordem IP</th>
+          <th>Data</th>
+          <th>Peça</th>
+          <th>Relator</th>
+          <th>Origem</th>
+          <th>Investigado</th>
+          <th>Vítima</th>
+          <th>Natureza</th>
+          <th>Situação</th>
+          <th>Ações</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let inquerito of inqueritos | paginate: { itemsPerPage: pageSize, currentPage: page }">
+        <tr *ngFor="let inquerito of inqueritosFiltrados() | paginate: { itemsPerPage: pageSize, currentPage: page }">
           <td>{{ inquerito.id }}</td>
           <td>{{ inquerito.numeroJustica }}</td>
           <td>{{ inquerito.ordemIp }}</td>
@@ -36,19 +40,21 @@
               'bg-danger': inquerito.situacao === 'Aberto',
               'bg-warning text-dark': inquerito.situacao === 'Em Andamento',
               'bg-success': inquerito.situacao === 'Encerrado',
-              'bg-dark': inquerito.situacao === 'Denunciado',
-            }">{{ inquerito.situacao }}</span>
+              'bg-dark': inquerito.situacao === 'Denunciado'
+            }">
+              {{ inquerito.situacao }}
+            </span>
           </td>
           <td>
-            <button class="btn btn-outline-secondary" (click)="verMais(inquerito.id)"
-              data-bs-target="#modalEditInstance">
+            <button class="btn btn-outline-secondary" (click)="verMais(inquerito.id)">
               <i class="bi bi-three-dots-vertical"></i> Ver mais
             </button>
             <button type="button" class="btn btn-outline-success ms-2" (click)="gerarRelatorioIndividual(inquerito.id)">
-              <i class="bi bi-file-earmark-pdf"></i> Gerar relatório PDF
+              <i class="bi bi-file-earmark-pdf"></i> PDF
             </button>
-            <button type="button" class="btn btn-outline-danger ms-2" (click)="deletarInquerito(inquerito.id)"><i
-                class="bi bi-trash"></i> Deletar inquerito </button>
+            <button type="button" class="btn btn-outline-danger ms-2" (click)="deletarInquerito(inquerito.id)">
+              <i class="bi bi-trash"></i> Deletar
+            </button>
           </td>
         </tr>
       </tbody>
@@ -58,12 +64,14 @@
   <pagination-controls (pageChange)="page = $event"></pagination-controls>
 
   <div class="d-flex gap-2 mt-3">
-    <button class="btn btn-primary" data-bs-toggle="modal" (click)="abrirModal()" data-bs-target="#modalCreateInstance">
+    <button class="btn btn-primary" (click)="abrirModal()">
       <i class="bi bi-clipboard-plus"></i> Cadastrar novo inquérito
     </button>
-    <button class="btn btn-primary" (click)="gerarRelatorio()"><i class="bi bi-file-earmark-pdf"></i> Gerar Relatório</button>
-    <button class="btn btn-success" (click)="baixarPorInstituicao()"><i class="bi bi-file-earmark-excel"></i> 
-      Baixar Excel
+    <button class="btn btn-primary" (click)="gerarRelatorio()">
+      <i class="bi bi-file-earmark-pdf"></i> Gerar Relatório
+    </button>
+    <button class="btn btn-success" (click)="baixarPorInstituicao()">
+      <i class="bi bi-file-earmark-excel"></i> Baixar Excel
     </button>
   </div>
 </div>
