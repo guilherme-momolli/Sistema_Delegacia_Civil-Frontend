@@ -7,8 +7,12 @@
     </button>
   </div>
 
-  <div *ngIf="successMessage" class="alert alert-success mt-3">{{ successMessage }}</div>
-  <div *ngIf="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}</div>
+  @if (successMessage) {
+    <div class="alert alert-success mt-3">{{ successMessage }}</div>
+  }
+  @if (errorMessage) {
+    <div class="alert alert-danger mt-3">{{ errorMessage }}</div>
+  }
 
   <div class="table-responsive">
     <table class="table table-dark table-striped table-bordered text-center align-middle">
@@ -23,18 +27,20 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let inquerito of inqueritos">
-          <td>{{ inquerito.numeroJustica }}</td>
-          <td>{{ inquerito.ordemIp }}</td>
-          <td>{{ inquerito.data | date: 'dd/MM/yyyy' }}</td>
-          <td>{{ getDescricaoPeca(inquerito.peca) }}</td>
-          <td>{{ getDescricaoSituacao(inquerito.situacaoInquerito) }}</td>
-          <td>
-            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#formModal"
+        @for (inquerito of inqueritos; track inquerito) {
+          <tr>
+            <td>{{ inquerito.numeroJustica }}</td>
+            <td>{{ inquerito.ordemIp }}</td>
+            <td>{{ inquerito.data | date: 'dd/MM/yyyy' }}</td>
+            <td>{{ getDescricaoPeca(inquerito.peca) }}</td>
+            <td>{{ getDescricaoSituacao(inquerito.situacaoInquerito) }}</td>
+            <td>
+              <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#formModal"
               (click)="abrirModalEdicao(inquerito)">Editar</button>
-            <button class="btn btn-danger btn-sm" (click)="confirmarExclusao(inquerito)">Excluir</button>
-          </td>
-        </tr>
+              <button class="btn btn-danger btn-sm" (click)="confirmarExclusao(inquerito)">Excluir</button>
+            </td>
+          </tr>
+        }
       </tbody>
     </table>
   </div>
@@ -97,23 +103,29 @@
                   <div class="col-md-6">
                     <label class="form-label">Peça</label>
                     <select formControlName="peca" class="form-select">
-                      <option *ngFor="let peca of pecas" [value]="peca.key">
-                        {{ peca.value }}
-                      </option>
+                      @for (peca of pecas; track peca) {
+                        <option [value]="peca.key">
+                          {{ peca.value }}
+                        </option>
+                      }
                     </select>
                   </div>
 
                   <div class="col-md-6">
                     <label class="form-label">Situação</label>
                     <select formControlName="situacaoInquerito" class="form-select">
-                      <option *ngFor="let s of situacoes" [value]="s.key">{{ s.value }}</option>
+                      @for (s of situacoes; track s) {
+                        <option [value]="s.key">{{ s.value }}</option>
+                      }
                     </select>
                   </div>
 
                   <div class="col-md-6">
                     <label class="form-label">Origem da Força Policial</label>
                     <select formControlName="origemForcaPolicial" class="form-select">
-                      <option *ngFor="let o of origens" [value]="o.key">{{ o.value }}</option>
+                      @for (o of origens; track o) {
+                        <option [value]="o.key">{{ o.value }}</option>
+                      }
                     </select>
                   </div>
 
@@ -144,7 +156,9 @@
                         [formControl]="filtroCpf">
                       <select class="form-select" [formControl]="filtroGenero">
                         <option value="">Todos os gêneros</option>
-                        <option *ngFor="let g of generos" [value]="g.key">{{ g.value }}</option>
+                        @for (g of generos; track g) {
+                          <option [value]="g.key">{{ g.value }}</option>
+                        }
                       </select>
                       <button type="button" class="btn btn-primary" (click)="buscarPessoas()">Pesquisar</button>
                     </div>
@@ -157,13 +171,15 @@
                         <h6 class="mb-0">Pessoas Cadastradas</h6>
                       </div>
                       <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between align-items-center"
-                          *ngFor="let pessoa of pessoasFiltradas">
-                          <span>{{ pessoa.nome }} - {{ pessoa.cpf }}</span>
-                          <button type="button" class="btn btn-sm btn-success" (click)="adicionarPessoa(pessoa)">
-                            Adicionar
-                          </button>
-                        </li>
+                        @for (pessoa of pessoasFiltradas; track pessoa) {
+                          <li class="list-group-item d-flex justify-content-between align-items-center"
+                            >
+                            <span>{{ pessoa.nome }} - {{ pessoa.cpf }}</span>
+                            <button type="button" class="btn btn-sm btn-success" (click)="adicionarPessoa(pessoa)">
+                              Adicionar
+                            </button>
+                          </li>
+                        }
                       </ul>
                     </div>
                   </div>
@@ -175,13 +191,15 @@
                         <h6 class="mb-0">Pessoas Selecionadas</h6>
                       </div>
                       <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between align-items-center"
-                          *ngFor="let pessoa of pessoasSelecionadasDetalhes">
-                          <span>{{ pessoa.nome }} - {{ pessoa.cpf }}</span>
-                          <button type="button" class="btn btn-sm btn-danger" (click)="removerPessoa(pessoa.id!)">
-                            Remover
-                          </button>
-                        </li>
+                        @for (pessoa of pessoasSelecionadasDetalhes; track pessoa) {
+                          <li class="list-group-item d-flex justify-content-between align-items-center"
+                            >
+                            <span>{{ pessoa.nome }} - {{ pessoa.cpf }}</span>
+                            <button type="button" class="btn btn-sm btn-danger" (click)="removerPessoa(pessoa.id!)">
+                              Remover
+                            </button>
+                          </li>
+                        }
                       </ul>
                     </div>
                   </div>

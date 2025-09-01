@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { Delegacia, DelegaciaService } from '../../core/service/delegacia/delegacia.service';
 import { Pais, UF } from '../../../shared/enums/index.enum';
 import { RouterModule } from '@angular/router';
@@ -11,7 +11,7 @@ import { FileService } from '../../core/service/file/file.service';
 @Component({
   selector: 'app-delegacia',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [ReactiveFormsModule, RouterModule],
   templateUrl: './delegacia.component.html',
   styleUrls: ['./delegacia.component.css']
 })

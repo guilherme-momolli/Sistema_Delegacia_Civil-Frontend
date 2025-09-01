@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -12,7 +12,7 @@ declare var bootstrap: any;
 @Component({
   selector: 'app-usuario-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, NgxPaginationModule],
+  imports: [RouterModule, ReactiveFormsModule, NgxPaginationModule],
   templateUrl: './usuario.component.html',
   styleUrls: ['./usuario.component.css']
 })

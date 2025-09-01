@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { Pessoa, PessoaService } from '../../../../../app/core/service/pessoa/pessoa.service';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 
 interface PessoaPesquisa {
   id: number;
@@ -13,7 +13,7 @@ interface PessoaPesquisa {
 @Component({
   selector: 'app-modal-seletor-pessoa',
    standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './modal-seletor-pessoa.component.html',
   styleUrls: ['./modal-seletor-pessoa.component.css'] 
 })

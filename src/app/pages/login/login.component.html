@@ -9,15 +9,15 @@
         <label for="email" class="form-label">E-mail</label>
         <div class="input-group">
           <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-          <input 
-            id="email" 
-            formControlName="email" 
-            type="email" 
-            class="form-control futuristic-input" 
+          <input
+            id="email"
+            formControlName="email"
+            type="email"
+            class="form-control futuristic-input"
             placeholder="Digite seu e-mail"
             aria-label="Digite seu e-mail"
             [class.is-invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
-          />
+            />
         </div>
         <div class="invalid-feedback">E-mail inválido</div>
       </div>
@@ -26,15 +26,15 @@
         <label for="senha" class="form-label">Senha</label>
         <div class="input-group">
           <span class="input-group-text"><i class="bi bi-key"></i></span>
-          <input 
-            id="senha" 
-            formControlName="senha" 
-            type="password" 
-            class="form-control futuristic-input" 
+          <input
+            id="senha"
+            formControlName="senha"
+            type="password"
+            class="form-control futuristic-input"
             placeholder="Digite sua senha"
             aria-label="Digite sua senha"
             [class.is-invalid]="loginForm.get('senha')?.invalid && loginForm.get('senha')?.touched"
-          />
+            />
         </div>
         <div class="invalid-feedback">Senha obrigatória</div>
       </div>
@@ -49,8 +49,10 @@
       </p>
     </form>
 
-    <p *ngIf="errorMessage" class="text-danger text-center mt-2 mb-0 futuristic-error">
-      {{ errorMessage }}
-    </p>
+    @if (errorMessage) {
+      <p class="text-danger text-center mt-2 mb-0 futuristic-error">
+        {{ errorMessage }}
+      </p>
+    }
   </div>
 </div>

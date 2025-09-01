@@ -3,15 +3,17 @@
 
   <!-- Cards principais -->
   <div class="row g-3">
-    <div class="col-md-3" *ngFor="let card of cards">
-      <div class="card text-center shadow-sm p-3 rounded-3">
-        <div class="card-body">
-          <h5 class="card-title">{{ card.titulo }}</h5>
-          <h2 class="fw-bold">{{ card.valor }}</h2>
-          <small class="text-muted">{{ card.descricao }}</small>
+    @for (card of cards; track card) {
+      <div class="col-md-3">
+        <div class="card text-center shadow-sm p-3 rounded-3">
+          <div class="card-body">
+            <h5 class="card-title">{{ card.titulo }}</h5>
+            <h2 class="fw-bold">{{ card.valor }}</h2>
+            <small class="text-muted">{{ card.descricao }}</small>
+          </div>
         </div>
       </div>
-    </div>
+    }
   </div>
 
   <!-- Gráficos -->
@@ -19,7 +21,7 @@
     <div class="col-md-6">
       <div class="card shadow-sm p-3 rounded-3">
         <h5>Inquéritos por mês</h5>
-        <canvas baseChart 
+        <canvas baseChart
           [data]="chartInqueritosData"
           [labels]="chartInqueritosLabels"
           [chartType]="'bar'">
@@ -29,7 +31,7 @@
     <div class="col-md-6">
       <div class="card shadow-sm p-3 rounded-3">
         <h5>Tipos de bens apreendidos</h5>
-        <canvas baseChart 
+        <canvas baseChart
           [data]="chartBensData"
           [labels]="chartBensLabels"
           [chartType]="'pie'">
@@ -52,11 +54,13 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let bo of ultimosBos">
-              <td>{{ bo.data | date:'dd/MM/yyyy' }}</td>
-              <td>{{ bo.tipo }}</td>
-              <td>{{ bo.delegacia }}</td>
-            </tr>
+            @for (bo of ultimosBos; track bo) {
+              <tr>
+                <td>{{ bo.data | date:'dd/MM/yyyy' }}</td>
+                <td>{{ bo.tipo }}</td>
+                <td>{{ bo.delegacia }}</td>
+              </tr>
+            }
           </tbody>
         </table>
       </div>

@@ -9,10 +9,12 @@
   </header>
 
   <!-- Alert de Boas-Vindas -->
-  <div *ngIf="showAlert" class="alert alert-success alert-dismissible slide-in-up" role="alert">
-    <span>Bem-vindo à tela de debug! Explore os componentes abaixo.</span>
-    <button class="alert-close" (click)="dismissAlert()" aria-label="Fechar alerta">✕</button>
-  </div>
+  @if (showAlert) {
+    <div class="alert alert-success alert-dismissible slide-in-up" role="alert">
+      <span>Bem-vindo à tela de debug! Explore os componentes abaixo.</span>
+      <button class="alert-close" (click)="dismissAlert()" aria-label="Fechar alerta">✕</button>
+    </div>
+  }
 
   <!-- Linha de Cards -->
   <div class="row g-4">
@@ -28,21 +30,27 @@
             <div class="form-group mb-3" [ngClass]="{'error': debugForm.get('nome')?.invalid && debugForm.get('nome')?.touched}">
               <label for="nome" class="form-label">Nome</label>
               <input type="text" class="form-control" id="nome" formControlName="nome" placeholder="Digite seu nome" aria-required="true" />
-              <span class="error-message" *ngIf="debugForm.get('nome')?.invalid && debugForm.get('nome')?.touched">Nome é obrigatório (mín. 3 caracteres)</span>
+              @if (debugForm.get('nome')?.invalid && debugForm.get('nome')?.touched) {
+                <span class="error-message">Nome é obrigatório (mín. 3 caracteres)</span>
+              }
             </div>
 
             <!-- Email -->
             <div class="form-group mb-3" [ngClass]="{'error': debugForm.get('email')?.invalid && debugForm.get('email')?.touched}">
               <label for="email" class="form-label">Email</label>
               <input type="email" class="form-control" id="email" formControlName="email" placeholder="exemplo@email.com" aria-required="true" />
-              <span class="error-message" *ngIf="debugForm.get('email')?.invalid && debugForm.get('email')?.touched">Email inválido</span>
+              @if (debugForm.get('email')?.invalid && debugForm.get('email')?.touched) {
+                <span class="error-message">Email inválido</span>
+              }
             </div>
 
             <!-- Senha -->
             <div class="form-group mb-3" [ngClass]="{'error': debugForm.get('senha')?.invalid && debugForm.get('senha')?.touched}">
               <label for="senha" class="form-label">Senha</label>
               <input type="password" class="form-control" id="senha" formControlName="senha" placeholder="Digite sua senha" aria-required="true" />
-              <span class="error-message" *ngIf="debugForm.get('senha')?.invalid && debugForm.get('senha')?.touched">Mínimo de 6 caracteres</span>
+              @if (debugForm.get('senha')?.invalid && debugForm.get('senha')?.touched) {
+                <span class="error-message">Mínimo de 6 caracteres</span>
+              }
             </div>
 
             <!-- Telefone -->
@@ -126,7 +134,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Card 1: Componentes Visuais -->
     <div class="col-lg-6 col-md-12 mb-4">
       <div class="card h-100 slide-in-right">
@@ -340,17 +348,21 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let row of tableData; let i = index" [ngClass]="{'selected': row.selected}">
-                <td><input type="checkbox" class="table-checkbox" [(ngModel)]="row.selected" (change)="updateSelectedRows()" aria-label="Selecionar linha"></td>
-                <td data-label="#">{{ i + 1 }}</td>
-                <td data-label="Nome">{{ row.nome }}</td>
-                <td data-label="Status"><span class="badge" [ngClass]="{'bg-success': row.status === 'Ativo', 'bg-danger': row.status === 'Inativo', 'badge-pulse': row.status === 'Ativo', 'badge-blink': row.status === 'Inativo'}">{{ row.status }}</span></td>
-              </tr>
+              @for (row of tableData; track row; let i = $index) {
+                <tr [ngClass]="{'selected': row.selected}">
+                  <td><input type="checkbox" class="table-checkbox" [(ngModel)]="row.selected" (change)="updateSelectedRows()" aria-label="Selecionar linha"></td>
+                  <td data-label="#">{{ i + 1 }}</td>
+                  <td data-label="Nome">{{ row.nome }}</td>
+                  <td data-label="Status"><span class="badge" [ngClass]="{'bg-success': row.status === 'Ativo', 'bg-danger': row.status === 'Inativo', 'badge-pulse': row.status === 'Ativo', 'badge-blink': row.status === 'Inativo'}">{{ row.status }}</span></td>
+                </tr>
+              }
             </tbody>
           </table>
           <div class="table-pagination">
             <button class="btn btn-muted" (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1" aria-label="Página anterior">«</button>
-            <button class="btn btn-muted" [ngClass]="{'active': currentPage === page}" *ngFor="let page of getPages()" (click)="changePage(page)" [attr.aria-label]="'Página ' + page">{{ page }}</button>
+            @for (page of getPages(); track page) {
+              <button class="btn btn-muted" [ngClass]="{'active': currentPage === page}" (click)="changePage(page)" [attr.aria-label]="'Página ' + page">{{ page }}</button>
+            }
             <button class="btn btn-muted" (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages" aria-label="Próxima página">»</button>
           </div>
 
@@ -397,52 +409,52 @@
 
 
     <!-- Modal -->
-  <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
+    <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
 
-        <!-- Cabeçalho -->
-        <div class="modal-header">
-          <h5 class="modal-title" id="formModalLabel">Formulário de Exemplo</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          <!-- Cabeçalho -->
+          <div class="modal-header">
+            <h5 class="modal-title" id="formModalLabel">Formulário de Exemplo</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          </div>
+
+          <!-- Corpo com o formulário -->
+          <div class="modal-body">
+            <form id="exemploForm">
+
+              <div class="mb-3">
+                <label for="nome" class="form-label">Nome</label>
+                <input type="text" class="form-control" id="nome" placeholder="Digite seu nome">
+              </div>
+
+              <div class="mb-3">
+                <label for="email" class="form-label">E-mail</label>
+                <input type="email" class="form-control" id="email" placeholder="exemplo@dominio.com">
+              </div>
+
+              <div class="mb-3">
+                <label for="telefone" class="form-label">Telefone</label>
+                <input type="tel" class="form-control" id="telefone" placeholder="(99) 99999-9999">
+              </div>
+
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="aceitar">
+                <label class="form-check-label" for="aceitar">Aceito os termos</label>
+              </div>
+
+            </form>
+          </div>
+
+          <!-- Rodapé com botões -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-success" form="exemploForm">Enviar</button>
+          </div>
+
         </div>
-
-        <!-- Corpo com o formulário -->
-        <div class="modal-body">
-          <form id="exemploForm">
-
-            <div class="mb-3">
-              <label for="nome" class="form-label">Nome</label>
-              <input type="text" class="form-control" id="nome" placeholder="Digite seu nome">
-            </div>
-
-            <div class="mb-3">
-              <label for="email" class="form-label">E-mail</label>
-              <input type="email" class="form-control" id="email" placeholder="exemplo@dominio.com">
-            </div>
-
-            <div class="mb-3">
-              <label for="telefone" class="form-label">Telefone</label>
-              <input type="tel" class="form-control" id="telefone" placeholder="(99) 99999-9999">
-            </div>
-
-            <div class="mb-3 form-check">
-              <input type="checkbox" class="form-check-input" id="aceitar">
-              <label class="form-check-label" for="aceitar">Aceito os termos</label>
-            </div>
-
-          </form>
-        </div>
-
-        <!-- Rodapé com botões -->
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-success" form="exemploForm">Enviar</button>
-        </div>
-
       </div>
     </div>
-  </div>
 
     <!-- Modal -->
     <div class="modal modal-pop-in" [ngClass]="{'show': modalAberto}" id="debugModal" tabindex="-1" aria-labelledby="debugModalLabel" [attr.aria-hidden]="!modalAberto">
