@@ -1,0 +1,214 @@
+<div class="container">
+  <h1>Pessoas Cadastradas</h1>
+
+  <div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#formModal" (click)="resetarFormulario()">
+      Cadastrar Pessoa
+    </button>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success mt-3">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}</div>
+  <div class="table-responsive">
+    <table class="table-bordered table-striped">
+      <thead>
+        <tr>
+          <th>Imagem</th>
+          <th>Nome</th>
+          <th>Nome Social</th>
+          <th>CPF</th>
+          <th>RG</th>
+          <th>Data Nascimento</th>
+          <th>Sexo</th>
+          <th>Telefone Celular</th>
+          <th>E-mail</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let pessoa of pessoas">
+          <td>
+            <img *ngIf="pessoa.imagemUrl; else noImage" [src]="pessoa.imagemUrl" alt="Imagem da Pessoa"
+              style="width: 100px; height: 100px; object-fit: cover; border-radius: 6px;">
+            <ng-template #noImage>
+              <span>Sem imagem</span>
+            </ng-template>
+          </td>
+          <td>{{ pessoa.nome }}</td>
+          <td>{{ pessoa.nomeSocial || '-' }}</td>
+          <td>{{ pessoa.cpf || '-' }}</td>
+          <td>{{ pessoa.rg || '-' }}</td>
+          <td>{{ pessoa.dataNascimento | date: 'dd/MM/yyyy' }}</td>
+          <td>{{ pessoa.sexo || '-' }}</td>
+          <td>{{ pessoa.telefoneCelular || '-' }}</td>
+          <td>{{ pessoa.email || '-' }}</td>
+          <td>
+            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#formModal"
+              (click)="abrirModalEdicao(pessoa)">Editar</button>
+            <button class="btn btn-sm btn-danger" (click)="confirmarExclusao(pessoa)">Excluir</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal Cadastro/Edição -->
+<div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content dark-mode-modal">
+      <div class="modal-header">
+        <h5 class="modal-title" id="formModalLabel">{{ isEdicao ? 'Editar Pessoa' : 'Nova Pessoa' }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="pessoaForm" [formGroup]="pessoaForm" (ngSubmit)="salvarPessoa()">
+
+          <!-- <div class="mb-3">
+            <label for="imagem" class="form-label">Imagem</label>
+            <input type="file" class="form-control" id="imagem" (change)="onFileChange($event)">
+          </div> -->
+
+          <div class="mb-3">
+            <label for="nome" class="form-label">Nome</label>
+            <input type="text" class="form-control" id="nome" formControlName="nome">
+          </div>
+
+          <div class="mb-3">
+            <label for="nomeSocial" class="form-label">Nome Social</label>
+            <input type="text" class="form-control" id="nomeSocial" formControlName="nomeSocial">
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="cpf" class="form-label">CPF</label>
+              <input type="text" class="form-control" id="cpf" formControlName="cpf">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="rg" class="form-label">RG</label>
+              <input type="text" class="form-control" id="rg" formControlName="rg">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="dataNascimento" class="form-label">Data de Nascimento</label>
+              <input type="date" class="form-control" id="dataNascimento" formControlName="dataNascimento">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="sexo" class="form-label">Sexo</label>
+              <select id="sexo" class="form-control" formControlName="sexo">
+                <option *ngFor="let g of generos" [value]="g">{{ g }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="telefoneFixo" class="form-label">Telefone Fixo</label>
+              <input type="tel" class="form-control" id="telefoneFixo" formControlName="telefoneFixo">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="telefoneCelular" class="form-label">Telefone Celular</label>
+              <input type="tel" class="form-control" id="telefoneCelular" formControlName="telefoneCelular">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label">E-mail</label>
+            <input type="email" class="form-control" id="email" formControlName="email">
+          </div>
+
+          <div class="mb-3">
+            <label for="estadoCivil" class="form-label">Estado Civil</label>
+            <input type="text" class="form-control" id="estadoCivil" formControlName="estadoCivil">
+          </div>
+
+          <div class="mb-3">
+            <label for="profissao" class="form-label">Profissão</label>
+            <input type="text" class="form-control" id="profissao" formControlName="profissao">
+          </div>
+
+          <div class="mb-3">
+            <label for="nacionalidade" class="form-label">Nacionalidade</label>
+            <input type="text" class="form-control" id="nacionalidade" formControlName="nacionalidade">
+          </div>
+
+          <div class="mb-3">
+            <label for="naturalidade" class="form-label">Naturalidade</label>
+            <input type="text" class="form-control" id="naturalidade" formControlName="naturalidade">
+          </div>
+
+          <div class="mb-3">
+            <label for="certificadoRegistro" class="form-label">Certificado de Registro</label>
+            <input type="text" class="form-control" id="certificadoRegistro" formControlName="certificadoRegistro">
+          </div>
+
+          <div class="mb-3">
+            <label for="etnia" class="form-label">Etnia</label>
+            <select id="etnia" class="form-control" formControlName="etnia">
+              <option *ngFor="let e of etnias" [value]="e">{{ e }}</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="situacaoPessoa" class="form-label">Situação</label>
+            <select id="situacaoPessoa" class="form-control" formControlName="situacaoPessoa">
+              <option *ngFor="let s of situacoesPessoa" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+
+          <div formGroupName="endereco">
+            <hr>
+            <h6 class="mb-3">Endereço</h6>
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="cep" class="form-label">CEP</label>
+                <input type="text" class="form-control" id="cep" formControlName="cep">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="uf">UF</label>
+                <select id="uf" class="form-control" formControlName="uf">
+                  <option *ngFor="let sigla of ufSiglas" [value]="sigla">
+                    {{ getUfName(sigla) }}
+                  </option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="municipio" class="form-label">Município</label>
+                <input type="text" class="form-control" id="municipio" formControlName="municipio">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="bairro" class="form-label">Bairro</label>
+                <input type="text" class="form-control" id="bairro" formControlName="bairro">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="logradouro" class="form-label">Logradouro</label>
+                <input type="text" class="form-control" id="logradouro" formControlName="logradouro">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="numero" class="form-label">Número</label>
+                <input type="text" class="form-control" id="numero" formControlName="numero">
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="descricao" class="form-label">Descrição</label>
+            <textarea class="form-control" id="descricao" formControlName="descricao"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-success" form="pessoaForm">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>

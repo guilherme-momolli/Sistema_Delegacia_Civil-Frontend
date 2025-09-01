@@ -1,0 +1,51 @@
+<div class="modal fade" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Selecionar Pessoas</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body row">
+        <!-- Filtros -->
+        <div class="col-12 mb-3 d-flex gap-2">
+          <input type="text" class="form-control" placeholder="Nome" [(ngModel)]="filtroNome">
+          <input type="text" class="form-control" placeholder="CPF" [(ngModel)]="filtroCpf">
+          <select class="form-select" [(ngModel)]="filtroSexo">
+            <option value="">Todos</option>
+            <option value="M">Masculino</option>
+            <option value="F">Feminino</option>
+            <option value="O">Outros</option>
+          </select>
+        </div>
+
+        <!-- Lista de pessoas -->
+        <div class="col-6 border-end" style="max-height: 400px; overflow-y: auto;">
+          <ul class="list-group">
+            <li *ngFor="let pessoa of pessoasFiltradas" class="list-group-item d-flex justify-content-between align-items-center">
+              <span>{{ pessoa.nome }} - {{ pessoa.cpf }}</span>
+              <button class="btn btn-sm btn-primary" (click)="selecionar(pessoa)">+</button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Selecionadas -->
+        <div class="col-6" style="max-height: 400px; overflow-y: auto;">
+          <h6>Pessoas Selecionadas</h6>
+          <ul class="list-group">
+            <li *ngFor="let pessoa of selecionadas" class="list-group-item d-flex justify-content-between align-items-center">
+              <span>{{ pessoa.nome }} - {{ pessoa.cpf }}</span>
+              <button class="btn btn-sm btn-danger" (click)="remover(pessoa)">x</button>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-success" (click)="confirmar()" data-bs-dismiss="modal">Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,211 @@
+<div class="container">
+  <h1>Inquéritos Policiais</h1>
+
+  <div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#formModal" (click)="resetarFormulario()">
+      Cadastrar Inquérito
+    </button>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success mt-3">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}</div>
+
+  <div class="table-responsive">
+    <table class="table table-dark table-striped table-bordered text-center align-middle">
+      <thead>
+        <tr>
+          <th>Nº Justiça</th>
+          <th>Ordem IP</th>
+          <th>Data</th>
+          <th>Peça</th>
+          <th>Situação</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let inquerito of inqueritos">
+          <td>{{ inquerito.numeroJustica }}</td>
+          <td>{{ inquerito.ordemIp }}</td>
+          <td>{{ inquerito.data | date: 'dd/MM/yyyy' }}</td>
+          <td>{{ getDescricaoPeca(inquerito.peca) }}</td>
+          <td>{{ getDescricaoSituacao(inquerito.situacaoInquerito) }}</td>
+          <td>
+            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#formModal"
+              (click)="abrirModalEdicao(inquerito)">Editar</button>
+            <button class="btn btn-danger btn-sm" (click)="confirmarExclusao(inquerito)">Excluir</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal Inquérito Policial -->
+  <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content dark-mode-modal">
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="formModalLabel">{{ isEdicao ? 'Editar Inquérito' : 'Novo Inquérito' }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+
+        <!-- Form principal -->
+        <form [formGroup]="inqueritoForm" (ngSubmit)="salvarInquerito()">
+          <div class="modal-body">
+
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs mb-3" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-inquerito" type="button"
+                  role="tab">
+                  Inquérito
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-pessoas" type="button" role="tab">
+                  Pessoas Envolvidas
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-bens" type="button" role="tab">
+                  Bens
+                </button>
+              </li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+
+              <!-- TAB - INQUÉRITO -->
+              <div class="tab-pane fade show active" id="tab-inquerito" role="tabpanel">
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <label class="form-label">Número Justiça</label>
+                    <input formControlName="numeroJustica" type="text" class="form-control" />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label">Ordem IP</label>
+                    <input formControlName="ordemIp" type="number" class="form-control" />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label">Data</label>
+                    <input formControlName="data" type="date" class="form-control" />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label">Peça</label>
+                    <select formControlName="peca" class="form-select">
+                      <option *ngFor="let peca of pecas" [value]="peca.key">
+                        {{ peca.value }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label">Situação</label>
+                    <select formControlName="situacaoInquerito" class="form-select">
+                      <option *ngFor="let s of situacoes" [value]="s.key">{{ s.value }}</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label">Origem da Força Policial</label>
+                    <select formControlName="origemForcaPolicial" class="form-select">
+                      <option *ngFor="let o of origens" [value]="o.key">{{ o.value }}</option>
+                    </select>
+                  </div>
+
+                  <div class="col-12">
+                    <label class="form-label">Natureza do Delito</label>
+                    <input formControlName="naturezaDoDelito" type="text" class="form-control" />
+                  </div>
+
+
+
+                  <div class="col-12">
+                    <label class="form-label">Observação</label>
+                    <textarea formControlName="observacao" rows="3" class="form-control"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- TAB - PESSOAS ENVOLVIDAS -->
+              <div class="tab-pane fade" id="tab-pessoas" role="tabpanel">
+                <div class="row">
+
+                  <!-- Barra de Pesquisa -->
+                  <div class="col-12 mb-3">
+                    <div class="input-group">
+                      <input type="text" class="form-control" placeholder="Pesquisar por nome..."
+                        [formControl]="filtroNome">
+                      <input type="text" class="form-control" placeholder="Pesquisar por CPF..."
+                        [formControl]="filtroCpf">
+                      <select class="form-select" [formControl]="filtroGenero">
+                        <option value="">Todos os gêneros</option>
+                        <option *ngFor="let g of generos" [value]="g.key">{{ g.value }}</option>
+                      </select>
+                      <button type="button" class="btn btn-primary" (click)="buscarPessoas()">Pesquisar</button>
+                    </div>
+                  </div>
+
+                  <!-- Lista de Pessoas Encontradas -->
+                  <div class="col-md-6 mb-3">
+                    <div class="card h-100">
+                      <div class="card-header">
+                        <h6 class="mb-0">Pessoas Cadastradas</h6>
+                      </div>
+                      <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center"
+                          *ngFor="let pessoa of pessoasFiltradas">
+                          <span>{{ pessoa.nome }} - {{ pessoa.cpf }}</span>
+                          <button type="button" class="btn btn-sm btn-success" (click)="adicionarPessoa(pessoa)">
+                            Adicionar
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <!-- Lista de Pessoas Selecionadas -->
+                  <div class="col-md-6 mb-3">
+                    <div class="card h-100">
+                      <div class="card-header">
+                        <h6 class="mb-0">Pessoas Selecionadas</h6>
+                      </div>
+                      <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center"
+                          *ngFor="let pessoa of pessoasSelecionadasDetalhes">
+                          <span>{{ pessoa.nome }} - {{ pessoa.cpf }}</span>
+                          <button type="button" class="btn btn-sm btn-danger" (click)="removerPessoa(pessoa.id!)">
+                            Remover
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+
+              <!-- TAB - BENS (placeholder) -->
+              <div class="tab-pane fade" id="tab-bens" role="tabpanel">
+                <h6>Bens</h6>
+                <p>Área de bens (implemente conforme necessidade)</p>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-success">Salvar</button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>

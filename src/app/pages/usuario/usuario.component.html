@@ -1,0 +1,83 @@
+<div class="container">
+  <h1>Usuários Cadastradas</h1>
+
+  <div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#formModal" (click)="resetarFormulario()">
+      Cadastrar Usuários
+    </button>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success mt-3">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}</div>
+
+  <div class="table-responsive">
+    <table class="table table-dark table-striped table-bordered text-center align-middle">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>E-mail</th>
+        <th>Privilegio</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let usuario of usuarios">
+        <td>{{ usuario.nome }}</td>
+        <td>{{ usuario.email }}</td>
+        <td>{{ usuario.privilegio }}</td>
+        <td>
+          <div>
+            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#formModal"
+              (click)="abrirModalEdicao(usuario)">Editar</button>
+            <button class="btn btn-sm btn-danger" (click)="confirmarExclusao(usuario)">Excluir</button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+<div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content dark-mode-modal">
+      <div class="modal-header">
+        <h5 class="modal-title" id="formModalLabel">{{ isEdicao ? 'Editar Usuario' : 'Novo Usuario' }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="delegaciaForm" [formGroup]="usuarioForm" (ngSubmit)="salvarUsuario()">
+          
+          <div class="mb-3">
+            <label for="nome" class="form-label">Nome do usuário</label>
+            <input type="text" class="form-control" id="nome" formControlName="nome">
+          </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label">E-mail</label>
+            <input type="email" class="form-control" id="email" formControlName="email">
+          </div>
+
+          <div class="mb-3">
+            <label for="senha" class="form-label">Senha de Acesso</label>
+            <input type="password" class="form-control" id="senha" formControlName="senha">
+          </div>
+
+          <div class="mb-3">
+            <label for="privilegio" class="form-label">Privilégio</label>
+            <select id="privilegio" class="form-select" formControlName="privilegio">
+              <option *ngFor="let privilegio of privilegios" [value]="privilegio">
+                {{ privilegio }}
+              </option>
+            </select>
+          </div>
+  
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-success" form="delegaciaForm">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>

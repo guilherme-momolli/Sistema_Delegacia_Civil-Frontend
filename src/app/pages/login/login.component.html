@@ -1,0 +1,56 @@
+<div class="selector-wrapper d-flex justify-content-center align-items-center min-vh-100">
+  <div class="card futuristic-card p-4 w-100">
+    <h2 class="text-center contact-title fw-bold mb-4">
+      <i class="bi bi-lock me-2"></i>Login
+    </h2>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="mb-3">
+        <label for="email" class="form-label">E-mail</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+          <input 
+            id="email" 
+            formControlName="email" 
+            type="email" 
+            class="form-control futuristic-input" 
+            placeholder="Digite seu e-mail"
+            aria-label="Digite seu e-mail"
+            [class.is-invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+          />
+        </div>
+        <div class="invalid-feedback">E-mail inválido</div>
+      </div>
+
+      <div class="mb-3">
+        <label for="senha" class="form-label">Senha</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-key"></i></span>
+          <input 
+            id="senha" 
+            formControlName="senha" 
+            type="password" 
+            class="form-control futuristic-input" 
+            placeholder="Digite sua senha"
+            aria-label="Digite sua senha"
+            [class.is-invalid]="loginForm.get('senha')?.invalid && loginForm.get('senha')?.touched"
+          />
+        </div>
+        <div class="invalid-feedback">Senha obrigatória</div>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100 futuristic-btn" [disabled]="loginForm.invalid">
+        Entrar
+      </button>
+
+      <p class="text-center mt-3 mb-0">
+        Não tem uma conta?
+        <a class="futuristic-link" role="button" (click)="navigateToCadastro()">Cadastrar</a>
+      </p>
+    </form>
+
+    <p *ngIf="errorMessage" class="text-danger text-center mt-2 mb-0 futuristic-error">
+      {{ errorMessage }}
+    </p>
+  </div>
+</div>

@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "dist/sistema_delegacia_civil/browser",
+    "public": "dist/sistema_delegacia_civil",
     "ignore": [
       "firebase.json",
       "**/.*",

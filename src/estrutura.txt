@@ -1,0 +1,222 @@
+.
+├── animations.css
+├── app
+│   ├── app.component.css
+│   ├── app.component.html
+│   ├── app.component.spec.ts
+│   ├── app.component.ts
+│   ├── app.config.server.ts
+│   ├── app.config.ts
+│   ├── app.routes.ts
+│   ├── core
+│   │   ├── components
+│   │   │   ├── body
+│   │   │   │   ├── body.component.css
+│   │   │   │   ├── body.component.html
+│   │   │   │   ├── body.component.spec.ts
+│   │   │   │   └── body.component.ts
+│   │   │   ├── footer
+│   │   │   │   ├── footer.component.css
+│   │   │   │   ├── footer.component.html
+│   │   │   │   ├── footer.component.spec.ts
+│   │   │   │   └── footer.component.ts
+│   │   │   ├── header
+│   │   │   │   ├── header.component.css
+│   │   │   │   ├── header.component.html
+│   │   │   │   ├── header.component.spec.ts
+│   │   │   │   └── header.component.ts
+│   │   │   └── main
+│   │   │       ├── main.component.css
+│   │   │       ├── main.component.html
+│   │   │       ├── main.component.spec.ts
+│   │   │       └── main.component.ts
+│   │   ├── enum
+│   │   │   ├── arma
+│   │   │   │   ├── calibre.ts
+│   │   │   │   └── tipo-arma-fogo.ts
+│   │   │   ├── droga
+│   │   │   │   ├── tipo-droga.ts
+│   │   │   │   └── unidade-medida.ts
+│   │   │   ├── endereco
+│   │   │   │   ├── pais.enum.ts
+│   │   │   │   └── uf.enum.ts
+│   │   │   ├── inquerito-policial
+│   │   │   │   ├── origem-forca-policial.enum.ts
+│   │   │   │   ├── peca.enum.ts
+│   │   │   │   └── situacao-inquerito.enum.ts
+│   │   │   ├── pessoa
+│   │   │   │   ├── cargo.enum.ts
+│   │   │   │   ├── estado-civil.enum.ts
+│   │   │   │   ├── etinia.enum.ts
+│   │   │   │   ├── genero.enum.ts
+│   │   │   │   ├── situacao-pessoa.enum.ts
+│   │   │   │   └── tipo-envolvimento.enum.ts
+│   │   │   └── usuario
+│   │   │       └── privilegio.enum.ts
+│   │   ├── guards
+│   │   │   └── auth
+│   │   │       ├── auth.guard.ts
+│   │   │       ├── auth.interceptor.ts
+│   │   │       ├── auth.service.spec.ts
+│   │   │       ├── auth.service.ts
+│   │   │       ├── no-auth.guard.ts
+│   │   │       ├── no-auth.service.spec.ts
+│   │   │       ├── no-auth.service.ts
+│   │   │       └── privlegio.guard.ts
+│   │   ├── interceptors
+│   │   └── service
+│   │       ├── api
+│   │       │   ├── api.service.spec.ts
+│   │       │   └── api.service.ts
+│   │       ├── arma
+│   │       │   ├── arma.service.spec.ts
+│   │       │   └── arma.service.ts
+│   │       ├── boletim-ocorrencia
+│   │       │   ├── boletim-ocorrencia.service.spec.ts
+│   │       │   └── boletim-ocorrencia.service.ts
+│   │       ├── delegacia
+│   │       │   ├── delegacia.service.spec.ts
+│   │       │   └── delegacia.service.ts
+│   │       ├── droga
+│   │       │   ├── droga.service.spec.ts
+│   │       │   └── droga.service.ts
+│   │       ├── endereco
+│   │       │   ├── endereco.service.spec.ts
+│   │       │   └── endereco.service.ts
+│   │       ├── file
+│   │       │   ├── file.service.spec.ts
+│   │       │   └── file.service.ts
+│   │       ├── inquerito-policial
+│   │       │   ├── inquerito-policial.service.spec.ts
+│   │       │   └── inquerito-policial.service.ts
+│   │       ├── instituicao
+│   │       ├── modal
+│   │       │   ├── modal.service.spec.ts
+│   │       │   └── modal.service.ts
+│   │       ├── pessoa
+│   │       │   ├── pessoa.service.spec.ts
+│   │       │   └── pessoa.service.ts
+│   │       ├── pessoa-envolvimento
+│   │       │   ├── pessoa-envolvimento.service.spec.ts
+│   │       │   └── pessoa-envolvimento.service.ts
+│   │       ├── relatorio
+│   │       │   ├── relatorio.service.spec.ts
+│   │       │   └── relatorio.service.ts
+│   │       ├── storage-service
+│   │       │   ├── storage-service.service.spec.ts
+│   │       │   └── storage-service.service.ts
+│   │       ├── usuario
+│   │       │   ├── usuario.service.spec.ts
+│   │       │   └── usuario.service.ts
+│   │       └── veiculo
+│   │           ├── veiculo.service.spec.ts
+│   │           └── veiculo.service.ts
+│   ├── models
+│   └── pages
+│       ├── boletim-ocorrencia
+│       │   ├── boletim-ocorrencia.component.css
+│       │   ├── boletim-ocorrencia.component.html
+│       │   ├── boletim-ocorrencia.component.spec.ts
+│       │   └── boletim-ocorrencia.component.ts
+│       ├── contato
+│       │   ├── contato.component.css
+│       │   ├── contato.component.html
+│       │   ├── contato.component.spec.ts
+│       │   └── contato.component.ts
+│       ├── dashboard
+│       │   ├── dashboard.component.css
+│       │   ├── dashboard.component.html
+│       │   ├── dashboard.component.spec.ts
+│       │   └── dashboard.component.ts
+│       ├── debug
+│       │   ├── debug.component.css
+│       │   ├── debug.component.html
+│       │   ├── debug.component.spec.ts
+│       │   └── debug.component.ts
+│       ├── delegacia
+│       │   ├── delegacia.component.css
+│       │   ├── delegacia.component.html
+│       │   ├── delegacia.component.spec.ts
+│       │   └── delegacia.component.ts
+│       ├── inquerito-policial
+│       │   ├── inquerito-policial.component.css
+│       │   ├── inquerito-policial.component.html
+│       │   ├── inquerito-policial.component.spec.ts
+│       │   └── inquerito-policial.component.ts
+│       ├── instituicao
+│       │   ├── instituicao.component.css
+│       │   ├── instituicao.component.html
+│       │   ├── instituicao.component.spec.ts
+│       │   └── instituicao.component.ts
+│       ├── landing-page
+│       │   ├── landing-page.component.css
+│       │   ├── landing-page.component.html
+│       │   ├── landing-page.component.spec.ts
+│       │   └── landing-page.component.ts
+│       ├── login
+│       │   ├── login.component.css
+│       │   ├── login.component.html
+│       │   ├── login.component.spec.ts
+│       │   └── login.component.ts
+│       ├── main
+│       │   ├── main.component.css
+│       │   ├── main.component.html
+│       │   ├── main.component.spec.ts
+│       │   └── main.component.ts
+│       ├── my-profile
+│       │   ├── my-profile.component.css
+│       │   ├── my-profile.component.html
+│       │   ├── my-profile.component.spec.ts
+│       │   └── my-profile.component.ts
+│       ├── not-found
+│       │   ├── not-found.component.css
+│       │   ├── not-found.component.html
+│       │   ├── not-found.component.spec.ts
+│       │   └── not-found.component.ts
+│       ├── pessoa
+│       │   ├── pessoa.component.css
+│       │   ├── pessoa.component.html
+│       │   ├── pessoa.component.spec.ts
+│       │   └── pessoa.component.ts
+│       ├── usuario
+│       │   ├── usuario.component.css
+│       │   ├── usuario.component.html
+│       │   ├── usuario.component.spec.ts
+│       │   └── usuario.component.ts
+│       └── veiculo
+│           ├── veiculo.component.css
+│           ├── veiculo.component.html
+│           ├── veiculo.component.spec.ts
+│           └── veiculo.component.ts
+├── assets
+│   ├── fonts
+│   └── images
+├── environments
+│   └── environment.ts
+├── estrutura.txt
+├── index.html
+├── main.server.ts
+├── main.ts
+├── shared
+│   ├── components
+│   │   ├── button
+│   │   └── modal
+│   │       ├── error
+│   │       └── pessoa
+│   │           └── modal-seletor-pessoa
+│   │               ├── modal-seletor-pessoa.component.css
+│   │               ├── modal-seletor-pessoa.component.html
+│   │               ├── modal-seletor-pessoa.component.spec.ts
+│   │               └── modal-seletor-pessoa.component.ts
+│   ├── directives
+│   ├── enums
+│   │   ├── enum-utils.ts
+│   │   └── index.enum.ts
+│   ├── pipes
+│   └── services
+├── styles.css
+├── teste.css
+└── types
+    └── jspdf-autotable.d.ts
+
+68 directories, 152 files

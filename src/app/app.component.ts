@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { HeaderComponent } from "../components/assets/header/header.component";
-import { AuthService } from '../core/service/auth/auth.service'; 
+import { HeaderComponent } from "./core/components/header/header.component";
+import { AuthService } from './core/guards/auth/auth.service'; 
+import { FooterComponent } from './core/components/footer/footer.component';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
@@ -23,8 +24,8 @@ export class AppComponent implements OnInit {
     }
 
     // Log da instituição logada
-    const instituicao = this.authService.getInstituicaoNome();
-    console.log('Instituição logada:', instituicao);
+    const delegacia = this.authService.getDelegaciaNome();
+    console.log('delegacia logada:', delegacia);
   }
 
   toggleDarkMode() {

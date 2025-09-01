@@ -1,0 +1,468 @@
+<div class="container py-5" [ngClass]="{'dark-mode': isDarkMode}">
+  <!-- Cabeçalho -->
+  <header class="text-center mb-5 fade-in">
+    <h1 class="display-4 fw-bold">Tela de Debug - UI Components</h1>
+    <p class="text-muted">Teste de responsividade, botões, campos e animações</p>
+    <button (click)="toggleDarkMode()" class="btn btn-muted mt-2 pulse-hover" aria-label="Alternar modo escuro">
+      {{ isDarkMode ? 'Modo Claro' : 'Modo Escuro' }}
+    </button>
+  </header>
+
+  <!-- Alert de Boas-Vindas -->
+  <div *ngIf="showAlert" class="alert alert-success alert-dismissible slide-in-up" role="alert">
+    <span>Bem-vindo à tela de debug! Explore os componentes abaixo.</span>
+    <button class="alert-close" (click)="dismissAlert()" aria-label="Fechar alerta">✕</button>
+  </div>
+
+  <!-- Linha de Cards -->
+  <div class="row g-4">
+    <!-- Card de Formulário -->
+    <div class="col-lg-6">
+      <div class="card h-100 slide-in-up">
+        <div class="card-header bg-primary text-white">
+          <h5>Formulário de Teste</h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="debugForm" (ngSubmit)="onSubmit()">
+            <!-- Nome -->
+            <div class="form-group mb-3" [ngClass]="{'error': debugForm.get('nome')?.invalid && debugForm.get('nome')?.touched}">
+              <label for="nome" class="form-label">Nome</label>
+              <input type="text" class="form-control" id="nome" formControlName="nome" placeholder="Digite seu nome" aria-required="true" />
+              <span class="error-message" *ngIf="debugForm.get('nome')?.invalid && debugForm.get('nome')?.touched">Nome é obrigatório (mín. 3 caracteres)</span>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group mb-3" [ngClass]="{'error': debugForm.get('email')?.invalid && debugForm.get('email')?.touched}">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="email" formControlName="email" placeholder="exemplo@email.com" aria-required="true" />
+              <span class="error-message" *ngIf="debugForm.get('email')?.invalid && debugForm.get('email')?.touched">Email inválido</span>
+            </div>
+
+            <!-- Senha -->
+            <div class="form-group mb-3" [ngClass]="{'error': debugForm.get('senha')?.invalid && debugForm.get('senha')?.touched}">
+              <label for="senha" class="form-label">Senha</label>
+              <input type="password" class="form-control" id="senha" formControlName="senha" placeholder="Digite sua senha" aria-required="true" />
+              <span class="error-message" *ngIf="debugForm.get('senha')?.invalid && debugForm.get('senha')?.touched">Mínimo de 6 caracteres</span>
+            </div>
+
+            <!-- Telefone -->
+            <div class="form-group mb-3">
+              <label for="telefone" class="form-label">Telefone</label>
+              <input type="tel" class="form-control" id="telefone" formControlName="telefone" placeholder="(99) 99999-9999" />
+            </div>
+
+            <!-- Data de nascimento -->
+            <div class="form-group mb-3">
+              <label for="dataNascimento" class="form-label">Data de Nascimento</label>
+              <input type="date" class="form-control" id="dataNascimento" formControlName="dataNascimento" />
+            </div>
+
+            <!-- Data e Hora -->
+            <div class="form-group mb-3">
+              <label for="dataHora" class="form-label">Data e Hora do Evento</label>
+              <input type="datetime-local" class="form-control" id="dataHora" formControlName="dataHora" />
+            </div>
+
+            <!-- Campo com ícone de calendário -->
+            <div class="form-group mb-3">
+              <label for="calendario" class="form-label">Agendamento</label>
+              <div class="input-group">
+                <input type="date" class="form-control" id="calendario" formControlName="calendario" />
+                <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+              </div>
+            </div>
+
+            <!-- Seleção -->
+            <div class="form-group mb-3">
+              <label for="genero" class="form-label">Gênero</label>
+              <select class="form-select" id="genero" formControlName="genero" aria-label="Selecione o gênero">
+                <option value="" disabled>Selecione...</option>
+                <option value="masculino">Masculino</option>
+                <option value="feminino">Feminino</option>
+                <option value="outro">Outro</option>
+              </select>
+            </div>
+
+            <!-- Radio -->
+            <div class="form-group mb-3">
+              <label class="form-label d-block">Status</label>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="status" id="ativo" value="ativo" formControlName="status">
+                <label class="form-check-label" for="ativo">Ativo</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="status" id="inativo" value="inativo" formControlName="status">
+                <label class="form-check-label" for="inativo">Inativo</label>
+              </div>
+            </div>
+
+            <!-- Checkbox -->
+            <div class="form-group mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="aceite" formControlName="aceite" aria-required="true" />
+              <label class="form-check-label" for="aceite">Aceito os termos de uso</label>
+            </div>
+
+            <!-- Cor -->
+            <div class="form-group mb-3">
+              <label for="corFavorita" class="form-label">Cor Favorita</label>
+              <input type="color" class="form-control form-control-color" id="corFavorita" formControlName="corFavorita" title="Escolha sua cor" />
+            </div>
+
+            <!-- Slider -->
+            <div class="form-group mb-3">
+              <label for="satisfacao" class="form-label">Satisfação</label>
+              <input type="range" class="form-range" min="0" max="10" id="satisfacao" formControlName="satisfacao" />
+            </div>
+
+            <!-- Mensagem -->
+            <div class="form-group mb-3">
+              <label for="mensagem" class="form-label">Mensagem</label>
+              <textarea class="form-control" id="mensagem" formControlName="mensagem" rows="3" placeholder="Digite sua mensagem"></textarea>
+            </div>
+
+            <!-- Botão -->
+            <button type="submit" class="btn btn-success w-100 pulse-hover" [disabled]="debugForm.invalid">Enviar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Card 1: Componentes Visuais -->
+    <div class="col-lg-6 col-md-12 mb-4">
+      <div class="card h-100 slide-in-right">
+        <div class="card-header bg-warning text-dark rounded-top-4 py-3 px-4">
+          <h5 class="mb-0">🎨 Componentes Visuais</h5>
+        </div>
+        <div class="card-body px-4 py-4">
+          <!-- Alerta -->
+          <div class="alert alert-info d-flex align-items-center gap-2 slide-in-up" role="alert">
+            <i class="bi bi-info-circle-fill"></i>
+            Este é um alerta de informação!
+            <button class="alert-close" (click)="dismissAlert()" aria-label="Fechar alerta">✕</button>
+          </div>
+
+          <!-- Spinner + Texto -->
+          <div class="d-flex align-items-center gap-3 mb-4">
+            <div class="loading-spin"></div>
+            <strong>Carregando dados...</strong>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="mb-4">
+            <label for="progresso" class="form-label fw-semibold">Progresso</label>
+            <div class="progress">
+              <div class="progress-bar bg-primary" [style.width.%]="progressValue" [attr.aria-valuenow]="progressValue" aria-valuemin="0" aria-valuemax="100">{{ progressValue }}%</div>
+            </div>
+          </div>
+
+          <!-- Badges -->
+          <div class="d-flex gap-2 mb-4">
+            <span class="badge bg-success badge-pulse">✔️ Novo</span>
+            <span class="badge bg-danger badge-blink">⚠️ Importante</span>
+          </div>
+
+          <!-- Gráficos -->
+          <div class="mb-4">
+            <h6 class="text-secondary fw-semibold">Gráfico de Pizza</h6>
+            <canvas #graficoPizza class="canvas-chart-load" height="200"></canvas>
+          </div>
+
+          <div class="mb-4">
+            <h6 class="text-secondary fw-semibold">Gráfico de Barras</h6>
+            <canvas #graficoBarras class="canvas-chart-load" height="200"></canvas>
+          </div>
+
+          <div>
+            <h6 class="text-secondary fw-semibold">Plano Cartesiano</h6>
+            <canvas #graficoLinha class="canvas-chart-load" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Botões e Interações -->
+    <div class="col-12 mt-4">
+      <div class="card shadow-sm slide-in-up">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0">Tipos de Botões</h5>
+        </div>
+        <div class="card-body">
+          <!-- Seção: Switch -->
+          <div class="mb-4">
+            <h6>Switch / Alternância</h6>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="modoEscuroSwitch" [(ngModel)]="isDarkMode" (change)="toggleDarkMode()" aria-label="Alternar modo escuro">
+              <label class="form-check-label" for="modoEscuroSwitch">Modo Escuro</label>
+            </div>
+          </div>
+
+          <!-- Seção: Botões -->
+          <div class="mb-4">
+            <h6>Tipos de Botões</h6>
+            <div class="d-flex flex-wrap gap-2">
+              <!-- Padrão -->
+              <button class="btn btn-primary pulse-hover" (click)="showAlert = true">Primário</button>
+              <button class="btn btn-muted pulse-hover">Secundário</button>
+              <button class="btn btn-success pulse-hover">Sucesso</button>
+              <button class="btn btn-danger pulse-hover">Perigo</button>
+              <button class="btn btn-warning text-dark pulse-hover">Alerta</button>
+              <button class="btn btn-primary text-dark pulse-hover">Informação</button>
+              <button class="btn btn-light pulse-hover">Claro</button>
+              <button class="btn btn-dark pulse-hover">Escuro</button>
+
+              <!-- Outline -->
+              <button class="btn btn-primary pulse-hover">Outline Primário</button>
+              <button class="btn btn-muted pulse-hover">Outline Secundário</button>
+              <button class="btn btn-success pulse-hover">Outline Sucesso</button>
+              <button class="btn btn-danger pulse-hover">Outline Perigo</button>
+              <button class="btn btn-warning text-dark pulse-hover">Outline Alerta</button>
+              <button class="btn btn-primary text-dark pulse-hover">Outline Informação</button>
+              <button class="btn btn-light pulse-hover">Outline Claro</button>
+              <button class="btn btn-dark pulse-hover">Outline Escuro</button>
+
+              <!-- Tamanhos -->
+              <button class="btn btn-primary btn-sm pulse-hover">Pequeno</button>
+              <button class="btn btn-primary pulse-hover">Normal</button>
+              <button class="btn btn-primary btn-lg pulse-hover">Grande</button>
+
+              <!-- Estado -->
+              <button class="btn btn-primary" disabled>Desabilitado</button>
+              <button class="btn btn-primary pulse-hover toggle-btn" [attr.aria-pressed]="toggleActive" (click)="toggleActive = !toggleActive">Toggle</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card com Dropdown -->
+    <div class="col-lg-6">
+      <div class="card h-100 slide-in-right">
+        <div class="card-header bg-secondary text-white">
+          <h5>Dropdown e Seletor</h5>
+        </div>
+        <div class="card-body">
+          <div class="form-group mb-3">
+            <label class="form-label">Selecione uma opção</label>
+            <select class="form-select" [(ngModel)]="selectedOption" aria-label="Selecione uma opção">
+              <option value="" disabled>Escolha...</option>
+              <option value="1">Opção 1</option>
+              <option value="2">Opção 2</option>
+            </select>
+          </div>
+          <div class="dropdown">
+            <button class="btn btn-muted dropdown-toggle w-100 pulse-hover" (click)="toggleDropdown()" [attr.aria-expanded]="dropdownOpen" data-tooltip="Clique para abrir o menu">
+              Dropdown
+              <span class="tooltip" [ngClass]="{'show': showTooltip}" (mouseenter)="showTooltip = true" (mouseleave)="showTooltip = false">Clique para abrir o menu</span>
+            </button>
+            <ul class="dropdown-menu" [ngClass]="{'show': dropdownOpen}">
+              <li><a class="dropdown-item" href="#" (click)="selectDropdownItem('Ação')">Ação</a></li>
+              <li><a class="dropdown-item" href="#" (click)="selectDropdownItem('Outra ação')">Outra ação</a></li>
+              <li><a class="dropdown-item" href="#" (click)="selectDropdownItem('Mais uma ação')">Mais uma ação</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card com Flip -->
+    <div class="col-lg-6">
+      <div class="card h-100 card-flip slide-in-up">
+        <div class="card-flip-inner" [ngClass]="{'flipped': isCardFlipped}">
+          <div class="card-flip-front">
+            <div class="card-header bg-primary text-white">
+              <h5>Card com Flip</h5>
+            </div>
+            <div class="card-body">
+              <p>Este é o lado frontal do card. Clique para ver o verso.</p>
+              <button class="btn btn-primary pulse-hover" (click)="flipCard()">Virar Card</button>
+            </div>
+          </div>
+          <div class="card-flip-back">
+            <div class="card-header bg-primary text-white">
+              <h5>Verso do Card</h5>
+            </div>
+            <div class="card-body">
+              <p>Este é o lado traseiro com informações adicionais.</p>
+              <button class="btn btn-success pulse-hover" (click)="flipCard()">Voltar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card com Tipos de Texto -->
+    <div class="col-12 mt-4">
+      <div class="card shadow-sm fade-in">
+        <div class="card-header bg-secondary text-white">
+          <h5 class="mb-0">Exibição de Tipos de Texto</h5>
+        </div>
+        <div class="card-body">
+          <h1>Texto H1 - Título Principal</h1>
+          <h2>Texto H2 - Subtítulo</h2>
+          <h3>Texto H3 - Seção</h3>
+          <h4>Texto H4 - Subseção</h4>
+          <h5>Texto H5 - Detalhe</h5>
+          <h6>Texto H6 - Observação</h6>
+          <p>Este é um parágrafo padrão com texto explicativo. Pode ser usado para conteúdo, descrições, etc.</p>
+          <p class="text-muted">Texto com a classe <code>.text-muted</code>, ideal para informações secundárias.</p>
+          <p class="text-primary">Texto com <code>.text-primary</code> para chamar atenção.</p>
+          <p class="text-success">Texto <code>.text-success</code> para indicar algo positivo.</p>
+          <p class="text-danger">Texto <code>.text-danger</code> para alertas ou erros.</p>
+          <p class="text-warning">Texto <code>.text-warning</code> com alerta leve.</p>
+          <p class="text-info">Texto <code>.text-info</code> com estilo informativo.</p>
+          <p><small>Texto com <code>&lt;small&gt;</code> – usado para detalhes discretos.</small></p>
+          <p class="fst-italic">Texto <code>.fst-italic</code> em itálico.</p>
+          <p class="fw-bold">Texto <code>.fw-bold</code> em negrito.</p>
+          <blockquote class="blockquote">
+            <p>"Este é um bloco de citação."</p>
+            <footer class="blockquote-footer">Autor Desconhecido</footer>
+          </blockquote>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card com Tabelas -->
+    <div class="col-12 mt-4">
+      <div class="card shadow-sm slide-in-up">
+        <div class="card-header bg-secondary text-white">
+          <h5 class="mb-0">Tipos de Tabelas</h5>
+        </div>
+        <div class="card-body table-responsive">
+          <!-- Tabela Interativa -->
+          <h6 class="mb-2">Tabela Interativa</h6>
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th><input type="checkbox" class="table-checkbox" (change)="selectAllRows($event)" aria-label="Selecionar todos"></th>
+                <th>#</th>
+                <th>Nome</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of tableData; let i = index" [ngClass]="{'selected': row.selected}">
+                <td><input type="checkbox" class="table-checkbox" [(ngModel)]="row.selected" (change)="updateSelectedRows()" aria-label="Selecionar linha"></td>
+                <td data-label="#">{{ i + 1 }}</td>
+                <td data-label="Nome">{{ row.nome }}</td>
+                <td data-label="Status"><span class="badge" [ngClass]="{'bg-success': row.status === 'Ativo', 'bg-danger': row.status === 'Inativo', 'badge-pulse': row.status === 'Ativo', 'badge-blink': row.status === 'Inativo'}">{{ row.status }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="table-pagination">
+            <button class="btn btn-muted" (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1" aria-label="Página anterior">«</button>
+            <button class="btn btn-muted" [ngClass]="{'active': currentPage === page}" *ngFor="let page of getPages()" (click)="changePage(page)" [attr.aria-label]="'Página ' + page">{{ page }}</button>
+            <button class="btn btn-muted" (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages" aria-label="Próxima página">»</button>
+          </div>
+
+          <!-- Tabela Striped -->
+          <h6 class="mt-4 mb-2">Tabela Striped</h6>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nome</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>Lucas</td><td>Ativo</td></tr>
+              <tr><td>2</td><td>Fernanda</td><td>Pendente</td></tr>
+            </tbody>
+          </table>
+
+          <!-- Tabela Bordered -->
+          <h6 class="mt-4 mb-2">Tabela com Bordas</h6>
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nome</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>Bruno</td><td>Ativo</td></tr>
+              <tr><td>2</td><td>Ana</td><td>Pendente</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-5 text-center">
+      <button class="btn btn-primary me-2 pulse-hover" (click)="openModal()" aria-label="Abrir modal">Abrir Modal</button>
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#formModal">  Abrir Formulário</button>
+      <button class="btn btn-muted pulse-hover" (click)="showAlert = true">Mostrar Alerta</button>
+    </div>
+
+
+    <!-- Modal -->
+  <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <!-- Cabeçalho -->
+        <div class="modal-header">
+          <h5 class="modal-title" id="formModalLabel">Formulário de Exemplo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+
+        <!-- Corpo com o formulário -->
+        <div class="modal-body">
+          <form id="exemploForm">
+
+            <div class="mb-3">
+              <label for="nome" class="form-label">Nome</label>
+              <input type="text" class="form-control" id="nome" placeholder="Digite seu nome">
+            </div>
+
+            <div class="mb-3">
+              <label for="email" class="form-label">E-mail</label>
+              <input type="email" class="form-control" id="email" placeholder="exemplo@dominio.com">
+            </div>
+
+            <div class="mb-3">
+              <label for="telefone" class="form-label">Telefone</label>
+              <input type="tel" class="form-control" id="telefone" placeholder="(99) 99999-9999">
+            </div>
+
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="aceitar">
+              <label class="form-check-label" for="aceitar">Aceito os termos</label>
+            </div>
+
+          </form>
+        </div>
+
+        <!-- Rodapé com botões -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success" form="exemploForm">Enviar</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+    <!-- Modal -->
+    <div class="modal modal-pop-in" [ngClass]="{'show': modalAberto}" id="debugModal" tabindex="-1" aria-labelledby="debugModalLabel" [attr.aria-hidden]="!modalAberto">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="debugModalLabel">Modal de Debug</h5>
+          <button type="button" class="modal-close" (click)="fecharModal()" aria-label="Fechar">✕</button>
+        </div>
+        <div class="modal-body">
+          Este é um exemplo de modal para testar componentes e interações visuais do sistema.
+          <div class="progress mt-3">
+            <div class="progress-bar bg-success" [style.width.%]="progressValue" [attr.aria-valuenow]="progressValue" aria-valuemin="0" aria-valuemax="100">{{ progressValue }}%</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-muted" (click)="fecharModal()">Fechar</button>
+          <button type="button" class="btn btn-primary pulse-hover" (click)="fecharModal()">Salvar Alterações</button>
+        </div>
+      </div>
+      <div class="modal-backdrop" [ngClass]="{'show': modalAberto}"></div>
+    </div>
+  </div>
+</div>
