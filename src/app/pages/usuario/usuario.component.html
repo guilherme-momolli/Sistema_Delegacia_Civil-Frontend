@@ -29,7 +29,7 @@
           <tr>
             <td>{{ usuario.nome }}</td>
             <td>{{ usuario.email }}</td>
-            <td>{{ usuario.privilegio }}</td>
+            <td>{{getDescricaoPrivilegio(usuario.privilegio) }}</td>
             <td>
               <div>
                 <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#formModal"
@@ -43,6 +43,35 @@
     </table>
 
   </div>
+
+  <div
+  class="modal fade show"
+  tabindex="-1"
+  role="dialog"
+  [class.d-block]="modalExclusaoAberto"
+  [class.show]="modalExclusaoAberto">
+
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark text-light border-secondary">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmar exclusão</h5>
+        <button type="button" class="btn-close btn-close-white" (click)="fecharModalExclusao()"></button>
+      </div>
+
+      <div class="modal-body">
+        <p>
+          Deseja realmente excluir o usuário
+          <strong>{{ usuarioSelecionado?.nome }}</strong>?
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="fecharModalExclusao()">Cancelar</button>
+        <button class="btn btn-danger" (click)="excluirUsuario()">Excluir</button>
+      </div>
+    </div>
+  </div>
+</div>
 
   <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -72,9 +101,9 @@
             <div class="mb-3">
               <label for="privilegio" class="form-label">Privilégio</label>
               <select id="privilegio" class="form-select" formControlName="privilegio">
-                @for (privilegio of privilegios; track privilegio) {
-                  <option [value]="privilegio">
-                    {{ privilegio }}
+                @for (privilegio of privilegioCadastro; track privilegio) {
+                  <option [value]="privilegio.key">
+                    {{ privilegio.value }}
                   </option>
                 }
               </select>

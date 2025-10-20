@@ -5,7 +5,9 @@ import { Router, RouterModule } from '@angular/router';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { CadastroUsuarioRequest, User, UsuarioService } from '../../core/service/usuario/usuario.service';
 import { AuthService } from '../../core/guards/auth/auth.service';
-import { Privilegio } from '../../core/enum/usuario/privilegio.enum'; 
+import { Privilegio, PrivilegioDescricao } from '../../core/enum/usuario/privilegio.enum';
+import { PrivilegioCadastro, PrivilegioCadastroDescricao } from '../../core/enum/usuario/privilegio-cadastro.enum';
+import { enumToKeyValueArray } from '../../../shared/enums/enum-utils';
 
 declare var bootstrap: any;
 
@@ -27,6 +29,7 @@ export class UsuarioComponent implements OnInit, AfterViewInit {
   imagemPreview: string | ArrayBuffer | null = null;
   imagemSelecionada?: File;
   privilegios = Object.values(Privilegio);
+  privilegioCadastro = enumToKeyValueArray(PrivilegioCadastro, PrivilegioCadastroDescricao);
   delegaciaId: number | null = null;
 
   constructor(
@@ -69,6 +72,10 @@ export class UsuarioComponent implements OnInit, AfterViewInit {
         this.errorMessage = 'Erro ao carregar usuários: ' + error.message;
       }
     });
+  }
+
+  getDescricaoPrivilegio(privilegio: string): string {
+    return PrivilegioDescricao[privilegio as Privilegio] || privilegio;
   }
 
   salvarUsuario(): void {
@@ -135,18 +142,19 @@ export class UsuarioComponent implements OnInit, AfterViewInit {
     this.usuarioSelecionado = null;
   }
 
-  excluirDelegacia(): void {
+  excluirUsuario(): void {
     if (this.usuarioSelecionado?.id) {
       this.usuarioService.deleteUsuario(this.usuarioSelecionado.id).subscribe({
         next: () => {
           this.carregarUsuarios(this.delegaciaId!);
           this.fecharModalExclusao();
-          alert('Delegacia excluída com sucesso!');
+          alert('Usuário excluído com sucesso!');
         },
-        error: (err) => alert(err.message)
+        error: (err) => alert(`Erro ao excluir usuário: ${err.message}`)
       });
     }
   }
+
 
   public resetarFormulario(): void {
     this.usuarioForm.reset();
