@@ -7,14 +7,12 @@
     </button>
   </div>
 
-  @if (successMessage) {
-    <div class="alert alert-success mt-3">{{ successMessage }}</div>
-  }
-  @if (errorMessage) {
-    <div class="alert alert-danger mt-3">{{ errorMessage }}</div>
-  }
+  <!-- Mensagens de sucesso e erro -->
+  <div *ngIf="successMessage" class="alert alert-success mt-3">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}</div>
+
   <div class="table-responsive">
-    <table class="table-bordered table-striped">
+    <table class="table table-bordered table-striped">
       <thead>
         <tr>
           <th>Imagem</th>
@@ -30,35 +28,31 @@
         </tr>
       </thead>
       <tbody>
-        @for (pessoa of pessoas; track pessoa) {
-          <tr>
-            <td>
-              @if (pessoa.imagemUrl) {
-                <img [src]="pessoa.imagemUrl" alt="Imagem da Pessoa"
-                  style="width: 100px; height: 100px; object-fit: cover; border-radius: 6px;">
-              } @else {
-                <span>Sem imagem</span>
-              }
-            </td>
-            <td>{{ pessoa.nome }}</td>
-            <td>{{ pessoa.nomeSocial || '-' }}</td>
-            <td>{{ pessoa.cpf || '-' }}</td>
-            <td>{{ pessoa.rg || '-' }}</td>
-            <td>{{ pessoa.dataNascimento | date: 'dd/MM/yyyy' }}</td>
-            <td>{{ pessoa.sexo || '-' }}</td>
-            <td>{{ pessoa.telefoneCelular || '-' }}</td>
-            <td>{{ pessoa.email || '-' }}</td>
-            <td>
-              <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#formModal"
+        <tr *ngFor="let pessoa of pessoas; trackBy: trackByPessoaId">
+          <td>
+            <img *ngIf="pessoa.imagemUrl; else semImagem" [src]="pessoa.imagemUrl" alt="Imagem da Pessoa"
+              style="width: 100px; height: 100px; object-fit: cover; border-radius: 6px;">
+            <ng-template #semImagem><span>Sem imagem</span></ng-template>
+          </td>
+          <td>{{ pessoa.nome }}</td>
+          <td>{{ pessoa.nomeSocial || '-' }}</td>
+          <td>{{ pessoa.cpf || '-' }}</td>
+          <td>{{ pessoa.rg || '-' }}</td>
+          <td>{{ pessoa.dataNascimento | date:'dd/MM/yyyy' }}</td>
+          <td>{{ pessoa.sexo || '-' }}</td>
+          <td>{{ pessoa.telefoneCelular || '-' }}</td>
+          <td>{{ pessoa.email || '-' }}</td>
+          <td>
+            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#formModal"
               (click)="abrirModalEdicao(pessoa)">Editar</button>
-              <button class="btn btn-sm btn-danger" (click)="confirmarExclusao(pessoa)">Excluir</button>
-            </td>
-          </tr>
-        }
+            <button class="btn btn-sm btn-danger" (click)="confirmarExclusao(pessoa)">Excluir</button>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
 </div>
+
 
 <!-- Modal Cadastro/Edição -->
 <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
@@ -71,108 +65,108 @@
       <div class="modal-body">
         <form id="pessoaForm" [formGroup]="pessoaForm" (ngSubmit)="salvarPessoa()">
 
-          <!-- <div class="mb-3">
-          <label for="imagem" class="form-label">Imagem</label>
-          <input type="file" class="form-control" id="imagem" (change)="onFileChange($event)">
-        </div> -->
-
-        <div class="mb-3">
-          <label for="nome" class="form-label">Nome</label>
-          <input type="text" class="form-control" id="nome" formControlName="nome">
-        </div>
-
-        <div class="mb-3">
-          <label for="nomeSocial" class="form-label">Nome Social</label>
-          <input type="text" class="form-control" id="nomeSocial" formControlName="nomeSocial">
-        </div>
-
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <label for="cpf" class="form-label">CPF</label>
-            <input type="text" class="form-control" id="cpf" formControlName="cpf">
+          <div class="mb-3">
+            <label for="imagem" class="form-label">Imagem</label>
+            <input type="file" class="form-control" id="imagem" (change)="onFileChange($event)">
           </div>
-          <div class="col-md-6 mb-3">
-            <label for="rg" class="form-label">RG</label>
-            <input type="text" class="form-control" id="rg" formControlName="rg">
-          </div>
-        </div>
 
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <label for="dataNascimento" class="form-label">Data de Nascimento</label>
-            <input type="date" class="form-control" id="dataNascimento" formControlName="dataNascimento">
+          <div class="mb-3">
+            <label for="nome" class="form-label">Nome</label>
+            <input type="text" class="form-control" id="nome" formControlName="nome">
           </div>
-          <div class="col-md-6 mb-3">
-            <label for="sexo" class="form-label">Sexo</label>
-            <select id="sexo" class="form-control" formControlName="sexo">
-              @for (g of generos; track g) {
-                <option [value]="g">{{ g }}</option>
+
+          <div class="mb-3">
+            <label for="nomeSocial" class="form-label">Nome Social</label>
+            <input type="text" class="form-control" id="nomeSocial" formControlName="nomeSocial">
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="cpf" class="form-label">CPF</label>
+              <input type="text" class="form-control" id="cpf" formControlName="cpf">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="rg" class="form-label">RG</label>
+              <input type="text" class="form-control" id="rg" formControlName="rg">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="dataNascimento" class="form-label">Data de Nascimento</label>
+              <input type="date" class="form-control" id="dataNascimento" formControlName="dataNascimento">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="sexo" class="form-label">Sexo</label>
+              <select id="sexo" class="form-control" formControlName="sexo">
+                @for (g of generos; track g) {
+                <option [value]="g.key">{{ g.value }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="telefoneFixo" class="form-label">Telefone Fixo</label>
+              <input type="tel" class="form-control" id="telefoneFixo" formControlName="telefoneFixo">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="telefoneCelular" class="form-label">Telefone Celular</label>
+              <input type="tel" class="form-control" id="telefoneCelular" formControlName="telefoneCelular">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label">E-mail</label>
+            <input type="email" class="form-control" id="email" formControlName="email">
+          </div>
+
+          <div class="mb-3">
+            <label for="estadoCivil" class="form-label">Estado Civil</label>
+            <input type="text" class="form-control" id="estadoCivil" formControlName="estadoCivil">
+          </div>
+
+          <div class="mb-3">
+            <label for="profissao" class="form-label">Profissão</label>
+            <input type="text" class="form-control" id="profissao" formControlName="profissao">
+          </div>
+
+          <div class="mb-3">
+            <label for="nacionalidade" class="form-label">Nacionalidade</label>
+            <input type="text" class="form-control" id="nacionalidade" formControlName="nacionalidade">
+          </div>
+
+          <div class="mb-3">
+            <label for="naturalidade" class="form-label">Naturalidade</label>
+            <input type="text" class="form-control" id="naturalidade" formControlName="naturalidade">
+          </div>
+
+          <div class="mb-3">
+            <label for="certificadoRegistro" class="form-label">Certificado de Registro</label>
+            <input type="text" class="form-control" id="certificadoRegistro" formControlName="certificadoRegistro">
+          </div>
+
+          <div class="mb-3">
+            <label for="etnia" class="form-label">Etnia</label>
+            <select id="etnia" class="form-control" formControlName="etnia">
+              @for (e of etnias; track e) {
+              <option [value]="e.key">{{ e.value }}</option>
               }
             </select>
           </div>
-        </div>
 
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <label for="telefoneFixo" class="form-label">Telefone Fixo</label>
-            <input type="tel" class="form-control" id="telefoneFixo" formControlName="telefoneFixo">
+          <div class="mb-3">
+            <label for="situacaoPessoa" class="form-label">Situação</label>
+            <select id="situacaoPessoa" class="form-control" formControlName="situacaoPessoa">
+              @for (s of situacoesPessoa; track s) {
+              <option [value]="s.key">{{ s.value }}</option>
+              }
+            </select>
           </div>
-          <div class="col-md-6 mb-3">
-            <label for="telefoneCelular" class="form-label">Telefone Celular</label>
-            <input type="tel" class="form-control" id="telefoneCelular" formControlName="telefoneCelular">
-          </div>
-        </div>
 
-        <div class="mb-3">
-          <label for="email" class="form-label">E-mail</label>
-          <input type="email" class="form-control" id="email" formControlName="email">
-        </div>
-
-        <div class="mb-3">
-          <label for="estadoCivil" class="form-label">Estado Civil</label>
-          <input type="text" class="form-control" id="estadoCivil" formControlName="estadoCivil">
-        </div>
-
-        <div class="mb-3">
-          <label for="profissao" class="form-label">Profissão</label>
-          <input type="text" class="form-control" id="profissao" formControlName="profissao">
-        </div>
-
-        <div class="mb-3">
-          <label for="nacionalidade" class="form-label">Nacionalidade</label>
-          <input type="text" class="form-control" id="nacionalidade" formControlName="nacionalidade">
-        </div>
-
-        <div class="mb-3">
-          <label for="naturalidade" class="form-label">Naturalidade</label>
-          <input type="text" class="form-control" id="naturalidade" formControlName="naturalidade">
-        </div>
-
-        <div class="mb-3">
-          <label for="certificadoRegistro" class="form-label">Certificado de Registro</label>
-          <input type="text" class="form-control" id="certificadoRegistro" formControlName="certificadoRegistro">
-        </div>
-
-        <div class="mb-3">
-          <label for="etnia" class="form-label">Etnia</label>
-          <select id="etnia" class="form-control" formControlName="etnia">
-            @for (e of etnias; track e) {
-              <option [value]="e">{{ e }}</option>
-            }
-          </select>
-        </div>
-
-        <div class="mb-3">
-          <label for="situacaoPessoa" class="form-label">Situação</label>
-          <select id="situacaoPessoa" class="form-control" formControlName="situacaoPessoa">
-            @for (s of situacoesPessoa; track s) {
-              <option [value]="s">{{ s }}</option>
-            }
-          </select>
-        </div>
-
-        <div formGroupName="endereco">
-          <hr>
+          <div formGroupName="enderecoForm">
+            <hr>
             <h6 class="mb-3">Endereço</h6>
             <div class="row">
               <div class="col-md-4 mb-3">
@@ -181,12 +175,10 @@
               </div>
               <div class="col-md-4 mb-3">
                 <label for="uf">UF</label>
-                <select id="uf" class="form-control" formControlName="uf">
-                  @for (sigla of ufSiglas; track sigla) {
-                    <option [value]="sigla">
-                      {{ getUfName(sigla) }}
-                    </option>
-                  }
+                <select formControlName="uf">
+                  <option *ngFor="let uf of ufSiglas" [value]="ufSiglas">
+                    {{ uf.value }}
+                  </option>
                 </select>
               </div>
               <div class="col-md-4 mb-3">

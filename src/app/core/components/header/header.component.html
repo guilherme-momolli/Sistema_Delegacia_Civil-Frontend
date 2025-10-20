@@ -1,77 +1,92 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
   <div class="container-fluid">
-    <a class="navbar-brand d-flex align-items-center" routerLink="/">
-      Delegacia Civil
+    
+    <!-- Logo / Brand -->
+    <a class="navbar-brand d-flex align-items-center fw-bold" routerLink="/">
+      <i class="bi bi-shield-lock-fill me-2"></i> Delegacia Civil
     </a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDarkDropdown"
-      aria-controls="navbarNavDarkDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    <!-- Toggle (mobile) -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+      aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse" id="navbarNavDarkDropdown">
-      <ul class="navbar-nav me-auto">
+    <!-- Navbar content -->
+    <div class="collapse navbar-collapse" id="navbarContent">
+
+      <!-- Left menu -->
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
           <a class="nav-link" routerLink="/main">
-            <i class="bi bi-house-door"></i> Home
+            <i class="bi bi-house-door-fill me-1"></i> Home
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link" routerLink="/contato">
-            <i class="bi bi-telephone"></i> Contato
+            <i class="bi bi-telephone-fill me-1"></i> Contato
           </a>
         </li>
 
-        @if (isLoggedIn) {
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Módulos
-            </a>
-            <ul class="dropdown-menu dropdown-menu-dark">
-              <li><a class="dropdown-item" routerLink="/boletim-ocorrencia" (click)="closeDropdown($event)">
-                Boletim de Ocorrencia
-              </a></li>
-              <li><a class="dropdown-item" routerLink="/inquerito-policial" (click)="closeDropdown($event)">
-                Inquerito Policial
-              </a></li>
-              <li><a class="dropdown-item" routerLink="/delegacia" (click)="closeDropdown($event)">
+        <!-- Dropdown de módulos (apenas se logado) -->
+        <li class="nav-item dropdown" *ngIf="isLoggedIn">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Módulos
+          </a>
+          <ul class="dropdown-menu dropdown-menu-dark">
+            <li>
+              <a class="dropdown-item" routerLink="/boletim-ocorrencia" (click)="closeDropdown($event)">
+                Boletim de Ocorrência
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" routerLink="/inquerito-policial" (click)="closeDropdown($event)">
+                Inquérito Policial
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" routerLink="/delegacia" (click)="closeDropdown($event)">
                 Delegacia
-              </a></li>
-            </ul>
-          </li>
-        }
+              </a>
+            </li>
+          </ul>
+        </li>
       </ul>
 
+      <!-- Right menu -->
       <ul class="navbar-nav ms-auto align-items-center">
-        @if (isLoggedIn) {
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-person"></i> {{ usuarioNome }}
-            </a>
-            <ul class="dropdown-menu dropdown-menu-dark">
-              <li class="dropdown-header">
-                <strong>{{ nomeDelegacia }}</strong>
-              </li>
-              <li>
-                <hr class="dropdown-divider">
-              </li>
-              <li><a class="dropdown-item" routerLink="/usuario" (click)="closeDropdown($event)">
-                <i class="bi bi-person-lines-fill"></i> Listar Usuário
-              </a></li>
-              <li><a class="dropdown-item" (click)="logout()">
-                <i class="bi bi-arrow-bar-left"></i> Logout
-              </a></li>
-            </ul>
-          </li>
-        }
 
+        <!-- Usuário logado -->
+        <li class="nav-item dropdown" *ngIf="isLoggedIn">
+          <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle me-1"></i> {{ usuarioNome }}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-dark">
+            <li class="dropdown-header fw-bold">{{ nomeDelegacia }}</li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item" routerLink="/usuario" (click)="closeDropdown($event)">
+                <i class="bi bi-person-lines-fill me-1"></i> Listar Usuário
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" (click)="logout()">
+                <i class="bi bi-box-arrow-right me-1"></i> Logout
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Botão modo escuro -->
         <li class="nav-item ms-2">
           <button class="btn btn-outline-light btn-sm d-flex align-items-center" type="button"
             (click)="toggleDarkMode()">
-            <i class="bi bi-moon-stars me-1"></i> Modo Escuro
+            <i class="bi bi-moon-stars-fill me-1"></i> Modo Escuro
           </button>
         </li>
+
       </ul>
+
     </div>
   </div>
 </nav>

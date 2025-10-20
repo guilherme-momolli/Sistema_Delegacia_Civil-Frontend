@@ -1,47 +1,64 @@
 import { Component, OnInit } from '@angular/core';
 import { DashboardService } from '../../core/service/dashboard/dashboard.service';
+import { Chart } from 'chart.js';
+import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
+
 
 @Component({
   selector: 'app-dashboard',
-  imports: [],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
+  imports: [
+    CommonModule
+  ],
+  styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-
-  cards: any[] = [];
-  chartBosLabels: string[] = [];
-  chartBosData: number[] = [];
-  chartDelegaciasLabels: string[] = [];
-  chartDelegaciasData: number[] = [];
-  chartBensLabels: string[] = [];
-  chartBensData: number[] = [];
+  cards$!: any;
+  bosPorMes$!: any;
+  inqueritosPorDelegacia$!: any;
+  bensPorTipo$!: any;
 
   constructor(private dashboardService: DashboardService) {}
 
   ngOnInit(): void {
-    this.dashboardService.getTotais().subscribe(data => {
-      this.cards = [
-        { titulo: 'Delegacias', valor: data.delegacias },
-        { titulo: 'Boletins', valor: data.bos },
-        { titulo: 'Inquéritos', valor: data.inqueritos },
-        { titulo: 'Bens', valor: data.bens }
-      ];
-    });
+    // Inicializa os observables aqui
+    this.cards$ = this.dashboardService.getTotais();
+    this.bosPorMes$ = this.dashboardService.getBosPorMes();
+    this.inqueritosPorDelegacia$ = this.dashboardService.getInqueritosPorDelegacia();
+    this.bensPorTipo$ = this.dashboardService.getBensPorTipo();
 
+    // Inicializa os gráficos
+    this.initCharts();
+  }
+
+  private initCharts(): void {
     this.dashboardService.getBosPorMes().subscribe(data => {
-      this.chartBosLabels = data.map(d => d.mes);
-      this.chartBosData = data.map(d => d.total);
-    });
-
-    this.dashboardService.getInqueritosPorDelegacia().subscribe(data => {
-      this.chartDelegaciasLabels = data.map(d => d.delegacia);
-      this.chartDelegaciasData = data.map(d => d.total);
+      new Chart('graficoBos', {
+        type: 'bar',
+        data: {
+          labels: data.map(d => d.mes),
+          datasets: [{
+            label: 'BOs por mês',
+            data: data.map(d => d.total),
+            backgroundColor: 'rgba(30,144,255,0.7)'
+          }]
+        }
+      });
     });
 
     this.dashboardService.getBensPorTipo().subscribe(data => {
-      this.chartBensLabels = data.map(d => d.tipo);
-      this.chartBensData = data.map(d => d.total);
+      new Chart('graficoBens', {
+        type: 'pie',
+        data: {
+          labels: data.map(d => d.tipo),
+          datasets: [{
+            label: 'Bens por tipo',
+            data: data.map(d => d.total),
+            backgroundColor: ['#1E90FF', '#FF6347', '#32CD32', '#FFD700']
+          }]
+        }
+      });
     });
   }
 }

@@ -3,7 +3,7 @@ import { catchError, Observable, throwError, tap } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { UF } from '../../enum/endereco/uf.enum';
-import { Page } from '../../../models/page/page.model';
+import { Page } from '../../models/page/page.model';
 
 
 export interface Pessoa {
@@ -48,21 +48,27 @@ export class PessoaService {
     return UF[sigla];
   }
 
-
   getPessoasFiltradas(filtro: any, page: number = 0, size: number = 10): Observable<Page<Pessoa>> {
-    const params: any = {
-      page: page.toString(),
-      size: size.toString(),
-      ...filtro
-    };
+  const params: any = {
+    page: String(page),
+    size: String(size)
+  };
 
-    return this.http.get<Page<Pessoa>>(`${this.apiUrl}/search`, { params }).pipe(
-      tap(response => {
-        console.log('📌 Retorno da API (getPessoasFiltradas):', response);
-      }),
-      catchError(this.handleError)
-    );
-  }
+  Object.keys(filtro || {}).forEach(key => {
+    const value = filtro[key];
+    if (value !== null && value !== undefined && value !== '') {
+      params[key] = String(value);
+    }
+  });
+
+  return this.http.get<Page<Pessoa>>(`${this.apiUrl}/search`, { params }).pipe(
+    tap(response => {
+      console.log('📌 Retorno da API (getPessoasFiltradas):', response);
+    }),
+    catchError(this.handleError)
+  );
+}
+
 
 
 

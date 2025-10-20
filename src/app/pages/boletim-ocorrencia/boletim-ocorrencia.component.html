@@ -1,0 +1,240 @@
+<div class="container">
+  <h1>Boletins de Ocorrência</h1>
+
+  <div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#formModal" (click)="resetarFormulario()">
+      Cadastrar Boletim
+    </button>
+  </div>
+
+  @if (successMessage) {
+  <div class="alert alert-success mt-3">{{ successMessage }}</div>
+  }
+  @if (errorMessage) {
+  <div class="alert alert-danger mt-3">{{ errorMessage }}</div>
+  }
+
+  <div class="table-responsive">
+    <table class="table table-dark table-striped table-bordered text-center align-middle">
+      <thead>
+        <tr>
+          <th>Nº BO</th>
+          <th>Data/Hora</th>
+          <th>Natureza</th>
+          <th>Local</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (boletim of boletins; track boletim) {
+        <tr>
+          <td>{{ boletim.boletim }}</td>
+          <td>{{ boletim.dataOcorrencia | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td>{{ boletim.natureza }}</td>
+          <td>{{ boletim.endereco?.logradouro }}</td>
+          <td>
+            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#formModal"
+              (click)="abrirModalEdicao(boletim)">Editar</button>
+            <button class="btn btn-danger btn-sm" (click)="confirmarExclusao(boletim)">Excluir</button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal Boletim de Ocorrência -->
+  <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content dark-mode-modal">
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="formModalLabel">
+            {{ isEdicao ? 'Editar Boletim de Ocorrência' : 'Novo Boletim de Ocorrência' }}
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+
+        <form [formGroup]="boletimForm" (ngSubmit)="salvarBoletim()">
+          <div class="modal-body">
+
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs mb-3" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-boletim" type="button"
+                  role="tab">
+                  Boletim
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-endereco" type="button" role="tab">
+                  Endereço
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-pessoas" type="button" role="tab">
+                  Pessoas Envolvidas
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-bens" type="button" role="tab">
+                  Bens
+                </button>
+              </li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+
+              <!-- TAB - BOLETIM -->
+              <div class="tab-pane fade show active" id="tab-boletim" role="tabpanel">
+                <div class="row g-3">
+
+                  <div class="col-md-6">
+                    <label class="form-label">Número do Boletim</label>
+                    <input formControlName="boletim" type="text" class="form-control" />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label">Data/Hora da Ocorrência</label>
+                    <input formControlName="dataOcorrencia" type="datetime-local" class="form-control" />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label">Natureza</label>
+                    <input formControlName="natureza" type="text" class="form-control" />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label">Representação</label>
+                    <input formControlName="representacao" type="text" class="form-control" />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label">Origem da Força Policial</label>
+                    <select formControlName="origemForcaPolicial" class="form-select">
+                      <option value="">Selecione...</option>
+                      <option *ngFor="let origem of origens" [value]="origem.key">
+                        {{ origem.value }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- TAB - ENDEREÇO -->
+              <div class="tab-pane fade" id="tab-endereco" role="tabpanel">
+                <div formGroupName="endereco" class="row g-3">
+
+                  <div class="col-md-4">
+                    <label class="form-label">UF</label>
+                    <select formControlName="uf" type="text" class="form-control" maxlength="2">
+                      <option *ngFor="let uf of ufs" [value]="uf.key">
+                        {{ uf.value }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label">Município</label>
+                    <input formControlName="municipio" type="text" class="form-control" />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label">Bairro</label>
+                    <input formControlName="bairro" type="text" class="form-control" />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label">Logradouro</label>
+                    <input formControlName="logradouro" type="text" class="form-control" />
+                  </div>
+
+                  <div class="col-md-3">
+                    <label class="form-label">Número</label>
+                    <input formControlName="numero" type="text" class="form-control" />
+                  </div>
+
+                  <div class="col-md-3">
+                    <label class="form-label">CEP</label>
+                    <input formControlName="cep" type="text" class="form-control" placeholder="00000-000" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- TAB - PESSOAS -->
+              <div class="tab-pane fade" id="tab-pessoas" role="tabpanel">
+                <div class="row">
+
+                  <!-- Filtros -->
+                  <div class="col-12 mb-3">
+                    <div class="input-group">
+                      <input type="text" class="form-control" placeholder="Pesquisar por nome..."
+                        [formControl]="filtroNome">
+                      <input type="text" class="form-control" placeholder="Pesquisar por CPF..."
+                        [formControl]="filtroCpf">
+                      <select class="form-select" [formControl]="filtroGenero">
+                        <option value="">Todos os gêneros</option>
+                        <option *ngFor="let g of generos" [value]="g.key">{{ g.value }}</option>
+                      </select>
+                      <button type="button" class="btn btn-primary" (click)="buscarPessoas()">Pesquisar</button>
+                    </div>
+                  </div>
+
+                  <!-- Pessoas encontradas -->
+                  <div class="col-md-6 mb-3">
+                    <div class="card h-100">
+                      <div class="card-header">
+                        <h6 class="mb-0">Pessoas Cadastradas</h6>
+                      </div>
+                      <ul class="list-group list-group-flush">
+                        <li *ngFor="let pessoa of pessoasFiltradas"
+                          class="list-group-item d-flex justify-content-between align-items-center">
+                          <span>{{ pessoa.nome }} - {{ pessoa.cpf }}</span>
+                          <button type="button" class="btn btn-sm btn-success"
+                            (click)="adicionarPessoa(pessoa)">Adicionar</button>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <!-- Pessoas selecionadas -->
+                  <div class="col-md-6 mb-3">
+                    <div class="card h-100">
+                      <div class="card-header">
+                        <h6 class="mb-0">Pessoas Selecionadas</h6>
+                      </div>
+                      <ul class="list-group list-group-flush">
+                        <li *ngFor="let pessoa of pessoasSelecionadasDetalhes"
+                          class="list-group-item d-flex justify-content-between align-items-center">
+                          <span>
+                            {{ pessoa.nome || 'Nome não disponível' }} - {{ pessoa.cpf || 'CPF não disponível' }}
+                          </span>
+                          <button type="button" class="btn btn-sm btn-danger" (click)="removerPessoa(pessoa.id!)">
+                            Remover
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- TAB - BENS -->
+              <div class="tab-pane fade" id="tab-bens" role="tabpanel">
+                <h6>Bens</h6>
+                <p>Área de bens (implementar depois conforme necessidade)</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-success">Salvar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>

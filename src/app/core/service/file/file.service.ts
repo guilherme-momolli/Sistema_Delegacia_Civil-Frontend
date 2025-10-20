@@ -11,7 +11,6 @@ export class FileService {
 
   constructor(private http: HttpClient) { }
 
-  /** Upload de um único arquivo */
   uploadFile(file: File, subFolder?: string): Observable<{ fileName: string; fileUrl: string }> {
     const formData = new FormData();
     formData.append('file', file, file.name);
@@ -23,7 +22,6 @@ export class FileService {
       .pipe(catchError(error => this.handleError(error)));
   }
 
-  /** Upload de múltiplos arquivos */
   uploadMultipleFiles(files: File[], subFolder?: string): Observable<{ fileName: string; fileUrl: string }[]> {
     const formData = new FormData();
     files.forEach(file => formData.append('files', file, file.name));
@@ -35,7 +33,6 @@ export class FileService {
       .pipe(catchError(error => this.handleError(error)));
   }
 
-  /** Download de arquivo pelo nome */
   downloadFile(fileName: string, subFolder?: string): Observable<Blob> {
     let params = new HttpParams();
     if (subFolder) {
@@ -48,12 +45,12 @@ export class FileService {
     }).pipe(catchError(error => this.handleError(error)));
   }
 
-  /** Gera URL direta para exibir imagens */
   getImageUrl(subFolder: string, fileName: string): string {
-    return `${this.apiUrl}/getFile/Imagens/${subFolder}/${fileName}`;
+    if (!fileName) return '';
+    const safeFileName = encodeURIComponent(fileName.trim());
+    return `${this.apiUrl}/getFile/Imagens/${subFolder}/${safeFileName}`;
   }
 
-  /** Tratamento de erros HTTP */
   private handleError(error: any): Observable<never> {
     console.error('Erro no FileService:', error);
     return throwError(() => new Error(error.message || 'Erro desconhecido'));

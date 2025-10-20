@@ -17,15 +17,18 @@ import { DelegaciaComponent } from './pages/delegacia/delegacia.component';
 import { DebugComponent } from './pages/debug/debug.component';
 import { MyProfileComponent } from './pages/my-profile/my-profile.component';
 import { PessoaComponent } from './pages/pessoa/pessoa.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { BemComponent } from './pages/bem/bem.component';
 
 export const routes: Routes = [
   { path: 'debug', component: DebugComponent },
   { path: '', component: LandingPageComponent, canActivate: [NoAuthGuard] },
   // { path: 'signup', component: InstituicaoComponent, canActivate: [NoAuthGuard] },
   { path: 'login', component: LoginComponent, /*canActivate: [NoAuthGuard]*/ },
-  { path: 'main', component: MainComponent, /*canActivate: [AuthGuard]*/ },
+  { path: 'main', component: DashboardComponent, /*canActivate: [AuthGuard]*/ },
   { path: 'inquerito-policial', component: InqueritoPolicialComponent, /*canActivate: [AuthGuard]*/ },
   { path: 'pessoa', component: PessoaComponent},
+  { path: 'bem', component: BemComponent, /*canActivate: [AuthGuard]*/},
   { path: 'boletim-ocorrencia', component: BoletimOcorrenciaComponent, canActivate: [AuthGuard] },
   { path: 'delegacia', component: DelegaciaComponent, /*canActivate: [AuthGuard, PrivilegioGuard],*/ data: { privilegios: ['Administrador', 'Administrador master', 'Controle Mestre'] }},
   { path: 'usuario', component: UsuarioComponent, /*canActivate: [AuthGuard, PrivilegioGuard],*/  data: { privilegios: ['Administrador', 'Administrador master', 'Controle Mestre'] }},

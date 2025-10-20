@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { InqueritoPolicialService, InqueritoPolicial, InqueritoPolicialRequestDTO } from '../../core/service/inquerito-policial/inquerito-policial.service';
-import { Delegacia, DelegaciaService } from '../../core/service/delegacia/delegacia.service';
+import { DelegaciaService } from '../../core/service/delegacia/delegacia.service';
 import { Peca, OrigemForcaPolicial, SituacaoInquerito, Genero, TipoEnvolvimento, PecaDescricao, SituacaoInqueritoDescricao, OrigemForcaPolicialDescricao, GeneroDescricao, TipoEnvolvimentoDescricao } from '../../../shared/enums/index.enum';
 import { Pessoa, PessoaService } from '../../core/service/pessoa/pessoa.service';
 import { AuthService } from '../../core/guards/auth/auth.service';
@@ -13,6 +13,7 @@ import { ModalSeletorPessoaComponent } from '../../../shared/components/modal/pe
 import { enumToKeyValueArray } from '../../../shared/enums/enum-utils';
 import { Observable } from 'rxjs';
 import { PessoaEnvolvimentoService } from '../../core/service/pessoa-envolvimento/pessoa-envolvimento.service';
+import { DelegaciaResponseDTO } from '../../core/models/dto/delegacia/delegacia-response.dto';
 
 declare var bootstrap: any;
 
@@ -25,13 +26,16 @@ declare var bootstrap: any;
   styleUrls: ['./inquerito-policial.component.css']
 })
 export class InqueritoPolicialComponent implements OnInit {
+
+  // @ViewChild('numeroJusticaInput') numeroJusticaInput!: ElementRef;
+
   successMessage: string = '';
   errorMessage: string = '';
   inqueritoForm: FormGroup;
   inqueritos: InqueritoPolicial[] = [];
   pessoas: Pessoa[] = [];
   pessoasFiltradas: Pessoa[] = [];
-  delegacias: Delegacia[] = [];
+  delegacias: DelegaciaResponseDTO[] = [];
   isEdicao: boolean = false;
   inqueritoSelecionado: InqueritoPolicial | null = null;
   envolvimentos: { [key: number]: string } = {};
@@ -111,7 +115,7 @@ export class InqueritoPolicialComponent implements OnInit {
   }
 
   carregarInqueritos(delegaciaId: number): void {
-    this.inqueritoService.getInqueritosByDelegacia(delegaciaId).subscribe({
+    this.inqueritoService.getByDelegacia(delegaciaId).subscribe({
       next: (inqueritos) => {
         this.inqueritos = (inqueritos || []).map((inq: any) => {
           const pessoasEnvolvidas = (inq.pessoasEnvolvidas || []).map((env: any) => ({
@@ -126,7 +130,6 @@ export class InqueritoPolicialComponent implements OnInit {
             }
           }));
 
-          // campo auxiliar para facilitar exibição em tabelas/listas
           const pessoasEnvolvidasResumo = pessoasEnvolvidas.map((e: any) => ({
             id: e.pessoa?.id,
             nome: e.pessoa?.nome,
@@ -192,7 +195,7 @@ export class InqueritoPolicialComponent implements OnInit {
     if (!this.pessoasSelecionadas.includes(pessoa.id!)) {
       this.pessoasSelecionadas.push(pessoa.id!);
       this.pessoasSelecionadasDetalhes.push(pessoa);
-      this.envolvimentos[pessoa.id!] = 'VITIMA'; // default
+      this.envolvimentos[pessoa.id!] = 'VITIMA';
     }
   }
 
@@ -213,35 +216,34 @@ export class InqueritoPolicialComponent implements OnInit {
 
     const formValue = this.inqueritoForm.value;
 
-    // Monta o objeto inquerito exatamente como o backend espera
     const inquerito: InqueritoPolicial = {
       id: formValue.id,
       numeroJustica: formValue.numeroJustica,
       ordemIp: formValue.ordemIp,
-      data: formValue.data, // deve ser string "yyyy-MM-dd" para LocalDate
-      peca: formValue.peca, // deve bater com enum do backend: "APF", "PORTARIA", etc.
-      situacaoInquerito: formValue.situacaoInquerito, // enum: "EM_ANDAMENTO", etc.
-      origemForcaPolicial: formValue.origemForcaPolicial, // enum
+      data: formValue.data,
+      peca: formValue.peca, 
+      situacaoInquerito: formValue.situacaoInquerito, 
+      origemForcaPolicial: formValue.origemForcaPolicial,
       naturezaDoDelito: formValue.naturezaDoDelito,
       observacao: formValue.observacao,
-      delegaciaId: this.delegaciaLogadaId!, // pega sempre da delegacia logada
+      delegaciaId: this.delegaciaLogadaId!,
       pessoasEnvolvidas: this.pessoasSelecionadas
         .filter(id => id != null)
         .map(id => ({
           pessoaId: id,
           tipoEnvolvimento: this.envolvimentos[id] || 'VITIMA',
-          observacao: '', // ou pegar do formulário, se tiver
+          observacao: '',
         }))
     };
 
     const payload: InqueritoPolicialRequestDTO = {
-      inqueritoPolicial: inquerito,       // 🔹 obrigatoriamente dentro de 'inqueritoPolicial'
-      pessoasEnvolvidas: inquerito.pessoasEnvolvidas! // 🔹 lista de pessoas envolvidas
+      inqueritoPolicial: inquerito,    
+      pessoasEnvolvidas: inquerito.pessoasEnvolvidas!
     };
     console.log('Payload enviado:', payload);
 
     if (this.isEdicao && inquerito.id) {
-      this.inqueritoService.updateInquerito(inquerito.id, payload).subscribe({
+      this.inqueritoService.update(inquerito.id, payload).subscribe({
         next: () => {
           this.carregarInqueritos(this.delegaciaLogadaId!);
           this.resetarFormulario();
@@ -250,7 +252,7 @@ export class InqueritoPolicialComponent implements OnInit {
         error: (err) => alert(err.message)
       });
     } else {
-      this.inqueritoService.createInquerito(payload).subscribe({
+      this.inqueritoService.create(payload).subscribe({
         next: () => {
           this.carregarInqueritos(this.delegaciaLogadaId!);
           this.resetarFormulario();
@@ -308,7 +310,7 @@ export class InqueritoPolicialComponent implements OnInit {
 
   excluirInquerito(): void {
     if (this.inqueritoSelecionado?.id) {
-      this.inqueritoService.deleteInquerito(this.inqueritoSelecionado.id).subscribe({
+      this.inqueritoService.delete(this.inqueritoSelecionado.id).subscribe({
         next: () => {
           this.carregarInqueritos(this.delegaciaLogadaId!);
           this.inqueritoSelecionado = null;

@@ -1,17 +1,20 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
-import { Delegacia, DelegaciaService } from '../../core/service/delegacia/delegacia.service';
+import { DelegaciaService } from '../../core/service/delegacia/delegacia.service';
 import { Pais, UF } from '../../../shared/enums/index.enum';
 import { RouterModule } from '@angular/router';
 import { EnderecoService } from '../../core/service/endereco/endereco.service';
 import { debounceTime, distinctUntilChanged, filter } from 'rxjs';
 import { FileService } from '../../core/service/file/file.service';
+import { CommonModule } from '@angular/common';
+import { DelegaciaResponseDTO } from '../../core/models/dto/delegacia/delegacia-response.dto';
+import { DelegaciaRequestDTO } from '../../core/models/dto/delegacia/delegacia-request.dto';
 
 @Component({
   selector: 'app-delegacia',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterModule],
+  imports: [ReactiveFormsModule, RouterModule, CommonModule],
   templateUrl: './delegacia.component.html',
   styleUrls: ['./delegacia.component.css']
 })
@@ -23,8 +26,8 @@ export class DelegaciaComponent implements OnInit {
   ufMap = UF;
   ufSiglas = Object.keys(UF) as (keyof typeof UF)[];
   ufs = Object.entries(UF).map(([sigla, nome]) => ({ sigla, nome }));
-  delegacias: Delegacia[] = [];
-  delegaciaSelecionada: Delegacia | null = null;
+  delegacias: DelegaciaResponseDTO[] = [];
+  delegaciaSelecionada: DelegaciaResponseDTO | null = null;
   imagemSelecionada?: File;
   isEdicao: boolean = false;
   modalExclusaoAberto: boolean = false;
@@ -82,7 +85,7 @@ export class DelegaciaComponent implements OnInit {
               bairro: data.bairro,
               municipio: data.localidade,
               uf: data.uf,
-              pais: 'Brasil'
+              pais: 'BRASIL'
             });
           },
           error: (err) => {
@@ -105,32 +108,40 @@ export class DelegaciaComponent implements OnInit {
     });
   }
 
-  getImagemDelegacia(delegacia: Delegacia): string {
-    if (!delegacia.imagemUrl) return '';
-    return this.fileService.getImageUrl('Delegacia', delegacia.imagemUrl);
+  getImagemDelegacia(delegacia: DelegaciaResponseDTO): string {
+    if (!delegacia.imagemUrl) {
+      console.log('⚠️ Nenhuma imagem para esta delegacia');
+      return '';
+    }
+    const url = this.fileService.getImageUrl('Delegacias', delegacia.imagemUrl);
+    return url;
   }
+
+
+
 
   onFileChange(event: any): void {
-  const file = event.target.files[0];
-  if (file) {
-    this.imagemSelecionada = file;
+    const file = event.target.files[0];
+    if (file) {
+      this.imagemSelecionada = file;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.imagemPreview = reader.result;
-    };
-    reader.readAsDataURL(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagemPreview = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
   }
-}
 
 
   salvarDelegacia(): void {
     const formValue = this.delegaciaForm.value;
 
-    const delegacia: Delegacia = {
+    const delegacia: DelegaciaRequestDTO = {
       secretaria: formValue.secretaria,
       nome: formValue.nome,
       email: formValue.email,
+      senha: formValue.senha && formValue.senha.trim() !== '' ? formValue.senha : undefined,
       telefoneFixo: formValue.telefoneFixo,
       telefoneCelular: formValue.telefoneCelular,
       endereco: {
@@ -145,10 +156,11 @@ export class DelegaciaComponent implements OnInit {
       }
     };
 
-    const senha = formValue.senha;
+    console.log('Dados da delegacia a serem salvos:', delegacia);
+
 
     if (this.isEdicao && formValue.id) {
-      this.delegaciaService.updateDelegacia(formValue.id, delegacia, senha, this.imagemSelecionada).subscribe({
+      this.delegaciaService.updateDelegacia(formValue.id, delegacia, this.imagemSelecionada).subscribe({
         next: () => {
           this.carregarDelegacias();
           this.resetarFormulario();
@@ -157,7 +169,7 @@ export class DelegaciaComponent implements OnInit {
         error: (err) => alert(err.message)
       });
     } else {
-      this.delegaciaService.createDelegacia(delegacia, senha, this.imagemSelecionada).subscribe({
+      this.delegaciaService.createDelegacia(delegacia, this.imagemSelecionada).subscribe({
         next: () => {
           this.carregarDelegacias();
           this.resetarFormulario();
@@ -168,7 +180,7 @@ export class DelegaciaComponent implements OnInit {
     }
   }
 
-  abrirModalEdicao(delegacia: Delegacia): void {
+  abrirModalEdicao(delegacia: DelegaciaResponseDTO): void {
     this.isEdicao = true;
     this.delegaciaForm.patchValue({
       id: delegacia.id,
@@ -191,29 +203,39 @@ export class DelegaciaComponent implements OnInit {
     });
   }
 
-  confirmarExclusao(delegacia: Delegacia): void {
-    this.modalExclusaoAberto = true;
-    this.delegaciaSelecionada = delegacia;
-  }
-
   fecharModalExclusao(): void {
     this.modalExclusaoAberto = false;
     this.delegaciaSelecionada = null;
   }
 
-  excluirDelegacia(): void {
-    if (this.delegaciaSelecionada?.id) {
-      this.delegaciaService.deleteDelgacia(this.delegaciaSelecionada.id).subscribe({
-        next: () => {
-          this.carregarDelegacias();
-          this.fecharModalExclusao();
-          alert('Delegacia excluída com sucesso!');
-        },
-        error: (err) => alert(err.message)
-      });
-    }
-  }
+  confirmarExclusao(delegacia: DelegaciaResponseDTO): void {
+  console.log('Confirmar exclusão chamada', delegacia);
+  this.delegaciaSelecionada = delegacia;
 
+  const confirmacao = confirm(`Tem certeza que deseja excluir a delegacia "${delegacia.nome}"?`);
+  if (confirmacao) {
+    this.excluirDelegacia();
+  }
+}
+
+excluirDelegacia(): void {
+  console.log('Excluir delegacia chamada com ID:', this.delegaciaSelecionada?.id);
+
+  if (this.delegaciaSelecionada?.id) {
+    this.delegaciaService.deleteDelegacia(this.delegaciaSelecionada.id).subscribe({
+      next: () => {
+        console.log('Exclusão concluída');
+        this.carregarDelegacias();
+        this.fecharModalExclusao();
+        alert('Delegacia excluída com sucesso!');
+      },
+      error: (err) => {
+        console.error('Erro ao excluir:', err);
+        alert(err.message);
+      }
+    });
+  }
+}
   public resetarFormulario(): void {
     this.delegaciaForm.reset();
     this.delegaciaForm.get('enderecoForm')?.reset({ pais: 'BRASIL' });

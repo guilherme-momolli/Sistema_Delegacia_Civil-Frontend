@@ -1,58 +1,68 @@
-<div class="selector-wrapper d-flex justify-content-center align-items-center min-vh-100">
-  <div class="card futuristic-card p-4 w-100">
-    <h2 class="text-center contact-title fw-bold mb-4">
-      <i class="bi bi-lock me-2"></i>Login
+<div class="d-flex justify-content-center align-items-center min-vh-100 bg-light">
+  <div class="card shadow-lg p-4 rounded-3 w-100" style="max-width: 400px;">
+    
+    <h2 class="text-center fw-bold mb-4">
+      <i class="bi bi-lock-fill me-2"></i>Login
     </h2>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+      
+      <!-- E-mail -->
       <div class="mb-3">
         <label for="email" class="form-label">E-mail</label>
         <div class="input-group">
-          <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+          <span class="input-group-text">
+            <i class="bi bi-envelope-fill"></i>
+          </span>
           <input
+            type="email"
             id="email"
             formControlName="email"
-            type="email"
-            class="form-control futuristic-input"
+            class="form-control"
             placeholder="Digite seu e-mail"
-            aria-label="Digite seu e-mail"
             [class.is-invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
-            />
+            required
+          />
         </div>
-        <div class="invalid-feedback">E-mail inválido</div>
+        <div class="invalid-feedback">Por favor, insira um e-mail válido.</div>
       </div>
 
+      <!-- Senha -->
       <div class="mb-3">
         <label for="senha" class="form-label">Senha</label>
         <div class="input-group">
-          <span class="input-group-text"><i class="bi bi-key"></i></span>
+          <span class="input-group-text">
+            <i class="bi bi-key-fill"></i>
+          </span>
           <input
+            type="password"
             id="senha"
             formControlName="senha"
-            type="password"
-            class="form-control futuristic-input"
+            class="form-control"
             placeholder="Digite sua senha"
-            aria-label="Digite sua senha"
             [class.is-invalid]="loginForm.get('senha')?.invalid && loginForm.get('senha')?.touched"
-            />
+            required
+          />
         </div>
-        <div class="invalid-feedback">Senha obrigatória</div>
+        <div class="invalid-feedback">Senha obrigatória.</div>
       </div>
 
-      <button type="submit" class="btn btn-primary w-100 futuristic-btn" [disabled]="loginForm.invalid">
+      <!-- Botão -->
+      <button type="submit" class="btn btn-primary w-100 mb-3" [disabled]="loginForm.invalid">
         Entrar
       </button>
 
-      <p class="text-center mt-3 mb-0">
+      <!-- Link para cadastro -->
+      <p class="text-center mb-2">
         Não tem uma conta?
-        <a class="futuristic-link" role="button" (click)="navigateToCadastro()">Cadastrar</a>
+        <a role="button" class="text-decoration-none" (click)="navigateToCadastro()">Cadastrar</a>
       </p>
-    </form>
 
-    @if (errorMessage) {
-      <p class="text-danger text-center mt-2 mb-0 futuristic-error">
+      <!-- Mensagem de erro -->
+      <p *ngIf="errorMessage" class="text-danger text-center small">
         {{ errorMessage }}
       </p>
-    }
+
+    </form>
   </div>
 </div>

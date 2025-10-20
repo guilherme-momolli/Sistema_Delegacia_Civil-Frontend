@@ -1,0 +1,92 @@
+<div class="container mt-4">
+  <h2 class="text-center mb-4">Gerenciamento de Bens</h2>
+
+  <div class="d-flex justify-content-end mb-3">
+    <button class="btn btn-primary" (click)="openModal()">+ Novo Bem</button>
+  </div>
+
+  <div *ngIf="mensagemSucesso" class="alert alert-success">{{ mensagemSucesso }}</div>
+  <div *ngIf="mensagemErro" class="alert alert-danger">{{ mensagemErro }}</div>
+
+  <div class="table-responsive">
+    <table class="table table-striped align-middle text-center">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Tipo</th>
+          <th>Marca</th>
+          <th>Modelo</th>
+          <th>Local</th>
+          <th>Valor Estimado</th>
+          <th>Situação</th>
+          <th>Imagem</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let bem of bens">
+          <td>{{ bem.id }}</td>
+          <td>{{ bem.tipoBem }}</td>
+          <td>{{ bem.marca || '-' }}</td>
+          <td>{{ bem.modelo || '-' }}</td>
+          <td>{{ bem.localBem || '-' }}</td>
+          <td>R$ {{ bem.valorEstimado || '0,00' }}</td>
+          <td>{{ bem.situacaoBem || '-' }}</td>
+          <td>
+            <img *ngIf="bem.imagemUrl" [src]="bem.imagemUrl" alt="Imagem" width="60" height="60" class="rounded">
+          </td>
+          <td>
+            <button class="btn btn-sm btn-warning me-2" (click)="openModal(bem)">Editar</button>
+            <button class="btn btn-sm btn-danger" (click)="deletar(bem)">Excluir</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal -->
+  <div *ngIf="modalAberto" class="modal-backdrop">
+    <div class="modal-content p-4">
+      <h4>{{ editando ? 'Editar Bem' : 'Cadastrar Bem' }}</h4>
+
+      <form [formGroup]="form" (ngSubmit)="save()">
+
+        <div class="mb-3">
+          <label>Tipo do Bem *</label>
+          <input formControlName="tipoBem" type="text" class="form-control">
+        </div>
+
+        <div class="mb-3">
+          <label>Marca</label>
+          <input formControlName="marca" type="text" class="form-control">
+        </div>
+
+        <div class="mb-3">
+          <label>Modelo</label>
+          <input formControlName="modelo" type="text" class="form-control">
+        </div>
+
+        <div class="mb-3">
+          <label>Local do Bem</label>
+          <input formControlName="localBem" type="text" class="form-control">
+        </div>
+
+        <div class="mb-3">
+          <label>Valor Estimado</label>
+          <input formControlName="valorEstimado" type="text" class="form-control">
+        </div>
+
+        <div class="mb-3">
+          <label>Imagem</label>
+          <input type="file" (change)="onFileChange($event)" class="form-control">
+        </div>
+
+        <div class="text-end mt-4">
+          <button type="submit" class="btn btn-success me-2">{{ editando ? 'Salvar Alterações' : 'Cadastrar' }}</button>
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

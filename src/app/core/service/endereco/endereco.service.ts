@@ -12,6 +12,8 @@ export interface Endereco {
   municipio: string;
   uf: string;
   pais: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Cep {

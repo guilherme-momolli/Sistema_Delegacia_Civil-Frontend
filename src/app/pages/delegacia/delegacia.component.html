@@ -8,10 +8,10 @@
   </div>
 
   @if (successMessage) {
-    <div class="alert alert-success mt-3">{{ successMessage }}</div>
+  <div class="alert alert-success mt-3">{{ successMessage }}</div>
   }
   @if (errorMessage) {
-    <div class="alert alert-danger mt-3">{{ errorMessage }}</div>
+  <div class="alert alert-danger mt-3">{{ errorMessage }}</div>
   }
 
   <div class="table-responsive">
@@ -29,29 +29,31 @@
       </thead>
       <tbody>
         @for (delegacia of delegacias; track delegacia) {
-          <tr>
-            <td>
-              @if (delegacia.imagemUrl) {
-                <img [src]="delegacia.imagemUrl" alt="Imagem da delegacia"
-                  style="width: 100px; height: 100px; object-fit: cover; border-radius: 6px;">
-              }
-              @if (!delegacia.imagemUrl) {
-                <span>Sem imagem</span>
-              }
-            </td>
-            <td>{{ delegacia.secretaria }}</td>
-            <td>{{ delegacia.nome }}</td>
-            <td>{{ delegacia.email }}</td>
-            <td>{{ delegacia.telefoneFixo || '-' }}</td>
-            <td>{{ delegacia.telefoneCelular || '-' }}</td>
-            <td>
-              <div>
-                <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#formModal"
-                (click)="abrirModalEdicao(delegacia)">Editar</button>
-                <button class="btn btn-sm btn-danger" (click)="confirmarExclusao(delegacia)">Excluir</button>
-              </div>
-            </td>
-          </tr>
+        <tr>
+          <td>
+            @if (delegacia.imagemUrl) {
+            <img [src]="getImagemDelegacia(delegacia)" alt="Imagem da delegacia"
+              style="width: 100px; height: 100px; object-fit: cover; border-radius: 6px;">
+            }
+            @if (!delegacia.imagemUrl) {
+            <span>Sem imagem</span>
+            }
+          </td>
+
+
+          <td>{{ delegacia.secretaria }}</td>
+          <td>{{ delegacia.nome }}</td>
+          <td>{{ delegacia.email }}</td>
+          <td>{{ delegacia.telefoneFixo || '-' }}</td>
+          <td>{{ delegacia.telefoneCelular || '-' }}</td>
+          <td>
+            <div>
+              <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#formModal"
+                (click)="abrirModalEdicao(delegacia)"><i class="bi bi-pencil"></i>Editar</button>
+              <button class="btn btn-sm btn-danger" (click)="confirmarExclusao(delegacia)"><i class="bi bi-trash"></i>Excluir</button>
+            </div>
+          </td>
+        </tr>
         }
       </tbody>
     </table>
@@ -99,60 +101,60 @@
             </div>
 
             @if (!isEdicao) {
-              <div class="mb-3">
-                <label for="senha" class="form-label">Senha de Acesso</label>
-                <input type="password" class="form-control" id="senha" formControlName="senha">
-              </div>
+            <div class="mb-3">
+              <label for="senha" class="form-label">Senha de Acesso</label>
+              <input type="password" class="form-control" id="senha" formControlName="senha">
+            </div>
             }
 
             <div formGroupName="enderecoForm">
               <hr>
-                <h6 class="mb-3">Endereço da Delegacia</h6>
+              <h6 class="mb-3">Endereço da Delegacia</h6>
 
-                <div class="row">
-                  <div class="col-md-4 mb-3">
-                    <label for="cep" class="form-label">CEP</label>
-                    <input type="text" class="form-control" id="cep" formControlName="cep" placeholder="00000-000">
-                  </div>
-                  <div class="col-md-4 mb-3">
-                    <label for="uf">UF</label>
-                    <select id="uf" class="form-control" formControlName="uf">
-                      @for (sigla of ufSiglas; track sigla) {
-                        <option [value]="sigla">
-                          {{ getUfName(sigla) }}
-                        </option>
-                      }
-                    </select>
-                  </div>
-                  <div class="col-md-4 mb-3">
-                    <label for="municipio" class="form-label">Município</label>
-                    <input type="text" class="form-control" id="municipio" formControlName="municipio">
-                  </div>
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <label for="cep" class="form-label">CEP</label>
+                  <input type="text" class="form-control" id="cep" formControlName="cep" placeholder="00000-000">
                 </div>
-
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label for="bairro" class="form-label">Bairro</label>
-                    <input type="text" class="form-control" id="bairro" formControlName="bairro">
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label for="logradouro" class="form-label">Logradouro</label>
-                    <input type="text" class="form-control" id="logradouro" formControlName="logradouro">
-                  </div>
+                <div class="col-md-4 mb-3">
+                  <label for="uf">UF</label>
+                  <select id="uf" class="form-control" formControlName="uf">
+                    @for (sigla of ufSiglas; track sigla) {
+                    <option [value]="sigla">
+                      {{ getUfName(sigla) }}
+                    </option>
+                    }
+                  </select>
                 </div>
-                <div class="row">
-                  <div class="col-md-4 mb-3">
-                    <label for="numero" class="form-label">Número</label>
-                    <input type="text" class="form-control" id="numero" formControlName="numero">
-                  </div>
+                <div class="col-md-4 mb-3">
+                  <label for="municipio" class="form-label">Município</label>
+                  <input type="text" class="form-control" id="municipio" formControlName="municipio">
                 </div>
               </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn btn-success" form="delegaciaForm">Salvar</button>
-          </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="bairro" class="form-label">Bairro</label>
+                  <input type="text" class="form-control" id="bairro" formControlName="bairro">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="logradouro" class="form-label">Logradouro</label>
+                  <input type="text" class="form-control" id="logradouro" formControlName="logradouro">
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <label for="numero" class="form-label">Número</label>
+                  <input type="text" class="form-control" id="numero" formControlName="numero">
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success" form="delegaciaForm">Salvar</button>
         </div>
       </div>
     </div>
+  </div>

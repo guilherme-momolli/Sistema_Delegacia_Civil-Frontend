@@ -12,6 +12,7 @@ export interface PessoaEnvolvimento {
   tipoEnvolvimento: string;
   observacao?: string;
 }
+
 @Injectable({
   providedIn: 'root'
 })
@@ -28,6 +29,10 @@ export class PessoaEnvolvimentoService {
   listarPorInquerito(inqueritoId: number): Observable<PessoaEnvolvimento[]> {
     return this.http.get<PessoaEnvolvimento[]>(`${this.apiUrl}/inquerito/${inqueritoId}`, { headers: this.auth.getAuthHeaders() });
   }
+
+  listarPorBoletim(boletimId: number): Observable<PessoaEnvolvimento[]> {
+  return this.http.get<PessoaEnvolvimento[]>(`${this.apiUrl}/boletim/${boletimId}`, { headers: this.auth.getAuthHeaders() });
+}
 
   criar(dto: PessoaEnvolvimento): Observable<PessoaEnvolvimento> {
     return this.http.post<PessoaEnvolvimento>(`${this.apiUrl}/create`, dto, { headers: this.auth.getAuthHeaders() })

@@ -3,17 +3,9 @@ import { environment } from '../../../../environments/environment';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { Endereco } from '../endereco/endereco.service';
+import { DelegaciaResponseDTO } from '../../models/dto/delegacia/delegacia-response.dto';
+import { DelegaciaRequestDTO } from '../../models/dto/delegacia/delegacia-request.dto';
 
-export interface Delegacia {
-  id?: number;
-  imagemUrl?: string;
-  secretaria: string;
-  nome: string;
-  email: string;
-  telefoneFixo?: string;
-  telefoneCelular?: string;
-  endereco?: Endereco;
-}
 
 @Injectable({
   providedIn: 'root'
@@ -24,60 +16,56 @@ export class DelegaciaService {
 
   constructor(private http: HttpClient) { }
 
-  getDelegacias(): Observable<Delegacia[]> {
-    return this.http.get<Delegacia[]>(`${this.apiUrl}/list`).pipe(
+  getDelegacias(): Observable<DelegaciaResponseDTO[]> {
+    return this.http.get<DelegaciaResponseDTO[]>(`${this.apiUrl}/list`).pipe(
       catchError(this.handleError)
     );
   }
 
-  getDelegaciasByUsuarioId(id: number): Observable<Delegacia[]> {
-    return this.http.get<Delegacia[]>(`${this.apiUrl}/usuario/${id}`);
+  getDelegaciasByUsuarioId(id: number): Observable<DelegaciaResponseDTO[]> {
+    return this.http.get<DelegaciaResponseDTO[]>(`${this.apiUrl}/usuario/${id}`);
   }
 
-  getDelegaciaById(id: number): Observable<Delegacia> {
-    return this.http.get<Delegacia>(`${this.apiUrl}/list/${id}`).pipe(
+  getDelegaciaById(id: number): Observable<DelegaciaResponseDTO> {
+    return this.http.get<DelegaciaResponseDTO>(`${this.apiUrl}/list/${id}`).pipe(
       catchError(this.handleError)
     );
   }
 
-  createDelegacia(delegacia: Partial<Delegacia>, senha: string, imagem?: File): Observable<Delegacia> {
+  createDelegacia(delegacia: Partial<DelegaciaRequestDTO>, imagem?: File): Observable<DelegaciaResponseDTO> {
     const formData = new FormData();
     const delegaciaLimpa = this.limparCampos(delegacia);
-
     const delegaciaJson = JSON.stringify(delegaciaLimpa);
 
-    formData.append('delegacia', new Blob([
-      delegaciaJson
-    ], { type: 'application/json' }));
-
-    formData.append('senha', senha);
+    formData.append('delegacia', new Blob([delegaciaJson], { type: 'application/json' }));
 
     if (imagem) {
       formData.append('imagem', imagem, imagem.name);
     }
 
-    return this.http.post<Delegacia>(`${this.apiUrl}/create`, formData)
+    return this.http.post<DelegaciaResponseDTO>(this.apiUrl, formData)
       .pipe(catchError(this.handleError));
   }
 
-  updateDelegacia(id: number, delegacia: Delegacia, senha?: string, imagem?: File): Observable<Delegacia> {
+  // ✅ PUT /delegacia/{id}
+  updateDelegacia(id: number, delegacia: DelegaciaRequestDTO, imagem?: File): Observable<DelegaciaResponseDTO> {
     const formData = new FormData();
-    formData.append('delegacia', JSON.stringify(this.limparCampos(delegacia)));
-    if (senha && senha.trim() !== '') {
-      formData.append('senha', senha);
-    }
+    formData.append('delegacia', new Blob([JSON.stringify(this.limparCampos(delegacia))], { type: 'application/json' }));
+
     if (imagem) {
       formData.append('imagem', imagem, imagem.name);
     }
-    return this.http.put<Delegacia>(`${this.apiUrl}/update/${id}`, formData)
+
+    return this.http.put<DelegaciaResponseDTO>(`${this.apiUrl}/${id}`, formData)
       .pipe(catchError(this.handleError));
   }
 
-  deleteDelgacia(id: number): Observable<void> {
+  deleteDelegacia(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/delete/${id}`).pipe(
       catchError(this.handleError)
     );
   }
+
 
   private limparCampos(obj: any): any {
     return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v !== undefined));
@@ -93,7 +81,7 @@ export class DelegaciaService {
           errorMessage = 'Requisição inválida. Verifique os dados enviados.';
           break;
         case 404:
-          errorMessage = 'Instituição não encontrada. Verifique se o ID está correto.';
+          errorMessage = 'Delegacia não encontrada.';
           break;
         case 500:
           errorMessage = 'Erro interno do servidor. Tente novamente mais tarde.';
@@ -104,11 +92,5 @@ export class DelegaciaService {
     }
     console.error('Erro na API:', errorMessage, 'Detalhes:', error.error);
     return throwError(() => new Error(errorMessage));
-  }
-
-  private prepareFormData(delegacia: Delegacia, senha: String): FormData {
-    const formData = new FormData();
-    formData.append('delegacia', new Blob([JSON.stringify(delegacia)], { type: 'application/json' }));
-    return formData;
   }
 }

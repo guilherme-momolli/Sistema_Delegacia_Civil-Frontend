@@ -1,52 +1,41 @@
-<div class="container mt-4">
+<!-- <div class="container mt-4">
   <h1 class="mb-4">📊 Dashboard</h1>
 
-  <!-- Cards principais -->
   <div class="row g-3">
-    @for (card of cards; track card) {
-      <div class="col-md-3">
-        <div class="card text-center shadow-sm p-3 rounded-3">
+    <ng-container *ngIf="cards$ | async as cards">
+      <div class="col-md-3" *ngFor="let card of cards">
+        <div class="card text-center shadow-sm p-3 rounded-3 h-100">
           <div class="card-body">
             <h5 class="card-title">{{ card.titulo }}</h5>
             <h2 class="fw-bold">{{ card.valor }}</h2>
-            <small class="text-muted">{{ card.descricao }}</small>
+            <small class="text-muted">{{ card.descricao || '' }}</small>
           </div>
         </div>
       </div>
-    }
+    </ng-container>
   </div>
 
-  <!-- Gráficos -->
   <div class="row mt-4">
-    <div class="col-md-6">
-      <div class="card shadow-sm p-3 rounded-3">
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm p-3 rounded-3 h-100">
         <h5>Inquéritos por mês</h5>
-        <canvas baseChart
-          [data]="chartInqueritosData"
-          [labels]="chartInqueritosLabels"
-          [chartType]="'bar'">
-        </canvas>
+        <canvas id="graficoBos"></canvas>
       </div>
     </div>
-    <div class="col-md-6">
-      <div class="card shadow-sm p-3 rounded-3">
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm p-3 rounded-3 h-100">
         <h5>Tipos de bens apreendidos</h5>
-        <canvas baseChart
-          [data]="chartBensData"
-          [labels]="chartBensLabels"
-          [chartType]="'pie'">
-        </canvas>
+        <canvas id="graficoBens"></canvas>
       </div>
     </div>
   </div>
 
-  <!-- Últimos registros -->
   <div class="row mt-4">
-    <div class="col-md-12">
+    <div class="col-12">
       <div class="card shadow-sm p-3 rounded-3">
         <h5>Últimos Boletins</h5>
-        <table class="table table-dark table-striped table-bordered mt-2">
-          <thead>
+        <table class="table table-striped table-hover mt-2">
+          <thead class="table-dark">
             <tr>
               <th>Data</th>
               <th>Tipo</th>
@@ -54,16 +43,16 @@
             </tr>
           </thead>
           <tbody>
-            @for (bo of ultimosBos; track bo) {
-              <tr>
-                <td>{{ bo.data | date:'dd/MM/yyyy' }}</td>
+            <ng-container *ngIf="ultimosBos$ | async as ultimosBos">
+              <tr *ngFor="let bo of ultimosBos">
+                <td>{{ bo.data | date: 'dd/MM/yyyy' }}</td>
                 <td>{{ bo.tipo }}</td>
                 <td>{{ bo.delegacia }}</td>
               </tr>
-            }
+            </ng-container> 
           </tbody>
         </table>
       </div>
     </div>
   </div>
-</div>
+</div> -->

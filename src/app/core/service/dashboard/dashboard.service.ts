@@ -8,28 +8,24 @@ import { Observable } from 'rxjs';
 })
 export class DashboardService {
 
-  private apiUrl = `${environment.apiUrl}/delegacia`;
+  private apiUrl = `${environment.apiUrl}/dashboard`;
+
 
   constructor(private http: HttpClient) { }
 
-
-  /** Totais: delegacias, BOs, inquéritos, bens */
-  getTotais(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/totais`);
+  getTotais(): Observable<{ delegacias: number, bos: number, inqueritos: number, bens: number }> {
+    return this.http.get<{ delegacias: number, bos: number, inqueritos: number, bens: number }>(`${this.apiUrl}/totais`);
   }
 
-  /** BOs por mês */
-  getBosPorMes(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/bos-por-mes`);
+  getBosPorMes(): Observable<{ mes: string, total: number }[]> {
+    return this.http.get<{ mes: string, total: number }[]>(`${this.apiUrl}/bos-por-mes`);
   }
 
-  /** Inquéritos agrupados por delegacia */
-  getInqueritosPorDelegacia(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/inqueritos-por-delegacia`);
+  getInqueritosPorDelegacia(): Observable<{ delegacia: string, total: number }[]> {
+    return this.http.get<{ delegacia: string, total: number }[]>(`${this.apiUrl}/inqueritos-por-delegacia`);
   }
 
-  /** Bens agrupados por tipo */
-  getBensPorTipo(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/bens-por-tipo`);
+  getBensPorTipo(): Observable<{ tipo: string, total: number }[]> {
+    return this.http.get<{ tipo: string, total: number }[]>(`${this.apiUrl}/bens-por-tipo`);
   }
 }

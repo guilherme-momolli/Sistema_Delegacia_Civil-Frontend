@@ -7,7 +7,9 @@ import { Pessoa } from '../../core/service/pessoa/pessoa.service';
 import { PessoaService } from '../../core/service/pessoa/pessoa.service';
 import { EnderecoService } from '../../core/service/endereco/endereco.service';
 import { FileService } from '../../core/service/file/file.service';
-import { Genero, SituacaoPessoa, Cargo, EstadoCivil, UF, Etnia, Pais } from '../../../shared/enums/index.enum' 
+import { Genero, SituacaoPessoa, Cargo, EstadoCivil, UF, Etnia, Pais, UFDescricao, GeneroDescricao, EtniaDescricao, SituacaoPessoaDescricao, EstadoCivilDescricao, CargoDescricao } from '../../../shared/enums/index.enum'
+import { enumToKeyValueArray } from '../../../shared/enums/enum-utils';
+import e from 'express';
 
 @Component({
   selector: 'app-pessoa',
@@ -18,6 +20,9 @@ import { Genero, SituacaoPessoa, Cargo, EstadoCivil, UF, Etnia, Pais } from '../
 })
 export class PessoaComponent implements OnInit {
 
+  trackByPessoaId(index: number, pessoa: any): number {
+    return pessoa.id;
+  }
   successMessage: string = '';
   errorMessage: string = '';
 
@@ -25,18 +30,21 @@ export class PessoaComponent implements OnInit {
   pessoas: Pessoa[] = [];
   pessoaSelecionada: Pessoa | null = null;
 
-  paises = Object.values(Pais);
+  paises = enumToKeyValueArray(Pais);
   ufMap = UF;
-  ufSiglas = Object.keys(UF) as (keyof typeof UF)[];
-  generos = Object.values(Genero);
-  etnias = Object.values(Etnia);
-  situacoesPessoa = Object.values(SituacaoPessoa);
-  estadosCivis = Object.values(EstadoCivil);
-  cargos = Object.values(Cargo);
+  ufSiglas = enumToKeyValueArray(UF, UFDescricao);
+
+  generos = enumToKeyValueArray(Genero, GeneroDescricao);
+  etnias = enumToKeyValueArray(Etnia, EtniaDescricao);
+  situacoesPessoa = enumToKeyValueArray(SituacaoPessoa, SituacaoPessoaDescricao);
+  estadosCivis = enumToKeyValueArray(EstadoCivil, EstadoCivilDescricao);
+  cargos = enumToKeyValueArray(Cargo, CargoDescricao);
   imagemSelecionada?: File;
   imagemPreview: string | ArrayBuffer | null = null;
   isEdicao: boolean = false;
   modalExclusaoAberto: boolean = false;
+  // tipoEnvovilmentos = enumToKeyValueArray(TipoEnvolvimento, TipoEnvolvimentoDescricao);
+  // PecaDescricao = PecaDescricao;
 
   constructor(
     private fb: FormBuilder,
@@ -64,7 +72,7 @@ export class PessoaComponent implements OnInit {
       etnia: [''],
       situacaoPessoa: [''],
       descricao: [''],
-      enderecoForm: this.fb.group({
+      endereco: this.fb.group({
         id: [''],
         pais: ['BRASIL', Validators.required],
         uf: ['', Validators.required],
