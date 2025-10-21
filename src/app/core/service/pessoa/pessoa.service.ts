@@ -4,6 +4,8 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { UF } from '../../enum/endereco/uf.enum';
 import { Page } from '../../models/page/page.model';
+import { PessoaResponseDTO } from '../../models/dto/pessoa/pessoa-response.dto';
+import { PessoaRequestDTO } from '../../models/dto/pessoa/pessoa-request.dto';
 
 
 export interface Pessoa {
@@ -40,15 +42,15 @@ export class PessoaService {
 
   constructor(private http: HttpClient) { }
 
-  getPessoas(): Observable<Pessoa[]> {
-    return this.http.get<Pessoa[]>(`${this.apiUrl}/list`).pipe(catchError(this.handleError));
+  getPessoas(): Observable<PessoaResponseDTO[]> {
+    return this.http.get<PessoaResponseDTO[]>(`${this.apiUrl}/list`).pipe(catchError(this.handleError));
   }
 
   getUfName(sigla: keyof typeof UF): string {
     return UF[sigla];
   }
 
-  getPessoasFiltradas(filtro: any, page: number = 0, size: number = 10): Observable<Page<Pessoa>> {
+  getPessoasFiltradas(filtro: any, page: number = 0, size: number = 10): Observable<Page<PessoaResponseDTO>> {
   const params: any = {
     page: String(page),
     size: String(size)
@@ -61,7 +63,7 @@ export class PessoaService {
     }
   });
 
-  return this.http.get<Page<Pessoa>>(`${this.apiUrl}/search`, { params }).pipe(
+  return this.http.get<Page<PessoaResponseDTO>>(`${this.apiUrl}/search`, { params }).pipe(
     tap(response => {
       console.log('📌 Retorno da API (getPessoasFiltradas):', response);
     }),
@@ -70,28 +72,27 @@ export class PessoaService {
 }
 
 
-
-
-
-  getPessoaById(id: number): Observable<Pessoa> {
-    return this.http.get<Pessoa>(`${this.apiUrl}/getById/${id}`).pipe(catchError(this.handleError));
+  getPessoaById(id: number): Observable<PessoaResponseDTO> {
+    return this.http.get<PessoaResponseDTO>(`${this.apiUrl}/getById/${id}`).pipe(catchError(this.handleError));
   }
 
-  createPessoa(pessoa: Pessoa, imagem?: File): Observable<Pessoa> {
+  createPessoa(pessoa: PessoaRequestDTO, imagem?: File): Observable<PessoaRequestDTO> {
+    console.log('📌 Enviando para API (createPessoa):', pessoa, imagem);
     const formData = this.prepareFormData(pessoa, imagem);
-    return this.http.post<Pessoa>(`${this.apiUrl}`, formData).pipe(catchError(this.handleError));
+    return this.http.post<PessoaRequestDTO>(`${this.apiUrl}/create`, formData).pipe(catchError(this.handleError));
   }
 
-  updatePessoa(id: number, pessoa: Pessoa, imagem?: File): Observable<Pessoa> {
+  updatePessoa(id: number, pessoa: PessoaRequestDTO, imagem?: File): Observable<PessoaRequestDTO> {
+    console.log('📌 Enviando para API (updatePessoa):', pessoa, imagem);
     const formData = this.prepareFormData(pessoa, imagem);
-    return this.http.put<Pessoa>(`${this.apiUrl}/${id}`, formData).pipe(catchError(this.handleError));
+    return this.http.put<PessoaRequestDTO>(`${this.apiUrl}/update/${id}`, formData).pipe(catchError(this.handleError));
   }
 
   deletePessoa(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(catchError(this.handleError));
+    return this.http.delete<void>(`${this.apiUrl}/delete/${id}`).pipe(catchError(this.handleError));
   }
 
-  private prepareFormData(pessoa: Pessoa, imagem?: File): FormData {
+  private prepareFormData(pessoa: PessoaRequestDTO, imagem?: File): FormData {
     const formData = new FormData();
     formData.append('pessoa', new Blob([JSON.stringify(pessoa)], { type: 'application/json' }));
     if (imagem) {

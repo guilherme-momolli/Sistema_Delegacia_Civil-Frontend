@@ -14,6 +14,7 @@ import { enumToKeyValueArray } from '../../../shared/enums/enum-utils';
 import { Observable } from 'rxjs';
 import { PessoaEnvolvimentoService } from '../../core/service/pessoa-envolvimento/pessoa-envolvimento.service';
 import { DelegaciaResponseDTO } from '../../core/models/dto/delegacia/delegacia-response.dto';
+import { PessoaResponseDTO } from '../../core/models/dto/pessoa/pessoa-response.dto';
 
 declare var bootstrap: any;
 
@@ -33,17 +34,17 @@ export class InqueritoPolicialComponent implements OnInit {
   errorMessage: string = '';
   inqueritoForm: FormGroup;
   inqueritos: InqueritoPolicial[] = [];
-  pessoas: Pessoa[] = [];
-  pessoasFiltradas: Pessoa[] = [];
+  pessoas: PessoaResponseDTO[] = [];
+  pessoasFiltradas: PessoaResponseDTO[] = [];
   delegacias: DelegaciaResponseDTO[] = [];
   isEdicao: boolean = false;
   inqueritoSelecionado: InqueritoPolicial | null = null;
   envolvimentos: { [key: number]: string } = {};
   pessoasSelecionadas: number[] = [];
   delegaciaLogadaId: number | null = null;
-  selecionadas: Pessoa[] = [];
-  pessoasSelecionadasDetalhes: Pessoa[] = [];
-  pessoasEncontradas: Pessoa[] = [];
+  selecionadas: PessoaResponseDTO[] = [];
+  pessoasSelecionadasDetalhes: PessoaResponseDTO[] = [];
+  pessoasEncontradas: PessoaResponseDTO[] = [];
 
   pecas = enumToKeyValueArray(Peca, PecaDescricao);
   origens = enumToKeyValueArray(OrigemForcaPolicial, OrigemForcaPolicialDescricao);
@@ -194,7 +195,7 @@ export class InqueritoPolicialComponent implements OnInit {
   adicionarPessoa(pessoa: Pessoa): void {
     if (!this.pessoasSelecionadas.includes(pessoa.id!)) {
       this.pessoasSelecionadas.push(pessoa.id!);
-      this.pessoasSelecionadasDetalhes.push(pessoa);
+      // this.pessoasSelecionadasDetalhes.push(pessoa.id?);
       this.envolvimentos[pessoa.id!] = 'VITIMA';
     }
   }
@@ -293,9 +294,9 @@ export class InqueritoPolicialComponent implements OnInit {
     });
 
     // detalhes para a lista “Pessoas Selecionadas”
-    this.pessoasSelecionadasDetalhes = pessoasEnvolvidas
-      .filter(pe => pe?.pessoa)
-      .map(pe => pe.pessoa as Pessoa);
+    // this.pessoasSelecionadasDetalhes = pessoasEnvolvidas
+    //   .filter(pe => pe?.pessoa)
+    //   .map(pe => pe.pessoa as Pessoa);
 
     console.log('🛠️ Edição - pessoasSelecionadas:', this.pessoasSelecionadas);
     console.log('🛠️ Edição - pessoasSelecionadasDetalhes:', this.pessoasSelecionadasDetalhes);

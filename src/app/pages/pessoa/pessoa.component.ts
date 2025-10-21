@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { debounceTime, distinctUntilChanged, filter } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, identity } from 'rxjs';
 import { Pessoa } from '../../core/service/pessoa/pessoa.service';
 import { PessoaService } from '../../core/service/pessoa/pessoa.service';
 import { EnderecoService } from '../../core/service/endereco/endereco.service';
@@ -10,6 +10,9 @@ import { FileService } from '../../core/service/file/file.service';
 import { Genero, SituacaoPessoa, Cargo, EstadoCivil, UF, Etnia, Pais, UFDescricao, GeneroDescricao, EtniaDescricao, SituacaoPessoaDescricao, EstadoCivilDescricao, CargoDescricao } from '../../../shared/enums/index.enum'
 import { enumToKeyValueArray } from '../../../shared/enums/enum-utils';
 import e from 'express';
+import { PessoaResponseDTO } from '../../core/models/dto/pessoa/pessoa-response.dto';
+import { PessoaRequestDTO } from '../../core/models/dto/pessoa/pessoa-request.dto';
+import { StorageService } from '../../core/service/storage/storage.service';
 
 @Component({
   selector: 'app-pessoa',
@@ -19,32 +22,26 @@ import e from 'express';
   styleUrls: ['./pessoa.component.css']
 })
 export class PessoaComponent implements OnInit {
+  pessoas: PessoaResponseDTO[] = [];
+  pessoaSelecionada?: PessoaResponseDTO;
 
-  trackByPessoaId(index: number, pessoa: any): number {
-    return pessoa.id;
-  }
-  successMessage: string = '';
-  errorMessage: string = '';
+  formPessoa: FormGroup;
+  editando = false;
+  modalAberto = false;
 
-  pessoaForm: FormGroup;
-  pessoas: Pessoa[] = [];
-  pessoaSelecionada: Pessoa | null = null;
+  imagemSelecionada?: File;
+  imagemPreview: string | ArrayBuffer | null = null;
+
+  successMessage = '';
+  errorMessage = '';
 
   paises = enumToKeyValueArray(Pais);
-  ufMap = UF;
   ufSiglas = enumToKeyValueArray(UF, UFDescricao);
-
   generos = enumToKeyValueArray(Genero, GeneroDescricao);
   etnias = enumToKeyValueArray(Etnia, EtniaDescricao);
   situacoesPessoa = enumToKeyValueArray(SituacaoPessoa, SituacaoPessoaDescricao);
   estadosCivis = enumToKeyValueArray(EstadoCivil, EstadoCivilDescricao);
   cargos = enumToKeyValueArray(Cargo, CargoDescricao);
-  imagemSelecionada?: File;
-  imagemPreview: string | ArrayBuffer | null = null;
-  isEdicao: boolean = false;
-  modalExclusaoAberto: boolean = false;
-  // tipoEnvovilmentos = enumToKeyValueArray(TipoEnvolvimento, TipoEnvolvimentoDescricao);
-  // PecaDescricao = PecaDescricao;
 
   constructor(
     private fb: FormBuilder,
@@ -52,17 +49,17 @@ export class PessoaComponent implements OnInit {
     private enderecoService: EnderecoService,
     public fileService: FileService
   ) {
-    this.pessoaForm = this.fb.group({
-      id: [null],
+    this.formPessoa = this.fb.group({
+      id: [''],
       imagemUrl: [''],
       nome: ['', Validators.required],
       nomeSocial: [''],
-      dataNascimento: [''],
-      sexo: [''],
       cpf: [''],
       rg: [''],
-      telefoneFixo: [''],
+      dataNascimento: [''],
+      sexo: [''],
       telefoneCelular: [''],
+      telefoneFixo: [''],
       email: ['', Validators.email],
       estadoCivil: [''],
       profissao: [''],
@@ -85,14 +82,10 @@ export class PessoaComponent implements OnInit {
     });
   }
 
-  getUfName(sigla: keyof typeof UF): string {
-    return UF[sigla];
-  }
-
   ngOnInit(): void {
     this.carregarPessoas();
 
-    this.pessoaForm.get('enderecoForm.cep')?.valueChanges
+    this.formPessoa.get('endereco.cep')?.valueChanges
       .pipe(
         debounceTime(300),
         distinctUntilChanged(),
@@ -101,15 +94,13 @@ export class PessoaComponent implements OnInit {
       .subscribe(cep => {
         const cepLimpo = cep.replace(/\D/g, '');
         this.enderecoService.getEnderecoByCep(cepLimpo).subscribe({
-          next: (data) => {
-            this.pessoaForm.get('enderecoForm')?.patchValue({
-              logradouro: data.logradouro,
-              bairro: data.bairro,
-              municipio: data.localidade,
-              uf: data.uf,
-              pais: 'BRASIL'
-            });
-          },
+          next: (data) => this.formPessoa.get('endereco')?.patchValue({
+            logradouro: data.logradouro,
+            bairro: data.bairro,
+            municipio: data.localidade,
+            uf: data.uf,
+            pais: 'BRASIL'
+          }),
           error: (err) => console.error('Erro ao buscar CEP', err)
         });
       });
@@ -117,9 +108,33 @@ export class PessoaComponent implements OnInit {
 
   carregarPessoas(): void {
     this.pessoaService.getPessoas().subscribe({
-      next: (data) => this.pessoas = data,
-      error: (err) => alert(err.message)
+      next: data => this.pessoas = data,
+      error: err => alert(err.message)
     });
+  }
+
+  resetarFormulario(): void {
+    this.editando = false;
+    this.formPessoa.reset({ endereco: { pais: 'BRASIL' } });
+    this.imagemSelecionada = undefined;
+    this.imagemPreview = null;
+    this.successMessage = '';
+    this.errorMessage = '';
+  }
+
+  abrirModalEdicao(pessoa: PessoaResponseDTO): void {
+    this.editando = true;
+    this.pessoaSelecionada = pessoa;
+    this.formPessoa.patchValue({
+      ...pessoa,
+      endereco: pessoa.endereco || { pais: 'BRASIL' }
+    });
+    this.imagemPreview = pessoa.imagemUrl ? this.fileService.getImageUrl('Pessoa', pessoa.imagemUrl) : null;
+    this.modalAberto = true;
+  }
+
+  trackByPessoaId(index: number, pessoa: PessoaResponseDTO): any {
+    return pessoa.id;
   }
 
   onFileChange(event: any): void {
@@ -132,68 +147,44 @@ export class PessoaComponent implements OnInit {
     }
   }
 
+  getUfName(sigla: string): string {
+    const ufMap: any = { PR: 'Paraná', SP: 'São Paulo', RJ: 'Rio de Janeiro' };
+    return ufMap[sigla] || sigla;
+  }
+
   salvarPessoa(): void {
-    const formValue = this.pessoaForm.value;
+    const pessoa: PessoaRequestDTO = { ...this.formPessoa.value };
+    console.log('📌 Dados do formulário (salvarPessoa):', pessoa, this.imagemSelecionada);
 
-    const pessoa: Pessoa = {
-      id: formValue.id,
-      nome: formValue.nome,
-      nomeSocial: formValue.nomeSocial,
-      dataNascimento: formValue.dataNascimento,
-      sexo: formValue.sexo,
-      cpf: formValue.cpf,
-      rg: formValue.rg,
-      telefoneFixo: formValue.telefoneFixo,
-      telefoneCelular: formValue.telefoneCelular,
-      email: formValue.email,
-      estadoCivil: formValue.estadoCivil,
-      profissao: formValue.profissao,
-      nacionalidade: formValue.nacionalidade,
-      naturalidade: formValue.naturalidade,
-      certificadoRegistro: formValue.certificadoRegistro,
-      etnia: formValue.etnia,
-      situacaoPessoa: formValue.situacaoPessoa,
-      endereco: formValue.enderecoForm?.id, // pode ser só o ID ou montar o objeto completo se precisar
-      descricao: formValue.descricao
-    };
+    if (this.editando && this.pessoaSelecionada?.id) {
+      const pessoaAtualizada = { ...pessoa };
+      delete (pessoaAtualizada as any).id; // 👈 Remove o ID antes de enviar
 
-    if (this.isEdicao && pessoa.id) {
-      this.pessoaService.updatePessoa(pessoa.id, pessoa, this.imagemSelecionada).subscribe({
+      this.pessoaService.updatePessoa(this.pessoaSelecionada.id, pessoaAtualizada, this.imagemSelecionada).subscribe({
         next: () => {
           this.carregarPessoas();
           this.resetarFormulario();
-          alert('Pessoa atualizada com sucesso!');
+          this.successMessage = 'Pessoa atualizada com sucesso!';
         },
-        error: err => alert(err.message)
+        error: err => this.errorMessage = err.message
       });
     } else {
       this.pessoaService.createPessoa(pessoa, this.imagemSelecionada).subscribe({
         next: () => {
           this.carregarPessoas();
           this.resetarFormulario();
-          alert('Pessoa criada com sucesso!');
+          this.successMessage = 'Pessoa criada com sucesso!';
         },
-        error: err => alert(err.message)
+        error: err => this.errorMessage = err.message
       });
     }
   }
 
-  abrirModalEdicao(pessoa: Pessoa): void {
-    this.isEdicao = true;
-    this.pessoaForm.patchValue({
-      ...pessoa,
-      enderecoForm: pessoa.endereco || { pais: 'BRASIL' }
-    });
-  }
-
-  confirmarExclusao(pessoa: Pessoa): void {
-    this.modalExclusaoAberto = true;
+  confirmarExclusao(pessoa: PessoaResponseDTO): void {
     this.pessoaSelecionada = pessoa;
-  }
-
-  fecharModalExclusao(): void {
-    this.modalExclusaoAberto = false;
-    this.pessoaSelecionada = null;
+    if (confirm(`Deseja realmente excluir ${pessoa.nome}?`)) {
+      this.excluirPessoa();
+    }
   }
 
   excluirPessoa(): void {
@@ -201,24 +192,15 @@ export class PessoaComponent implements OnInit {
       this.pessoaService.deletePessoa(this.pessoaSelecionada.id).subscribe({
         next: () => {
           this.carregarPessoas();
-          this.fecharModalExclusao();
-          alert('Pessoa excluída com sucesso!');
+          this.resetarFormulario();
+          this.successMessage = 'Pessoa excluída com sucesso!';
         },
-        error: (err) => alert(err.message)
+        error: err => this.errorMessage = err.message
       });
     }
   }
 
-  resetarFormulario(): void {
-    this.pessoaForm.reset();
-    this.pessoaForm.get('enderecoForm')?.reset({ pais: 'BRASIL' });
-    this.imagemSelecionada = undefined;
-    this.isEdicao = false;
-    this.imagemPreview = null;
-  }
-
-  getImagemPessoa(pessoa: Pessoa): string {
-    if (!pessoa.imagemUrl) return '';
-    return this.fileService.getImageUrl('Pessoa', pessoa.imagemUrl);
+  getImagemPessoa(pessoa: PessoaResponseDTO): string {
+    return pessoa.imagemUrl ? this.fileService.getImageUrl('Pessoas', pessoa.imagemUrl) : '';
   }
 }

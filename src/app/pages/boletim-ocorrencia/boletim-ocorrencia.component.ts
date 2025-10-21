@@ -17,6 +17,7 @@ import { BoletimOcorrenciaRequestDTO } from '../../core/models/dto/boletim-ocorr
 import { BoletimOcorrenciaResponseDTO } from '../../core/models/dto/boletim-ocorrencia/boletim-ocorrencia-response.dto';
 import { BoletimOcorrenciaMapper } from '../../core/mapper/boletim-ocorrencia/boletim-ocorrencia.mapper';
 import { DelegaciaResponseDTO } from '../../core/models/dto/delegacia/delegacia-response.dto';
+import { PessoaResponseDTO } from '../../core/models/dto/pessoa/pessoa-response.dto';
 
 declare var bootstrap: any;
 
@@ -36,8 +37,8 @@ export class BoletimOcorrenciaComponent implements OnInit {
   successMessage: string = '';
   errorMessage: string = '';
   boletins: BoletimOcorrenciaResponseDTO[] = [];
-  pessoas: Pessoa[] = [];
-  pessoasFiltradas: Pessoa[] = [];
+  pessoas: PessoaResponseDTO[] = [];
+  pessoasFiltradas: PessoaResponseDTO[] = [];
   delegacias: DelegaciaResponseDTO[] = [];
   isEdicao: boolean = false;
   boletimSelecionado: BoletimOcorrenciaResponseDTO | null = null;

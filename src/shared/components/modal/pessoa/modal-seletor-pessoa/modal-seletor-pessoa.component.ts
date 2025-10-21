@@ -1,6 +1,7 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { Pessoa, PessoaService } from '../../../../../app/core/service/pessoa/pessoa.service';
 import { FormsModule } from '@angular/forms';
+import { PessoaResponseDTO } from '../../../../../app/core/models/dto/pessoa/pessoa-response.dto';
 
 
 interface PessoaPesquisa {
@@ -18,7 +19,7 @@ interface PessoaPesquisa {
   styleUrls: ['./modal-seletor-pessoa.component.css'] 
 })
 export class ModalSeletorPessoaComponent implements OnInit {
-  pessoas: Pessoa[] = [];
+  pessoas: PessoaResponseDTO[] = [];
   selecionadas: Pessoa[] = [];
 
   filtroNome = '';
@@ -40,7 +41,7 @@ export class ModalSeletorPessoaComponent implements OnInit {
     });
   }
 
-  get pessoasFiltradas(): Pessoa[] {
+  get pessoasFiltradas(): PessoaResponseDTO[] {
     return this.pessoas.filter(p =>
       p.nome.toLowerCase().includes(this.filtroNome.toLowerCase()) &&
       (this.filtroCpf ? p.cpf?.includes(this.filtroCpf) : true) &&
