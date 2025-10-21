@@ -158,7 +158,7 @@ export class PessoaComponent implements OnInit {
 
     if (this.editando && this.pessoaSelecionada?.id) {
       const pessoaAtualizada = { ...pessoa };
-      delete (pessoaAtualizada as any).id; // 👈 Remove o ID antes de enviar
+      delete (pessoaAtualizada as any).id;
 
       this.pessoaService.updatePessoa(this.pessoaSelecionada.id, pessoaAtualizada, this.imagemSelecionada).subscribe({
         next: () => {
