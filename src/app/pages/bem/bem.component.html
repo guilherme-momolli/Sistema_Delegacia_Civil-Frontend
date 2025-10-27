@@ -12,29 +12,27 @@
     <table class="table table-striped align-middle text-center">
       <thead class="table-dark">
         <tr>
-          <th>ID</th>
+          <th>Imagem</th>
           <th>Tipo</th>
           <th>Marca</th>
           <th>Modelo</th>
           <th>Local</th>
           <th>Valor Estimado</th>
           <th>Situação</th>
-          <th>Imagem</th>
           <th>Ações</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let bem of bens">
-          <td>{{ bem.id }}</td>
-          <td>{{ bem.tipoBem }}</td>
+          <td>
+            <img *ngIf="bem.imagemUrl" [src]="getImagemUrl(bem)" alt="Imagem" width="60" height="60" class="rounded">
+          </td>
+          <td>{{ getDescricaoTipoBem(bem.tipoBem) }}</td>
           <td>{{ bem.marca || '-' }}</td>
           <td>{{ bem.modelo || '-' }}</td>
           <td>{{ bem.localBem || '-' }}</td>
           <td>R$ {{ bem.valorEstimado || '0,00' }}</td>
-          <td>{{ bem.situacaoBem || '-' }}</td>
-          <td>
-            <img *ngIf="bem.imagemUrl" [src]="bem.imagemUrl" alt="Imagem" width="60" height="60" class="rounded">
-          </td>
+          <td>{{ getDescricaoSituacaoBem(bem.situacaoBem) || '-' }}</td>
           <td>
             <button class="btn btn-sm btn-warning me-2" (click)="openModal(bem)">Editar</button>
             <button class="btn btn-sm btn-danger" (click)="deletar(bem)">Excluir</button>
@@ -44,49 +42,410 @@
     </table>
   </div>
 
-  <!-- Modal -->
-  <div *ngIf="modalAberto" class="modal-backdrop">
-    <div class="modal-content p-4">
-      <h4>{{ editando ? 'Editar Bem' : 'Cadastrar Bem' }}</h4>
+  <!-- Modal de Cadastro/Edição de Bem -->
+  <div *ngIf="showModal" class="modal-backdrop">
+    <div class="modal-content p-4" style="max-height: 90vh; overflow-y: auto;">
+      <h4 class="mb-3">{{ isEditMode ? 'Editar Bem' : 'Cadastrar Bem' }}</h4>
 
       <form [formGroup]="form" (ngSubmit)="save()">
 
-        <div class="mb-3">
-          <label>Tipo do Bem *</label>
-          <input formControlName="tipoBem" type="text" class="form-control">
+        <!-- 🔹 Tipo do Bem -->
+        <div class="mb-3" *ngIf="!isEditMode">
+          <label class="form-label">Tipo do Bem *</label>
+          <select formControlName="tipoBem" class="form-select" (change)="onTipoBemChange()">
+            <option *ngFor="let tipo of tipoBem" [value]="tipo.key">{{ tipo.value }}</option>
+          </select>
         </div>
 
-        <div class="mb-3">
-          <label>Marca</label>
-          <input formControlName="marca" type="text" class="form-control">
-        </div>
+        <!-- 🔹 Exibe os demais campos apenas se o tipo for selecionado -->
+        <div *ngIf="tipoBemSelecionado">
 
-        <div class="mb-3">
-          <label>Modelo</label>
-          <input formControlName="modelo" type="text" class="form-control">
-        </div>
+          <!-- ============================================================= -->
+          <!-- CAMPOS GERAIS -->
+          <!-- ============================================================= -->
+          <h5 class="mt-3 border-bottom pb-2">Informações Gerais</h5>
 
-        <div class="mb-3">
-          <label>Local do Bem</label>
-          <input formControlName="localBem" type="text" class="form-control">
-        </div>
+          <div class="mb-3">
+            <label class="form-label">Imagem</label>
+            <input type="file" (change)="onFileChange($event)" class="form-control">
+            <div *ngIf="imagemPreview" class="mt-2 text-center">
+              <img [src]="imagemPreview" alt="Preview" width="120" height="120" class="rounded shadow">
+            </div>
+          </div>
 
-        <div class="mb-3">
-          <label>Valor Estimado</label>
-          <input formControlName="valorEstimado" type="text" class="form-control">
-        </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Marca</label>
+              <input formControlName="marca" type="text" class="form-control">
+            </div>
 
-        <div class="mb-3">
-          <label>Imagem</label>
-          <input type="file" (change)="onFileChange($event)" class="form-control">
-        </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Modelo</label>
+              <input formControlName="modelo" type="text" class="form-control">
+            </div>
+          </div>
 
-        <div class="text-end mt-4">
-          <button type="submit" class="btn btn-success me-2">{{ editando ? 'Salvar Alterações' : 'Cadastrar' }}</button>
-          <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
-        </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Valor Estimado</label>
+              <input formControlName="valorEstimado" type="text" class="form-control">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Situação</label>
+              <select formControlName="situacaoBem" class="form-select">
+                <option *ngFor="let situacao of situacaoBem" [value]="situacao.key">{{ situacao.value }}</option>
+              </select>
+            </div>
+          </div>
 
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Origem</label>
+              <input formControlName="origem" type="text" class="form-control">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Número do Lacre</label>
+              <input formControlName="numeroLacre" type="text" class="form-control">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Local do Bem</label>
+              <input formControlName="localBem" type="text" class="form-control">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Observação</label>
+              <input formControlName="observacao" type="text" class="form-control">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Descrição</label>
+            <textarea formControlName="descricao" rows="2" class="form-control"></textarea>
+          </div>
+
+
+
+          <!-- ============================================================= -->
+          <!-- CAMPOS ESPECÍFICOS: ARMA -->
+          <!-- ============================================================= -->
+          <div *ngIf="tipoBemSelecionado === 'ARMA'" formGroupName="arma">
+            <h5 class="mt-4 border-bottom pb-2">Dados da Arma</h5>
+
+            <div class="mb-3">
+              <label class="form-label">Tipo de Arma</label>
+              <select formControlName="tipoArmaFogo" class="form-select">
+                <option *ngFor="let t of tipoArmaFogo" [value]="t.key">{{ t.value }}</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Espécie da Arma</label>
+              <select formControlName="especieArma" class="form-select">
+                <option *ngFor="let e of especieArmaFogo" [value]="e.key">{{ e.value }}</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Calibre</label>
+              <select formControlName="calibre" class="form-select">
+                <option *ngFor="let c of calibre" [value]="c.key">{{ c.value }}</option>
+              </select>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Número de Série</label>
+                <input formControlName="numeroSerie" type="text" class="form-control">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Número de Porte</label>
+                <input formControlName="numeroPorte" type="text" class="form-control">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Número de Registro</label>
+                <input formControlName="numeroRegistro" type="text" class="form-control">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Capacidade</label>
+                <input formControlName="capacidade" type="text" class="form-control">
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ============================================================= -->
+          <!-- CAMPOS ESPECÍFICOS: OBJETO -->
+          <!-- ============================================================= -->
+          <div *ngIf="tipoBemSelecionado === 'OBJETO'" formGroupName="objeto">
+            <h5 class="mt-4 border-bottom pb-2">Dados do Objeto</h5>
+
+            <div class="mb-3">
+              <label class="form-label">Tipo do Objeto</label>
+              <input formControlName="tipoObjeto" type="text" class="form-control"
+                placeholder="Ex: Eletrônico, Joia, Ferramenta">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Número de Série</label>
+              <input formControlName="numeroSerie" type="text" class="form-control"
+                placeholder="Informe o número de série">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Cor</label>
+              <input formControlName="cor" type="text" class="form-control" placeholder="Ex: Preto, Prata, Dourado">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Material</label>
+              <input formControlName="material" type="text" class="form-control"
+                placeholder="Ex: Metal, Plástico, Madeira">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Dimensões</label>
+              <input formControlName="dimensoes" type="text" class="form-control" placeholder="Ex: 20x15x10 cm">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Estado de Conservação</label>
+              <input formControlName="estadoConservacao" type="text" class="form-control"
+                placeholder="Ex: Novo, Usado, Danificado">
+            </div>
+          </div>
+
+          <div *ngIf="tipoBemSelecionado === 'DROGA'" formGroupName="droga">
+            <h5 class="mt-4 border-bottom pb-2">Dados da Droga</h5>
+
+            <div class="mb-3">
+              <label class="form-label">Tipo da Droga</label>
+              <select formControlName="tipoDroga" class="form-select">
+                <option *ngFor="let tipo of tipoDroga" [value]="tipo.key">{{ tipo.value }}</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Nome Popular</label>
+              <input formControlName="nomePopular" type="text" class="form-control"
+                placeholder="Ex: Maconha, Cocaína, Crack">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Unidade de Medida</label>
+              <select formControlName="unidadeMedida" class="form-select">
+                <option *ngFor="let unidade of tipoUnidadeMedida" [value]="unidade.key">{{ unidade.value }}</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Quantidade</label>
+              <input formControlName="quantidade" type="text" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Quantidade por Extenso</label>
+              <input formControlName="quantidadePorExtenso" type="text" class="form-control"
+                placeholder="Ex: 5 (cinco) gramas">
+            </div>
+          </div>
+
+          <!-- 🔹 Campos exibidos somente se tipoBemSelecionado for VEICULO -->
+          <div *ngIf="tipoBemSelecionado === 'VEICULO'" formGroupName="veiculo">
+            <h5 class="mt-4 border-bottom pb-2">Dados do Veículo</h5>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">RENAVAM</label>
+                <input formControlName="renavam" type="text" class="form-control" placeholder="Ex: 12345678900">
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Placa</label>
+                <input formControlName="placa" type="text" class="form-control" placeholder="Ex: ABC1D23">
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Chassi</label>
+                <input formControlName="chassi" type="text" class="form-control" placeholder="Ex: 9BWZZZ377VT004251">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Número do Motor</label>
+                <input formControlName="numeroMotor" type="text" class="form-control">
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Tipo de Veículo</label>
+                <select formControlName="tipoVeiculo" class="form-select">
+                  <option *ngFor="let tipo of tipoVeiculo" [value]="tipo.key">{{ tipo.value }}</option>
+                </select>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Categoria</label>
+                <select formControlName="categoria" class="form-select">
+                  <option *ngFor="let categoria of categoriaVeiculo" [value]="categoria.key">{{ categoria.value }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Espécie</label>
+                <select formControlName="especieVeiculo" class="form-select">
+                  <option *ngFor="let especie of especieVeiculo" [value]="especie.key">{{ especie.value }}</option>
+                </select>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Ano de Fabricação</label>
+                <input formControlName="anoFabricacao" type="number" class="form-control">
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Ano do Modelo</label>
+                <input formControlName="anoModelo" type="number" class="form-control">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Combustível</label>
+                <select formControlName="combustivel" class="form-select">
+                  <option *ngFor="let item of combustivel" [value]="item.key">{{ item.value }}</option>
+                </select>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Câmbio</label>
+                <select formControlName="cambio" class="form-select">
+                  <option *ngFor="let item of cambio" [value]="item.key">{{ item.value }}</option>
+                </select>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Tração</label>
+                <select formControlName="tipoTracao" class="form-select">
+                  <option *ngFor="let item of tipoTracao" [value]="item.key">{{ item.value }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Cor Predominante</label>
+                <input formControlName="corPredominante" type="text" class="form-control">
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Carroceria</label>
+                <select formControlName="carroceria" class="form-select">
+                  <option *ngFor="let item of carroceria" [value]="item.key">{{ item.value }}</option>
+                </select>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Número de Eixos</label>
+                <input formControlName="numeroEixos" type="number" class="form-control">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Capacidade de Carga (kg)</label>
+                <input formControlName="capacidadeCarga" type="number" class="form-control">
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Potência do Motor (cv)</label>
+                <input formControlName="potenciaMotor" type="number" class="form-control">
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Cilindrada (cc)</label>
+                <input formControlName="cilindrada" type="number" class="form-control">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Peso Bruto (kg)</label>
+                <input formControlName="pesoBruto" type="number" class="form-control">
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="form-label">UF de Registro</label>
+                <input formControlName="ufRegistro" type="text" maxlength="2" class="form-control"
+                  placeholder="Ex: PR, SP">
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Município de Registro</label>
+                <input formControlName="municipioRegistro" type="text" class="form-control">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Situação do Veículo</label>
+                <input formControlName="situacaoVeiculo" type="text" class="form-control"
+                  placeholder="Ex: Apreendido, Regularizado">
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Situação do Licenciamento</label>
+                <select formControlName="situacaoLicenciamento" class="form-select">
+                  <option *ngFor="let situacao of situacaoLicenciamento" [value]="situacao.key">{{ situacao.value }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Restrição Judicial</label>
+                <input formControlName="restricaoJudicial" type="text" class="form-control">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Data do 1º Licenciamento</label>
+                <input formControlName="dataPrimeiroLicenciamento" type="date" class="form-control">
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Número do CRV</label>
+                <input formControlName="numeroCrv" type="text" class="form-control">
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Número do CRLV</label>
+                <input formControlName="numeroCrlv" type="text" class="form-control">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Tabela FIPE</label>
+              <input formControlName="tabelaFipe" type="text" class="form-control" placeholder="Ex: R$ 45.000,00">
+            </div>
+          </div>
+          <!-- ============================================================= -->
+          <!-- BOTÕES -->
+          <!-- ============================================================= -->
+          <div class="text-end mt-4">
+            <button type="submit" class="btn btn-success me-2">
+              {{ isEditMode ? 'Salvar Alterações' : 'Cadastrar' }}
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+          </div>
+        </div>
       </form>
     </div>
   </div>
-</div>

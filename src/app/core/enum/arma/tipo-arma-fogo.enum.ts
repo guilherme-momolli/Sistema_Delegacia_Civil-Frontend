@@ -31,5 +31,5 @@ export const TipoArmaFogoDescricao: Record<TipoArmaFogo, string> = {
   [TipoArmaFogo.MOSQUETAO]: 'Mosquetão',
   [TipoArmaFogo.LANCA_GRANADAS]: 'Lança-granadas',
   [TipoArmaFogo.LANCA_FOGUETES]: 'Lança-foguetes',
-  [TipoArmaFogo.PISTOLA_METRALHADORA]: 'Pistola-metralhadora'
+  [TipoArmaFogo.PISTOLA_METRALHADORA]: 'Pistola-metralhadora'  
 };

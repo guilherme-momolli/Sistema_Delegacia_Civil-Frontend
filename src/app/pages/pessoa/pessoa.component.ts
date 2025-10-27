@@ -153,32 +153,33 @@ export class PessoaComponent implements OnInit {
   }
 
   salvarPessoa(): void {
-    const pessoa: PessoaRequestDTO = { ...this.formPessoa.value };
-    console.log('📌 Dados do formulário (salvarPessoa):', pessoa, this.imagemSelecionada);
+  const pessoaForm = { ...this.formPessoa.value };
 
-    if (this.editando && this.pessoaSelecionada?.id) {
-      const pessoaAtualizada = { ...pessoa };
-      delete (pessoaAtualizada as any).id;
+  delete (pessoaForm as any).id;
 
-      this.pessoaService.updatePessoa(this.pessoaSelecionada.id, pessoaAtualizada, this.imagemSelecionada).subscribe({
-        next: () => {
-          this.carregarPessoas();
-          this.resetarFormulario();
-          this.successMessage = 'Pessoa atualizada com sucesso!';
-        },
-        error: err => this.errorMessage = err.message
-      });
-    } else {
-      this.pessoaService.createPessoa(pessoa, this.imagemSelecionada).subscribe({
-        next: () => {
-          this.carregarPessoas();
-          this.resetarFormulario();
-          this.successMessage = 'Pessoa criada com sucesso!';
-        },
-        error: err => this.errorMessage = err.message
-      });
-    }
+  console.log('📌 Dados do formulário (salvarPessoa):', pessoaForm, this.imagemSelecionada);
+
+  if (this.editando && this.pessoaSelecionada?.id) {
+    this.pessoaService.updatePessoa(this.pessoaSelecionada.id, pessoaForm, this.imagemSelecionada).subscribe({
+      next: () => {
+        this.carregarPessoas();
+        this.resetarFormulario();
+        this.successMessage = 'Pessoa atualizada com sucesso!';
+      },
+      error: err => this.errorMessage = err.message
+    });
+  } else {
+    this.pessoaService.createPessoa(pessoaForm, this.imagemSelecionada).subscribe({
+      next: () => {
+        this.carregarPessoas();
+        this.resetarFormulario();
+        this.successMessage = 'Pessoa criada com sucesso!';
+      },
+      error: err => this.errorMessage = err.message
+    });
   }
+}
+
 
   confirmarExclusao(pessoa: PessoaResponseDTO): void {
     this.pessoaSelecionada = pessoa;

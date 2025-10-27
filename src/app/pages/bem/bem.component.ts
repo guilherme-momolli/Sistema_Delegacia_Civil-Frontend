@@ -6,6 +6,24 @@ import { BemRequestDTO } from '../../core/models/dto/bem/bem-request.dto';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FileService } from '../../core/service/file/file.service';
+import { enumToKeyValueArray } from '../../../shared/enums/enum-utils';
+import { TipoVeiculo, TipoVeiculoDescricao } from '../../core/enum/veiculo/tipo-veiculo.enum';
+import { TipoTracao, TipoTracaoDescricao } from '../../core/enum/veiculo/tipo-tracao.enum';
+import { Cambio, CambioDescricao } from '../../core/enum/veiculo/cambio.enum';
+import { Carroceria, CarroceriaDescricao } from '../../core/enum/veiculo/carroceria.enum';
+import { CategoriaVeiculo, CategoriaVeiculoDescricao } from '../../core/enum/veiculo/categoria-veiculo.enum';
+import { Combustivel, CombustivelDescricao } from '../../core/enum/veiculo/combustivel.enum';
+import { EspecieVeiculo, EspecieVeiculoDescricao } from '../../core/enum/veiculo/especie-veiculo.enum';
+import { SituacaoLicenciamento, SituacaoLicenciamentoDescricao } from '../../core/enum/veiculo/situacao-licenciamento.enum';
+import { Calibre, CalibreDescricao } from '../../core/enum/arma/calibre.enum';
+import { EspecieArmaFogo, EspecieArmaFogoDescricao } from '../../core/enum/arma/especie-arma-fogo.enum';
+import { SituacaoArmaFogo, SituacaoArmaFogoDescricao } from '../../core/enum/arma/situacao-arma-fogo.enum';
+import { TipoArmaFogo, TipoArmaFogoDescricao } from '../../core/enum/arma/tipo-arma-fogo.enum';
+import { SituacaoBem, SituacaoBemDescricao } from '../../core/enum/bem/situacao-bem.enum';
+import { TipoBem, TipoBemDescricao } from '../../core/enum/bem/tipo-bem.enum';
+import { TipoDroga, TipoDrogaDescricao } from '../../core/enum/droga/tipo-droga.enum';
+import { UnidadeMedida, UnidadeMedidaDescricao } from '../../core/enum/droga/unidade-medida.enum';
+import { identity } from 'rxjs';
 
 @Component({
   selector: 'app-bem',
@@ -20,6 +38,8 @@ export class BemComponent implements OnInit {
   imagemSelecionada?: File;
   modalAberto = false;
   editando = false;
+  tipoBemSelecionado: string | null = null;
+  tipoSelecionado: string | null = null;
   bemSelecionadoId?: number;
   mensagemSucesso = '';
   mensagemErro = '';
@@ -27,9 +47,30 @@ export class BemComponent implements OnInit {
   showModal = false;
   isEditMode = false;
   imagemPreview: string | null = null;
-  selectedFile: File | null = null;
+  selectedFile?: File;
   loading = false;
   message = '';
+
+  calibre = enumToKeyValueArray(Calibre, CalibreDescricao);
+  especieArmaFogo = enumToKeyValueArray(EspecieArmaFogo, EspecieArmaFogoDescricao);
+  situacaoArmaFogo = enumToKeyValueArray(SituacaoArmaFogo, SituacaoArmaFogoDescricao);
+  tipoArmaFogo = enumToKeyValueArray(TipoArmaFogo, TipoArmaFogoDescricao);
+
+  situacaoBem = enumToKeyValueArray(SituacaoBem, SituacaoBemDescricao);
+  tipoBem = enumToKeyValueArray(TipoBem, TipoBemDescricao);
+
+  tipoDroga = enumToKeyValueArray(TipoDroga, TipoDrogaDescricao);
+  tipoUnidadeMedida = enumToKeyValueArray(UnidadeMedida, UnidadeMedidaDescricao)
+
+  cambio = enumToKeyValueArray(Cambio, CambioDescricao);
+  carroceria = enumToKeyValueArray(Carroceria, CarroceriaDescricao);
+  categoriaVeiculo = enumToKeyValueArray(CategoriaVeiculo, CategoriaVeiculoDescricao);
+  combustivel = enumToKeyValueArray(Combustivel, CombustivelDescricao);
+  especieVeiculo = enumToKeyValueArray(EspecieVeiculo, EspecieVeiculoDescricao);
+  situacaoLicenciamento = enumToKeyValueArray(SituacaoLicenciamento, SituacaoLicenciamentoDescricao);
+  tipoVeiculo = enumToKeyValueArray(TipoVeiculo, TipoVeiculoDescricao);
+  tipoTracao = enumToKeyValueArray(TipoTracao, TipoTracaoDescricao);
+
 
   constructor(
     private bemService: BemService,
@@ -47,8 +88,9 @@ export class BemComponent implements OnInit {
     console.log('🟩 Inicializando formulário de Bem');
     this.form = this.fb.group({
       tipoBem: ['', Validators.required],
-      marca: ['', Validators.required],
-      modelo: ['', Validators.required],
+      marca: [''],
+      imagemUrl: [''],
+      modelo: [''],
       valorEstimado: [''],
       pessoaId: [null],
       delegaciaId: [null],
@@ -58,10 +100,74 @@ export class BemComponent implements OnInit {
       numeroLacre: [''],
       localBem: [''],
       observacao: [''],
-      descricao: ['']
+      descricao: [''],
+      arma: this.fb.group({
+        tipoArmaFogo: [''],
+        especieArma: [''],
+        calibre: [''],
+        numeroPorte: [''],
+        numeroSerie: [''],
+        numeroRegistro: [''],
+        capacidade: [''],
+      }),
+      droga: this.fb.group({
+        tipoDroga: [''],
+        nomePopular: [''],
+        unidadeMedida: [''],
+        quantidadePorExtenso: [''],
+        quantidade: [''],
+      }),
+      objeto: this.fb.group({
+        tipoObjeto: [''],
+        numeroSerie: [''],
+        cor: [''],
+        material: [''],
+        dimensoes: [''],
+        estadoConservacao: [''],
+        situacaoObjeto: ['']
+      }),
+      veiculo: this.fb.group({
+        renavam: [''],
+        placa: [''],
+        chassi: [''],
+        numeroMotor: [''],
+        tipoVeiculo: [''],
+        categoria: [''],
+        especieVeiculo: [''],
+        anoModelo: [''],
+        anoFabricacao: [''],
+        combustivel: [''],
+        cambio: [''],
+        tipoTracao: [''],
+        corPredominante: [''],
+        carroceria: [''],
+        numeroEixos: [''],
+        capacidadeCarga: [''],
+        potenciaMotor: [''],
+        cilindrada: [''],
+        pesoBruto: [''],
+        ufRegistro: [''],
+        municipioRegistro: [''],
+        situacaoVeiculo: [''],
+        situacaoLicenciamento: [''],
+        restricaoJudicial: [''],
+        dataPrimeiroLicenciamento: [''],
+        numeroCrv: [''],
+        numeroCrlv: [''],
+        tabelaFipe: ['']
+      })
+
     });
+
   }
 
+  getDescricaoSituacaoBem(situacaoBem: string): string {
+    return SituacaoBemDescricao[situacaoBem as SituacaoBem] || situacaoBem;
+  }
+
+  getDescricaoTipoBem(tipoBem: string): string {
+    return TipoBemDescricao[tipoBem as TipoBem] || tipoBem;
+  }
   loadBens(): void {
     console.log('🔵 Carregando lista de bens...');
     this.bemService.listarBens().subscribe({
@@ -75,9 +181,10 @@ export class BemComponent implements OnInit {
 
   getImagemUrl(bem: BemResponseDTO): string {
     if (!bem.imagemUrl) return 'assets/img/placeholder.png';
-
+    console.log("pegando imagem")
     let subFolder = 'Bens';
 
+    console.log("tipo bem", bem.tipoBem)
     switch (bem.tipoBem?.toUpperCase()) {
       case 'ARMA': subFolder = 'Bens/Armas'; break;
       case 'VEICULO': subFolder = 'Bens/Veiculos'; break;
@@ -86,32 +193,63 @@ export class BemComponent implements OnInit {
       default: subFolder = 'Bens'; break;
     }
 
+    console.log("folder final", subFolder, "bem url", bem.imagemUrl);
     const fullUrl = this.fileService.getImageUrl(subFolder, bem.imagemUrl);
     console.log(`🖼️ Imagem carregada para ${bem.tipoBem}:`, fullUrl);
     return fullUrl;
   }
 
+  onTipoBemChange(): void {
+    const tipo = this.form.get('tipoBem')?.value;
+
+    if (!tipo) {
+      console.warn('⚠️ Nenhum tipo de bem selecionado — ignorando onTipoBemChange');
+      this.tipoBemSelecionado = null;
+      return;
+    }
+
+    this.tipoBemSelecionado = tipo;
+
+    if (tipo === 'ARMA') {
+      this.form.get('arma')?.reset();
+    } else if (tipo === 'DROGA') {
+      this.form.get('droga')?.reset();
+      this.form.patchValue({ marca: '', modelo: '' });
+    } else if (tipo === 'OBJETO') {
+      this.form.get('objeto')?.reset();
+    } else if (tipo === 'VEICULO') {
+      this.form.get('veiculo')?.reset();
+    } else {
+      this.tipoBemSelecionado = null;
+    }
+  }
+
+
   openModal(bem?: BemResponseDTO): void {
-    console.log('📂 Abrindo modal', bem);
     this.showModal = true;
     this.isEditMode = !!bem;
     this.selectedBem = bem || null;
-    this.imagemPreview = bem?.imagemUrl || null;
 
-    if (bem) {
-      console.log('✏️ Editando bem:', bem);
-      this.form.patchValue(bem);
-    } else {
-      console.log('🆕 Criando novo bem');
+    if (this.isEditMode && bem) {
       this.form.reset();
+      this.form.patchValue(bem);
+
+      this.tipoBemSelecionado = bem.tipoBem || null;
+      this.imagemPreview = bem.imagemUrl || null;
+    } else {
+      this.form.reset();
+      this.tipoBemSelecionado = null;
+      this.imagemPreview = null;
     }
   }
+
+
 
   closeModal(): void {
     console.log('❎ Fechando modal');
     this.showModal = false;
     this.selectedBem = null;
-    this.selectedFile = null;
+    this.selectedFile = undefined;
     this.imagemPreview = null;
     this.form.reset();
   }
@@ -165,7 +303,7 @@ export class BemComponent implements OnInit {
         });
       } else {
         console.log('🆕 Criando novo bem...');
-        this.bemService.cadastrarBem(bem).subscribe({
+        this.bemService.cadastrarBem(bem, this.selectedFile).subscribe({
           next: () => {
             console.log('✅ Bem criado com sucesso');
             this.message = 'Bem criado com sucesso!';

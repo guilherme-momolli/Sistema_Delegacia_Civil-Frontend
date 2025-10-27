@@ -1,3 +1,8 @@
+import { Arma } from "../../../service/arma/arma.service";
+import { ArmaRequestDTO } from "../arma/arma-request.dto";
+import { DrogaRequestDTO } from "../droga/droga-request.dto";
+import { ObjetoRequestDTO } from "../objeto/objeto-request.dto";
+import { VeiculoRequestDTO } from "../veiculo/veiculo-request.dto";
 
 export interface BemRequestDTO {
     
@@ -16,4 +21,8 @@ export interface BemRequestDTO {
     localBem: string;
     observacao: string;
     descricao: string;
+    arma: ArmaRequestDTO;
+    objeto: ObjetoRequestDTO;
+    droga: DrogaRequestDTO;
+    veiculo: VeiculoRequestDTO;
 }

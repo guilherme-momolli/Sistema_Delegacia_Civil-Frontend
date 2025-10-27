@@ -5,7 +5,7 @@ export enum TipoBem {
     OBJETO = 'OBJETO'
 };
 
-export const TipoArmaFogoDescricao: Record<TipoBem, string> = {
+export const TipoBemDescricao: Record<TipoBem, string> = {
     [TipoBem.ARMA]: 'Arma',
     [TipoBem.VEICULO]: 'Veículo',
     [TipoBem.DROGA]: 'Droga',
