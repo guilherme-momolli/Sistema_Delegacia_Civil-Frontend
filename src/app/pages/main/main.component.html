@@ -1,0 +1,16 @@
+<div class="container py-4 text-light">
+  <div *ngIf="isLoading" class="text-center mt-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p>Carregando dados do dashboard...</p>
+  </div>
+
+  <div *ngIf="!isLoading && dashboardData">
+    <app-dashboard-chart [dashboard]="dashboardData">
+    </app-dashboard-chart>
+
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger text-center mt-3">
+    {{ errorMessage }}
+  </div>
+</div>

@@ -13,11 +13,13 @@ import e from 'express';
 import { PessoaResponseDTO } from '../../core/models/dto/pessoa/pessoa-response.dto';
 import { PessoaRequestDTO } from '../../core/models/dto/pessoa/pessoa-request.dto';
 import { StorageService } from '../../core/service/storage/storage.service';
+import { CpfMaskPipe } from '../../../shared/pipes/cpf-mask.pipe';
+import { CpfInputMaskDirective } from '../../../shared/directives/cpf-input-mask.directive';
 
 @Component({
   selector: 'app-pessoa',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, CpfMaskPipe],
   templateUrl: './pessoa.component.html',
   styleUrls: ['./pessoa.component.css']
 })
@@ -153,32 +155,35 @@ export class PessoaComponent implements OnInit {
   }
 
   salvarPessoa(): void {
-  const pessoaForm = { ...this.formPessoa.value };
+    const pessoaForm = { ...this.formPessoa.value };
 
-  delete (pessoaForm as any).id;
+    pessoaForm.cpf = CpfInputMaskDirective.unmask(pessoaForm.cpf);
 
-  console.log('📌 Dados do formulário (salvarPessoa):', pessoaForm, this.imagemSelecionada);
+    delete (pessoaForm as any).id;
 
-  if (this.editando && this.pessoaSelecionada?.id) {
-    this.pessoaService.updatePessoa(this.pessoaSelecionada.id, pessoaForm, this.imagemSelecionada).subscribe({
-      next: () => {
-        this.carregarPessoas();
-        this.resetarFormulario();
-        this.successMessage = 'Pessoa atualizada com sucesso!';
-      },
-      error: err => this.errorMessage = err.message
-    });
-  } else {
-    this.pessoaService.createPessoa(pessoaForm, this.imagemSelecionada).subscribe({
-      next: () => {
-        this.carregarPessoas();
-        this.resetarFormulario();
-        this.successMessage = 'Pessoa criada com sucesso!';
-      },
-      error: err => this.errorMessage = err.message
-    });
+    console.log('📌 Dados do formulário (salvarPessoa):', pessoaForm, this.imagemSelecionada);
+
+    if (this.editando && this.pessoaSelecionada?.id) {
+      this.pessoaService.updatePessoa(this.pessoaSelecionada.id, pessoaForm, this.imagemSelecionada).subscribe({
+        next: () => {
+          this.carregarPessoas();
+          this.resetarFormulario();
+          this.successMessage = 'Pessoa atualizada com sucesso!';
+        },
+        error: err => this.errorMessage = err.message
+      });
+    } else {
+      this.pessoaService.createPessoa(pessoaForm, this.imagemSelecionada).subscribe({
+        next: () => {
+          this.carregarPessoas();
+          this.resetarFormulario();
+          this.successMessage = 'Pessoa criada com sucesso!';
+        },
+        error: err => this.errorMessage = err.message
+      });
+    }
   }
-}
+
 
 
   confirmarExclusao(pessoa: PessoaResponseDTO): void {

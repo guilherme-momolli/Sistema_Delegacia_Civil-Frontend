@@ -14,7 +14,6 @@ export interface BemRequestDTO {
     valorEstimado: string;
     pessoaId: number;
     delegaciaId: number;
-    instituicaoId: number;
     situacaoBem: string;
     origem: string;
     numeroLacre: string;

@@ -51,25 +51,25 @@ export class PessoaService {
   }
 
   getPessoasFiltradas(filtro: any, page: number = 0, size: number = 10): Observable<Page<PessoaResponseDTO>> {
-  const params: any = {
-    page: String(page),
-    size: String(size)
-  };
+    const params: any = {
+      page: String(page),
+      size: String(size)
+    };
 
-  Object.keys(filtro || {}).forEach(key => {
-    const value = filtro[key];
-    if (value !== null && value !== undefined && value !== '') {
-      params[key] = String(value);
-    }
-  });
+    Object.keys(filtro || {}).forEach(key => {
+      const value = filtro[key];
+      if (value !== null && value !== undefined && value !== '') {
+        params[key] = String(value);
+      }
+    });
 
-  return this.http.get<Page<PessoaResponseDTO>>(`${this.apiUrl}/search`, { params }).pipe(
-    tap(response => {
-      console.log('📌 Retorno da API (getPessoasFiltradas):', response);
-    }),
-    catchError(this.handleError)
-  );
-}
+    return this.http.get<Page<PessoaResponseDTO>>(`${this.apiUrl}/search`, { params }).pipe(
+      tap(response => {
+        console.log('📌 Retorno da API (getPessoasFiltradas):', response);
+      }),
+      catchError(this.handleError)
+    );
+  }
 
 
   getPessoaById(id: number): Observable<PessoaResponseDTO> {

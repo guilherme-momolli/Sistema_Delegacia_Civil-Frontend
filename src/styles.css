@@ -1,0 +1,246 @@
+/* =============================
+   Variáveis Globais
+   ============================= */
+:root {
+    --color-primary: #1E90FF;
+    --color-secondary: #6C757D;
+    --color-success: #28A745;
+    --color-warning: #FFC107;
+    --color-danger: #DC3545;
+    --color-info: #17A2B8;
+
+    --color-bg: #F8F9FA;
+    --color-bg-secondary: #FFFFFF;
+    --color-text: #212529;
+    --border-color: #CED4DA;
+    --shadow: 0 4px 12px rgba(0,0,0,0.08);
+
+    /* Tabela */
+    --table-bg: var(--color-bg-secondary);
+    --table-header-bg: #E9ECEF;
+    --table-hover-bg: #F1F3F5;
+
+    /* Listas */
+    --list-bg: var(--color-bg-secondary);
+    --list-hover-bg: #F1F3F5;
+
+    --border-radius: 0.5rem;
+    --transition: all 0.3s ease;
+
+    /* Gráficos */
+    --chart-grid: rgba(0,0,0,0.1);
+    --chart-tick: #212529;
+    --chart-tooltip-bg: #FFFFFF;
+    --chart-tooltip-text: #212529;
+}
+
+/* Dark mode */
+body.dark-mode {
+    --color-primary: #60A5FA;
+    --color-secondary: #6B7280;
+    --color-success: #34D399;
+    --color-warning: #FBBF24;
+    --color-danger: #F87171;
+    --color-info: #4B9CEA;
+
+    --color-bg: #111827;
+    --color-bg-secondary: #1F2A44;
+    --color-text: #E5E7EB;
+    --border-color: #4B5563;
+    --shadow: 0 4px 12px rgba(0,0,0,0.4);
+
+    --table-bg: #1F2A44;
+    --table-header-bg: #374151;
+    --table-hover-bg: #2A2E3E;
+
+    --list-bg: #1F2A44;
+    --list-hover-bg: #2A2E3E;
+
+    /* Gráficos */
+    --chart-grid: rgba(255,255,255,0.1);
+    --chart-tick: #E5E7EB;
+    --chart-tooltip-bg: #1F2A44;
+    --chart-tooltip-text: #E5E7EB;
+}
+
+/* =============================
+   Body & Typography
+   ============================= */
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    transition: var(--transition);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--color-text);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+p, li, a, span {
+    color: var(--color-text);
+}
+
+/* =============================
+   Bootstrap Overrides
+   ============================= */
+.btn {
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.btn-primary { background-color: var(--color-primary); border-color: var(--color-primary); }
+.btn-primary:hover { background-color: var(--color-info); border-color: var(--color-info); }
+
+.btn-secondary { background-color: var(--color-secondary); border-color: var(--color-secondary); }
+.btn-secondary:hover { background-color: var(--color-info); border-color: var(--color-info); }
+
+.btn-success { background-color: var(--color-success); border-color: var(--color-success); }
+.btn-success:hover { background-color: var(--color-info); border-color: var(--color-info); }
+
+.btn-warning { background-color: var(--color-warning); border-color: var(--color-warning); color: #212529; }
+.btn-warning:hover { background-color: var(--color-info); border-color: var(--color-info); color: #FFF; }
+
+.btn-danger { background-color: var(--color-danger); border-color: var(--color-danger); }
+.btn-danger:hover { background-color: var(--color-info); border-color: var(--color-info); }
+
+.card {
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.card-header, .card-footer {
+    background-color: var(--table-header-bg);
+    border-color: var(--border-color);
+}
+
+.table {
+    background-color: var(--table-bg);
+    border-radius: var(--border-radius);
+    color: var(--color-text);
+}
+
+.table th, .table td {
+    border-color: var(--border-color);
+}
+
+.table-hover tbody tr:hover { background-color: var(--table-hover-bg); }
+
+.list-group-item {
+    background-color: var(--list-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+}
+
+.list-group-item:hover {
+    background-color: var(--list-hover-bg);
+}
+
+/* Form Controls */
+.form-control, .form-select, .form-check-input {
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.2rem rgba(30,144,255,0.2);
+}
+
+/* Charts */
+.chart-container {
+    background-color: var(--color-bg-secondary);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+/* Tooltip & Axis Dark Mode Example (Chart.js) */
+.chartjs-tooltip {
+    background-color: var(--chart-tooltip-bg) !important;
+    color: var(--chart-tooltip-text) !important;
+}
+
+.chartjs-axis {
+    color: var(--chart-tick) !important;
+}
+
+/* Dark mode toggle */
+body.dark-mode .btn, body.dark-mode .form-control, body.dark-mode .card {
+    transition: var(--transition);
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+    .table, .card, .list-group-item { font-size: 0.875rem; }
+}
+/* Modals */
+.modal {
+    background-color: rgba(0, 0, 0, 0.6);
+    transition: var(--transition);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    z-index: 1040;
+}
+
+.modal-container {
+    z-index: 1050;
+}
+
+.modal-content {
+    background-color: var(--color-background-secondary);
+    color: var(--color-text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    margin: 2rem auto;
+    max-width: 600px;
+}
+
+.modal-header {
+    background-color: var(--table-header-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}

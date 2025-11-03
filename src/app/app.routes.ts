@@ -25,7 +25,7 @@ export const routes: Routes = [
   { path: '', component: LandingPageComponent, canActivate: [NoAuthGuard] },
   // { path: 'signup', component: InstituicaoComponent, canActivate: [NoAuthGuard] },
   { path: 'login', component: LoginComponent, /*canActivate: [NoAuthGuard]*/ },
-  { path: 'main', component: DashboardComponent, /*canActivate: [AuthGuard]*/ },
+  { path: 'main', component: MainComponent, /*canActivate: [AuthGuard]*/ },
   { path: 'inquerito-policial', component: InqueritoPolicialComponent, /*canActivate: [AuthGuard]*/ },
   { path: 'pessoa', component: PessoaComponent},
   { path: 'bem', component: BemComponent, /*canActivate: [AuthGuard]*/},

@@ -1,8 +1,8 @@
 <div class="container mt-4">
   <h2 class="text-center mb-4">Gerenciamento de Bens</h2>
 
-  <div class="d-flex justify-content-end mb-3">
-    <button class="btn btn-primary" (click)="openModal()">+ Novo Bem</button>
+  <div>
+    <button class="btn btn-primary" (click)="openModal()">Cadastrar Bem</button>
   </div>
 
   <div *ngIf="mensagemSucesso" class="alert alert-success">{{ mensagemSucesso }}</div>
@@ -64,6 +64,19 @@
           <!-- CAMPOS GERAIS -->
           <!-- ============================================================= -->
           <h5 class="mt-3 border-bottom pb-2">Informações Gerais</h5>
+
+          <!-- <div class="mb-3">
+            <label class="form-label">Dono do Bem (Pessoa)</label>
+            <input type="text" class="form-control" placeholder="Digite nome ou CPF" [formControl]="pessoaControl"
+              [ngbTypeahead]="buscarPessoas" [resultFormatter]="formatarPessoa" [inputFormatter]="formatarPessoa"
+              (selectItem)="onPessoaSelecionada($event.item)">
+          </div> -->
+
+          <!-- <div *ngIf="pessoaSelecionada" class="mt-2">
+            <strong>Selecionado:</strong> {{ pessoaSelecionada.nome }} ({{ pessoaSelecionada.cpf | cpfMask }})
+          </div> -->
+
+
 
           <div class="mb-3">
             <label class="form-label">Imagem</label>

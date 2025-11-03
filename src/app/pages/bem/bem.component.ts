@@ -24,6 +24,11 @@ import { TipoBem, TipoBemDescricao } from '../../core/enum/bem/tipo-bem.enum';
 import { TipoDroga, TipoDrogaDescricao } from '../../core/enum/droga/tipo-droga.enum';
 import { UnidadeMedida, UnidadeMedidaDescricao } from '../../core/enum/droga/unidade-medida.enum';
 import { identity } from 'rxjs';
+import { FormControl } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, map } from 'rxjs/operators';
+import { PessoaService } from '../../core/service/pessoa/pessoa.service';
+import { CpfMaskPipe } from '../../../shared/pipes/cpf-mask.pipe';
 
 @Component({
   selector: 'app-bem',
@@ -50,6 +55,12 @@ export class BemComponent implements OnInit {
   selectedFile?: File;
   loading = false;
   message = '';
+  pessoaControl = new FormControl();
+  pessoaSelecionada: any = null;
+  pessoasFiltradas: any[] = [];
+  formatarPessoa = (pessoa: any) => `${pessoa.nome} (${new CpfMaskPipe().transform(pessoa.cpf)})`;
+  
+
 
   calibre = enumToKeyValueArray(Calibre, CalibreDescricao);
   especieArmaFogo = enumToKeyValueArray(EspecieArmaFogo, EspecieArmaFogoDescricao);
@@ -75,13 +86,26 @@ export class BemComponent implements OnInit {
   constructor(
     private bemService: BemService,
     private fileService: FileService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private pessoaService: PessoaService
   ) { }
 
   ngOnInit(): void {
     console.log('🟦 ngOnInit chamado');
     this.loadBens();
     this.inicializarForm();
+    this.configurarPesquisaPessoa();
+  }
+
+  configurarPesquisaPessoa(): void {
+    this.pessoaControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(term => this.pessoaService.getPessoasFiltradas({ nome: term }, 0, 10)),
+      map(page => page.content)
+    ).subscribe(pessoas => {
+      this.pessoasFiltradas = pessoas;
+    });
   }
 
   inicializarForm(): void {
@@ -92,9 +116,8 @@ export class BemComponent implements OnInit {
       imagemUrl: [''],
       modelo: [''],
       valorEstimado: [''],
-      pessoaId: [null],
+      pessoaId: [''],
       delegaciaId: [null],
-      instituicaoId: [null],
       situacaoBem: [''],
       origem: [''],
       numeroLacre: [''],
@@ -177,6 +200,11 @@ export class BemComponent implements OnInit {
       },
       error: (err) => console.error('❌ Erro ao carregar bens:', err)
     });
+  }
+
+  onPessoaSelecionada(pessoa: any) {
+    this.pessoaSelecionada = pessoa;
+  this.form.patchValue({ pessoaId: pessoa.id });
   }
 
   getImagemUrl(bem: BemResponseDTO): string {

@@ -28,8 +28,6 @@ declare var bootstrap: any;
 })
 export class InqueritoPolicialComponent implements OnInit {
 
-  // @ViewChild('numeroJusticaInput') numeroJusticaInput!: ElementRef;
-
   successMessage: string = '';
   errorMessage: string = '';
   inqueritoForm: FormGroup;
@@ -72,15 +70,15 @@ export class InqueritoPolicialComponent implements OnInit {
   ) {
     this.inqueritoForm = this.fb.group({
       id: [null],
-      numeroJustica: ['', Validators.required],
-      ordemIp: ['', Validators.required],
-      data: ['', Validators.required],
-      peca: ['', Validators.required],
-      situacaoInquerito: ['', Validators.required],
-      origemForcaPolicial: ['', Validators.required],
-      naturezaDoDelito: ['', Validators.required],
+      numeroJustica: ['',],
+      ordemIp: ['',],
+      data: ['',],
+      peca: ['',],
+      situacaoInquerito: ['',],
+      origemForcaPolicial: ['',],
+      naturezaDoDelito: ['',],
       observacao: [''],
-      delegaciaId: [null, Validators.required],
+      delegaciaId: [null,],
       pessoasEnvolvidas: this.fb.array([])
     });
     this.pessoasSelecionadasDetalhes = this.pessoas.filter(p =>
@@ -151,17 +149,15 @@ export class InqueritoPolicialComponent implements OnInit {
   }
 
 
-  // carregarPessoasEnvolvidas(inqueritoId: number): void {
-  //   this.pessoaEnvolvimentoService.listarTodos().subscribe({
-  //     next: (envolvimentos) => {
-  //       const selecionadas = envolvimentos.filter(e => e.inqueritoId === inqueritoId);
-  //       this.pessoasSelecionadasDetalhes = selecionadas.map(e => e.pessoa);
-  //       this.pessoasSelecionadasIds = selecionadas.map(e => e.pessoaId!);
-  //       console.log('Pessoas envolvidas carregadas:', this.pessoasSelecionadasDetalhes);
-  //     },
-  //     error: (err) => console.error('Erro ao carregar pessoas envolvidas:', err)
-  //   });
-  // }
+  carregarPessoasEnvolvidas(inqueritoId: number): void {
+    this.pessoaEnvolvimentoService.listarPorInquerito(inqueritoId).subscribe({
+      next: (envolvimentos) => {
+        this.pessoasSelecionadasIds = envolvimentos.map(e => e.pessoaId!);
+        console.log('✅ Pessoas envolvidas carregadas:', this.pessoasSelecionadasIds);
+      },
+      error: (err) => console.error('❌ Erro ao carregar pessoas envolvidas:', err)
+    });
+  }
 
   carregarDelegacias(): void {
     this.delegaciaService.getDelegacias().subscribe({
@@ -192,13 +188,22 @@ export class InqueritoPolicialComponent implements OnInit {
 
 
 
-  adicionarPessoa(pessoa: Pessoa): void {
-    if (!this.pessoasSelecionadas.includes(pessoa.id!)) {
-      this.pessoasSelecionadas.push(pessoa.id!);
-      // this.pessoasSelecionadasDetalhes.push(pessoa.id?);
-      this.envolvimentos[pessoa.id!] = 'VITIMA';
+  adicionarPessoa(pessoa: PessoaResponseDTO, tipoEnvolvimento: string): void {
+    if (!pessoa?.id) return;
+
+    if (this.pessoasSelecionadas.includes(pessoa.id)) {
+      console.warn(`⚠️ Pessoa ${pessoa.nome} já está vinculada.`);
+      return;
     }
+
+    this.pessoasSelecionadas.push(pessoa.id);
+    this.envolvimentos[pessoa.id] = tipoEnvolvimento;
+    this.pessoasSelecionadasDetalhes.push(pessoa);
+
+    console.log(`✅ Pessoa adicionada: ${pessoa.nome} como ${tipoEnvolvimento}`);
   }
+
+
 
   removerPessoa(pessoaId: number): void {
     this.pessoasSelecionadas = this.pessoasSelecionadas.filter(id => id !== pessoaId);
@@ -222,8 +227,8 @@ export class InqueritoPolicialComponent implements OnInit {
       numeroJustica: formValue.numeroJustica,
       ordemIp: formValue.ordemIp,
       data: formValue.data,
-      peca: formValue.peca, 
-      situacaoInquerito: formValue.situacaoInquerito, 
+      peca: formValue.peca,
+      situacaoInquerito: formValue.situacaoInquerito,
       origemForcaPolicial: formValue.origemForcaPolicial,
       naturezaDoDelito: formValue.naturezaDoDelito,
       observacao: formValue.observacao,
@@ -238,7 +243,7 @@ export class InqueritoPolicialComponent implements OnInit {
     };
 
     const payload: InqueritoPolicialRequestDTO = {
-      inqueritoPolicial: inquerito,    
+      inqueritoPolicial: inquerito,
       pessoasEnvolvidas: inquerito.pessoasEnvolvidas!
     };
     console.log('Payload enviado:', payload);
