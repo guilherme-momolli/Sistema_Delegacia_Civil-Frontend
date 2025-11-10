@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { catchError, Observable, throwError, tap } from 'rxjs';
+import { catchError, Observable, throwError, tap, forkJoin, of } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { UF } from '../../enum/endereco/uf.enum';
@@ -75,6 +75,19 @@ export class PessoaService {
   getPessoaById(id: number): Observable<PessoaResponseDTO> {
     return this.http.get<PessoaResponseDTO>(`${this.apiUrl}/getById/${id}`).pipe(catchError(this.handleError));
   }
+
+  getByIds(ids: number[]): Observable<PessoaResponseDTO[]> {
+  if (ids.length === 0) {
+    return of([]);
+  }
+  const requests = ids.map(id => this.getPessoaById(id));
+  return forkJoin(requests).pipe(
+    catchError(err => {
+      console.error('Erro ao carregar pessoas:', err);
+      return of([]);
+    })
+  );
+}
 
   createPessoa(pessoa: PessoaRequestDTO, imagem?: File): Observable<PessoaRequestDTO> {
     console.log('📌 Enviando para API (createPessoa):', pessoa, imagem);

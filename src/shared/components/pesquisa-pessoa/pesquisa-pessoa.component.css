@@ -1,0 +1,18 @@
+:host {
+  color-scheme: light dark;
+}
+
+.card {
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+}
+
+.table {
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+}
+
+.table-row:hover {
+  background-color: rgba(var(--bs-primary-rgb), 0.1);
+  transition: background-color 0.2s ease-in-out;
+}

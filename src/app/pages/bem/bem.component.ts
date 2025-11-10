@@ -188,6 +188,7 @@ export class BemComponent implements OnInit {
     return SituacaoBemDescricao[situacaoBem as SituacaoBem] || situacaoBem;
   }
 
+  
   getDescricaoTipoBem(tipoBem: string): string {
     return TipoBemDescricao[tipoBem as TipoBem] || tipoBem;
   }

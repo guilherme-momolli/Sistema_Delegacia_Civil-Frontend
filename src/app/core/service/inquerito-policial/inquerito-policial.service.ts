@@ -5,25 +5,8 @@ import { catchError, tap, map } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 import { PessoaEnvolvimento } from '../pessoa-envolvimento/pessoa-envolvimento.service';
 import { InqueritoPolicialResponseDTO } from '../../models/dto/inquerito-policial/inquerito-policial-response.dto';
+import { InqueritoPolicialRequestDTO } from '../../models/dto/inquerito-policial/inquerito-policial-request.dto';
 
-export interface InqueritoPolicialRequestDTO {
-  inqueritoPolicial: InqueritoPolicial;
-  pessoasEnvolvidas: PessoaEnvolvimento[];
-}
-
-export interface InqueritoPolicial {
-  id?: number;
-  numeroJustica: string;
-  ordemIp: number;
-  data: string;
-  peca: string;
-  situacaoInquerito: string;
-  origemForcaPolicial: string;
-  naturezaDoDelito: string;
-  delegaciaId: number;
-  observacao: string;
-  pessoasEnvolvidas?: PessoaEnvolvimento[];
-}
 
 @Injectable({
   providedIn: 'root'

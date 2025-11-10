@@ -1,0 +1,107 @@
+<div class="card shadow p-3 rounded-3 bg-body-tertiary text-body">
+    <h4 class="mb-3 text-center">Pesquisar Pessoa</h4>
+
+    <!-- 🔍 FILTROS -->
+    <div class="row g-2 mb-3">
+        <div class="col-md-4">
+            <input type="text" class="form-control" [formControl]="filtroNome" placeholder="Filtrar por nome" />
+        </div>
+        <div class="col-md-4">
+            <input type="text" class="form-control" [formControl]="filtroCpf" placeholder="Filtrar por CPF" />
+        </div>
+        <div class="col-md-4">
+            <select class="form-select" [formControl]="filtroGenero">
+                <option value="">Todos os gêneros</option>
+                <option *ngFor="let g of generos" [value]="g.key">{{ g.value }}</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 📋 LISTAGEM DE PESSOAS -->
+    <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle border">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nome</th>
+                    <th>CPF</th>
+                    <th>Sexo</th>
+                    <th>Tipo de Envolvimento</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let pessoa of pessoasFiltradas" class="table-row">
+                    <td>{{ pessoa.nome }}</td>
+                    <td>{{ pessoa.cpf }}</td>
+                    <td>{{ getDescricaoGenero(pessoa.sexo)}}</td>
+
+                    <td>
+                        <select class="form-select form-select-sm" [(ngModel)]="tipoEnvolvimento">
+                            <option value="">Selecione</option>
+                            <option *ngFor="let t of tipoEnvolvimento" [value]="t.key">{{ t.value }}</option>
+                        </select>
+                    </td>
+
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" (click)="adicionarPessoa(pessoa)"
+                            [disabled]="isPessoaJaAdicionada(pessoa.id)">
+                            <i class="bi bi-person-plus"></i> Adicionar
+                        </button>
+                    </td>
+                </tr>
+
+                <tr *ngIf="pessoasFiltradas.length === 0">
+                    <td colspan="5" class="text-center text-muted py-3">
+                        Nenhuma pessoa encontrada.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-2">
+        <small>Total: {{ totalElementos }} registros</small>
+        <div>
+            <button class="btn btn-outline-secondary btn-sm me-2" [disabled]="paginaAtual === 0"
+                (click)="mudarPagina(paginaAtual - 1)">
+                Anterior
+            </button>
+            <button class="btn btn-outline-secondary btn-sm"
+                [disabled]="(paginaAtual + 1) * tamanhoPagina >= totalElementos" (click)="mudarPagina(paginaAtual + 1)">
+                Próxima
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow p-3 rounded-3 mt-4 bg-body-tertiary text-body">
+    <h5 class="mb-3 text-center">Pessoas Envolvidas</h5>
+
+    <div class="table-responsive">
+        <table class="table table-sm table-striped align-middle border">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Pessoa ID</th>
+                    <th>Tipo de Envolvimento</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let p of pessoasSelecionadas">
+                    <td>{{ p.pessoaId }}</td>
+                    <td>{{ p.tipoEnvolvimento }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger" (click)="removerPessoa(p.pessoaId)">
+                            <i class="bi bi-trash"></i> Remover
+                        </button>
+                    </td>
+                </tr>
+                <tr *ngIf="pessoasSelecionadas.length === 0">
+                    <td colspan="3" class="text-center text-muted py-3">
+                        Nenhuma pessoa adicionada.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

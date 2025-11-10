@@ -2,14 +2,14 @@ import { EnderecoResponseDTO } from "../endereco/endereco-response.dto";
 
 export interface PessoaResponseDTO{
 
-    id?: number;
+    id: number;
     imagemUrl?: string;
     nome: string;
     nomeSocial?: string;
     cpf?: string;
     rg?: string;
     dataNascimento?: string;
-    sexo?: string;
+    sexo: string;
     telefoneCelular?: string;
     telefoneFixo?: string;
     certificadoRegistro?: string;

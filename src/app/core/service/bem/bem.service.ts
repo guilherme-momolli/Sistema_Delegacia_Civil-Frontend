@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { catchError, forkJoin, Observable, of, tap, throwError } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BemResponseDTO } from '../../models/dto/bem/bem-response.dto';
 import { BemRequestDTO } from '../../models/dto/bem/bem-request.dto';
@@ -21,6 +21,19 @@ export class BemService {
 
   buscarBemPorId(id: number): Observable<BemResponseDTO> {
     return this.http.get<BemResponseDTO>(`${this.baseUrl}/getById/${id}`);
+  }
+
+  getByIds(ids: number[]): Observable<BemResponseDTO[]> {
+    if (ids.length === 0) {
+      return of([]);
+    }
+    const requests = ids.map(id => this.buscarBemPorId(id));
+    return forkJoin(requests).pipe(
+      catchError(err => {
+        console.error('Erro ao carregar pessoas:', err);
+        return of([]);
+      })
+    );
   }
 
   getBensFiltrados(filtro: any, page: number = 0, size: number = 10): Observable<Page<BemResponseDTO>> {

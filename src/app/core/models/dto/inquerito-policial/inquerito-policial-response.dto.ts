@@ -1,3 +1,4 @@
+import { BemEnvolvimentoResponseDTO } from "../bem-envolvimento/bem-envolvimento-response.dto";
 import { PessoaEnvolvimentoResponseDTO } from "../pessoa-envolvimento/pessoa-envolvimento-response.dto";
 
 export interface InqueritoPolicialResponseDTO {
@@ -11,5 +12,6 @@ export interface InqueritoPolicialResponseDTO {
   naturezaDoDelito?: string;
   observacao?: string;
   delegaciaId: number;
-  pessoasEnvolvidas?: PessoaEnvolvimentoResponseDTO[];
+  pessoasEnvolvidas: PessoaEnvolvimentoResponseDTO[];
+  bensEnvolvidos?: BemEnvolvimentoResponseDTO[];
 }

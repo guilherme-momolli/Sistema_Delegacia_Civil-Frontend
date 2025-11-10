@@ -1,13 +1,17 @@
 export enum TipoEnvolvimento {
-  VITIMA = 'VITIMA',
-  INVESTIGADOR = 'INVESTIGADOR',
+
   AUTOR = 'AUTOR',
-  RELATOR = 'RELATOR'
+  INVESTIGADOR = 'INVESTIGADOR',
+  RELATOR = 'RELATOR',
+  TESTEMUNHA = 'TESTEMUNHA',
+  VITIMA = 'VITIMA',
+
 };
 
 export const TipoEnvolvimentoDescricao: Record<TipoEnvolvimento, string> = {
-  [TipoEnvolvimento.VITIMA]: 'Vitima',
-  [TipoEnvolvimento.INVESTIGADOR]: 'Investigador',
   [TipoEnvolvimento.AUTOR]: 'Autor',
-  [TipoEnvolvimento.RELATOR]: 'Relator'
+  [TipoEnvolvimento.INVESTIGADOR]: 'Investigador',
+  [TipoEnvolvimento.RELATOR]: 'Relator',
+  [TipoEnvolvimento.TESTEMUNHA]: 'Testemunha',
+  [TipoEnvolvimento.VITIMA]: 'Vitima'
 };

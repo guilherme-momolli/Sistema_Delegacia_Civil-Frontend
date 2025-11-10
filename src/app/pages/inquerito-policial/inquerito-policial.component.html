@@ -1,22 +1,16 @@
-<div class="container">
-  <h1>Inquéritos Policiais</h1>
+<div class="container py-4">
+  <h1 class="mb-4">Inquéritos Policiais</h1>
 
-  <div>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#formModal" (click)="resetarFormulario()">
+  <div class="mb-3">
+    <button class="btn btn-primary" (click)="abrirModal()">
       Cadastrar Inquérito
     </button>
   </div>
 
-  @if (successMessage) {
-  <div class="alert alert-success mt-3">{{ successMessage }}</div>
-  }
-  @if (errorMessage) {
-  <div class="alert alert-danger mt-3">{{ errorMessage }}</div>
-  }
-
+  <!-- Tabela de Inquéritos -->
   <div class="table-responsive">
     <table class="table table-dark table-striped table-bordered text-center align-middle">
-      <thead>
+      <thead class="table-primary">
         <tr>
           <th>Nº Justiça</th>
           <th>Ordem IP</th>
@@ -27,202 +21,378 @@
         </tr>
       </thead>
       <tbody>
-        @for (inquerito of inqueritos; track inquerito) {
+        @for (inq of inqueritos(); track inq.id) {
         <tr>
-          <td>{{ inquerito.numeroJustica }}</td>
-          <td>{{ inquerito.ordemIp }}</td>
-          <td>{{ inquerito.data | date: 'dd/MM/yyyy' }}</td>
-          <td>{{ getDescricaoPeca(inquerito.peca) }}</td>
-          <td>{{ getDescricaoSituacao(inquerito.situacaoInquerito) }}</td>
-          <td>
-            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#formModal"
-              (click)="abrirModalEdicao(inquerito)">Editar</button>
-            <button class="btn btn-danger btn-sm" (click)="confirmarExclusao(inquerito)">Excluir</button>
+          <td>{{ inq.numeroJustica }}</td>
+          <td>{{ inq.ordemIp }}</td>
+          <td>{{ inq.data | date: 'dd/MM/yyyy' }}</td>
+          <td>{{ getDescricaoPeca(inq.peca ?? '') }}</td>
+          <td>{{ getDescricaoSituacao(inq.situacaoInquerito ?? '') }}</td>
+          <td class="text-center">
+            <button class="btn btn-warning btn-sm me-1" (click)="abrirModal(inq)" title="Editar">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-danger btn-sm" (click)="excluir(inq)" title="Excluir">
+              <i class="bi bi-trash"></i>
+            </button>
           </td>
+        </tr>
+        } @empty {
+        <tr>
+          <td colspan="6" class="text-muted">Nenhum inquérito cadastrado.</td>
         </tr>
         }
       </tbody>
     </table>
   </div>
 
-  <!-- Modal Inquérito Policial -->
-  <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content dark-mode-modal">
+  <div class="modal fade" id="formModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
 
-        <div class="modal-header">
-          <h5 class="modal-title" id="formModalLabel">{{ isEdicao ? 'Editar Inquérito' : 'Novo Inquérito' }}</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-        </div>
+        <form [formGroup]="inqueritoForm" (ngSubmit)="salvar()">
 
-        <!-- Form principal -->
-        <form [formGroup]="inqueritoForm" (ngSubmit)="salvarInquerito()">
-          <div class="modal-body">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">
+              {{ isEdicao() ? 'Editar Inquérito' : 'Novo Inquérito' }}
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
 
-            <!-- Nav tabs -->
-            <ul class="nav nav-tabs mb-3" role="tablist">
-              <li class="nav-item" role="presentation">
-                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-inquerito" type="button"
-                  role="tab">
+          <div class="modal-body p-0">
+
+            <!-- Nav Tabs -->
+            <ul class="nav nav-tabs nav-fill" role="tablist">
+              <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-inquerito" type="button">
                   Inquérito
                 </button>
               </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-pessoas" type="button" role="tab">
-                  Pessoas Envolvidas
+              <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-pessoas" type="button">
+                  Pessoas
                 </button>
               </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-bens" type="button" role="tab">
+              <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-bens" type="button">
                   Bens
                 </button>
               </li>
             </ul>
 
-            <!-- Tab panes -->
-            <div class="tab-content">
+            <div class="tab-content p-3">
 
-              <!-- TAB - INQUÉRITO -->
-              <div class="tab-pane fade show active" id="tab-inquerito" role="tabpanel">
-                <div class="row g-2">
+              <div class="tab-pane fade show active" id="tab-inquerito">
+                <div class="row g-3">
                   <div class="col-md-6">
-                    <label class="form-label">Número Justiça</label>
-                    <input formControlName="numeroJustica" type="text" class="form-control" />
+                    <label class="form-label fw-bold">Número Justiça <span class="text-danger">*</span></label>
+                    <input formControlName="numeroJustica" type="text" class="form-control"
+                      [class.is-invalid]="inqueritoForm.get('numeroJustica')?.invalid && inqueritoForm.get('numeroJustica')?.touched">
+                    <div class="invalid-feedback">Campo obrigatório.</div>
                   </div>
 
                   <div class="col-md-6">
-                    <label class="form-label">Ordem IP</label>
-                    <input formControlName="ordemIp" type="number" class="form-control" />
+                    <label class="form-label fw-bold">Ordem IP <span class="text-danger">*</span></label>
+                    <input formControlName="ordemIp" type="number" class="form-control"
+                      [class.is-invalid]="inqueritoForm.get('ordemIp')?.invalid && inqueritoForm.get('ordemIp')?.touched">
                   </div>
 
                   <div class="col-md-6">
-                    <label class="form-label">Data</label>
-                    <input formControlName="data" type="date" class="form-control" />
+                    <label class="form-label fw-bold">Data <span class="text-danger">*</span></label>
+                    <input formControlName="data" type="date" class="form-control"
+                      [class.is-invalid]="inqueritoForm.get('data')?.invalid && inqueritoForm.get('data')?.touched">
                   </div>
 
                   <div class="col-md-6">
-                    <label class="form-label">Peça</label>
-                    <select formControlName="peca" class="form-select">
-                      @for (peca of pecas; track peca) {
-                      <option [value]="peca.key">
-                        {{ peca.value }}
-                      </option>
+                    <label class="form-label fw-bold">Peça <span class="text-danger">*</span></label>
+                    <select formControlName="peca" class="form-select"
+                      [class.is-invalid]="inqueritoForm.get('peca')?.invalid && inqueritoForm.get('peca')?.touched">
+                      <option [ngValue]="null">Selecione...</option>
+                      @for (p of pecas; track p.key) {
+                      <option [value]="p.key">{{ p.value }}</option>
                       }
                     </select>
                   </div>
 
                   <div class="col-md-6">
-                    <label class="form-label">Situação</label>
-                    <select formControlName="situacaoInquerito" class="form-select">
-                      @for (s of situacoes; track s) {
+                    <label class="form-label fw-bold">Situação <span class="text-danger">*</span></label>
+                    <select formControlName="situacaoInquerito" class="form-select"
+                      [class.is-invalid]="inqueritoForm.get('situacaoInquerito')?.invalid && inqueritoForm.get('situacaoInquerito')?.touched">
+                      <option [ngValue]="null">Selecione...</option>
+                      @for (s of situacoes; track s.key) {
                       <option [value]="s.key">{{ s.value }}</option>
                       }
                     </select>
                   </div>
 
                   <div class="col-md-6">
-                    <label class="form-label">Origem da Força Policial</label>
-                    <select formControlName="origemForcaPolicial" class="form-select">
-                      @for (o of origens; track o) {
+                    <label class="form-label fw-bold">Origem Força Policial <span class="text-danger">*</span></label>
+                    <select formControlName="origemForcaPolicial" class="form-select"
+                      [class.is-invalid]="inqueritoForm.get('origemForcaPolicial')?.invalid && inqueritoForm.get('origemForcaPolicial')?.touched">
+                      <option [ngValue]="null">Selecione...</option>
+                      @for (o of origens; track o.key) {
                       <option [value]="o.key">{{ o.value }}</option>
                       }
                     </select>
                   </div>
 
                   <div class="col-12">
-                    <label class="form-label">Natureza do Delito</label>
-                    <input formControlName="naturezaDoDelito" type="text" class="form-control" />
+                    <label class="form-label fw-bold">Natureza do Delito <span class="text-danger">*</span></label>
+                    <input formControlName="naturezaDoDelito" type="text" class="form-control"
+                      [class.is-invalid]="inqueritoForm.get('naturezaDoDelito')?.invalid && inqueritoForm.get('naturezaDoDelito')?.touched">
                   </div>
 
-
-
                   <div class="col-12">
-                    <label class="form-label">Observação</label>
+                    <label class="form-label fw-bold">Observação</label>
                     <textarea formControlName="observacao" rows="3" class="form-control"></textarea>
                   </div>
                 </div>
               </div>
 
-              <!-- TAB - PESSOAS ENVOLVIDAS -->
-              <div class="tab-pane fade" id="tab-pessoas" role="tabpanel">
-                <div class="row">
+              <div class="tab-pane fade" id="tab-pessoas">
 
-                  <!-- Barra de Pesquisa -->
-                  <div class="col-12 mb-3">
-                    <div class="input-group">
-                      <input type="text" class="form-control" placeholder="Pesquisar por nome..."
-                        [formControl]="filtroNome">
-                      <input type="text" class="form-control" placeholder="Pesquisar por CPF..."
-                        [formControl]="filtroCpf">
-                      <select class="form-select" [formControl]="filtroGenero">
-                        <option value="">Todos os gêneros</option>
-                        @for (g of generos; track g) {
-                        <option [value]="g.key">{{ g.value }}</option>
-                        }
-                      </select>
-                      <button type="button" class="btn btn-primary" (click)="buscarPessoas()">Pesquisar</button>
+                <div class="card border-primary mb-3">
+                  <div class="card-body p-3">
+                    <div class="row g-2 align-items-end">
+                      <div class="col-md-4">
+                        <input type="text" class="form-control form-control-sm" placeholder="Nome"
+                          (input)="atualizarFiltroNome($event)">
+                      </div>
+                      <div class="col-md-3">
+                        <input type="text" class="form-control form-control-sm" placeholder="CPF"
+                          (input)="atualizarFiltroCpf($event)">
+                      </div>
+                      <div class="col-md-3">
+                        <select class="form-select form-select-sm" (change)="atualizarFiltroSexo($event)">
+                          <option value="">Todos os Gêneros</option>
+                          @for (g of generos; track g.key) {
+                          <option [value]="g.key">{{ g.value }}</option>
+                          }
+                        </select>
+                      </div>
+                      <div class="col-md-2">
+                        <button type="button" class="btn btn-primary btn-sm w-100" (click)="buscarPessoas()">
+                          Buscar
+                        </button>
+                      </div>
                     </div>
                   </div>
+                </div>
 
-                  <!-- Lista de Pessoas Encontradas -->
-                  <div class="col-md-6 mb-3">
-                    <div class="card h-100">
-                      <div class="card-header">
-                        <h6 class="mb-0">Pessoas Cadastradas</h6>
-                      </div>
-                      <ul class="list-group list-group-flush">
-                        @for (pessoa of pessoasFiltradas; track pessoa) {
-                        <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                          <div>
-                            <strong>{{ pessoa.nome }}</strong> - {{ pessoa.cpf }}
-                          </div>
+                @if (pessoasFiltradas().length > 0) {
+                <div class="table-responsive mb-3">
+                  <table class="table table-sm table-hover">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Nome</th>
+                        <th>CPF</th>
+                        <th>Gênero</th>
+                        <th>Tipo</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (p of pessoasFiltradas(); track p.id) {
+                      <tr>
+                        <td>{{ p.nome }}</td>
+                        <td>{{ p.cpf }}</td>
+                        <td>{{ getDescricaoGenero(p.sexo) }}</td>
+                        <td>
+                          <select class="form-select form-select-sm" #tipoSelect>
+                            @for (t of tiposEnvolvimento; track t.key) {
+                            <option [value]="t.key">{{ t.value }}</option>
+                            }
+                          </select>
+                        </td>
+                        <td>
+                          <button type="button" class="btn btn-success btn-sm"
+                            (click)="adicionarPessoa(p, tipoSelect.value)">
+                            Adicionar
+                          </button>
+                        </td>
+                      </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+                }
 
-                          <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
-                            <select class="form-select form-select-sm" #envolvimentoSelect>
-                              @for (tipo of tipoEnvovilmentos; track tipo) {
-                              <option [value]="tipo.key">{{ tipo.value }}</option>
+                <h6 class="mb-2">Pessoas Envolvidas:</h6>
+                <div formArrayName="pessoasEnvolvidas">
+                  @if (pessoasArray().length > 0) {
+                  <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Nome</th>
+                          <th>Tipo</th>
+                          <th>Observação</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (ctrl of pessoasArray().controls; let i = $index; track i) {
+                        <tr [formGroupName]="i">
+                          <td>{{ getPessoaNome(ctrl.get('pessoaId')?.value) }}</td>
+                          <td>
+                            <select formControlName="tipoEnvolvimento" class="form-select form-select-sm">
+                              @for (t of tiposEnvolvimento; track t.key) {
+                              <option [value]="t.key">{{ t.value }}</option>
                               }
                             </select>
-
-                            <button class="btn btn-sm btn-success"
-                              (click)="adicionarPessoa(pessoa, envolvimentoSelect.value)">
-                              Adicionar
+                          </td>
+                          <td>
+                            <input formControlName="observacao" type="text" class="form-control form-control-sm"
+                              placeholder="Opcional">
+                          </td>
+                          <td>
+                            <button type="button" class="btn btn-outline-danger btn-sm" (click)="removerPessoa(i)">
+                              Remover
                             </button>
-                          </div>
-                        </li>
+                          </td>
+                        </tr>
                         }
-                      </ul>
-                    </div>
+                      </tbody>
+                    </table>
                   </div>
-
-
-                  <!-- Lista de Pessoas Selecionadas -->
-                  <div class="col-md-6 mb-3">
-                    <div class="card h-100">
-                      <div class="card-header">
-                        <h6 class="mb-0">Pessoas Selecionadas</h6>
-                      </div>
-                      <ul class="list-group list-group-flush">
-                        @for (pessoa of pessoasSelecionadasDetalhes; track pessoa) {
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                          <span>{{ pessoa.nome }} - {{ pessoa.cpf }}</span>
-                          <button type="button" class="btn btn-sm btn-danger" (click)="removerPessoa(pessoa.id!)">
-                            Remover
-                          </button>
-                        </li>
-                        }
-                      </ul>
-                    </div>
-                  </div>
-
+                  } @else {
+                  <p class="text-muted fst-italic">Nenhuma pessoa adicionada.</p>
+                  }
                 </div>
               </div>
 
+              <div class="tab-pane fade" id="tab-bens">
 
-              <!-- TAB - BENS (placeholder) -->
-              <div class="tab-pane fade" id="tab-bens" role="tabpanel">
-                <h6>Bens</h6>
-                <p>Área de bens (implemente conforme necessidade)</p>
+                <div class="card border-success mb-3">
+                  <div class="card-body p-3">
+                    <div class="row g-2 align-items-end">
+                      <div class="col-md-4">
+                        <input type="text" class="form-control form-control-sm" placeholder="Descrição do bem"
+                          (input)="atualizarFiltroDescricao($event)">
+                      </div>
+
+                      <div class="col-md-3">
+                        <input type="text" class="form-control form-control-sm" placeholder="Marca"
+                          (input)="atualizarFiltroMarca($event)">
+                      </div>
+
+                      <div class="col-md-3">
+                        <select class="form-select form-select-sm" (change)="atualizarFiltroTipo($event)">
+                          <option value="">Todos os tipos</option>
+                          @for (t of tiposBem; track t.key) {
+                          <option [value]="t.key">{{ t.value }}</option>
+                          }
+                        </select>
+                      </div>
+
+                      <div class="col-md-2">
+                        <button type="button" class="btn btn-success btn-sm w-100" (click)="buscarBens()">
+                          Buscar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                @if (bensFiltrados().length > 0) {
+                <div class="table-responsive mb-3">
+                  <table class="table table-sm table-hover align-middle">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Descrição</th>
+                        <th>Marca / Modelo</th>
+                        <th>Tipo de Envolvimento</th>
+                        <th>Observação</th>
+                        <th class="text-center">Ação</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (bem of bensFiltrados(); track bem.id) {
+                      <tr>
+                        <td class="text-truncate" style="max-width: 200px;" title="{{ bem.descricao }}">
+                          {{ bem.descricao }}
+                        </td>
+
+                        <td>{{ bem.marca }} {{ bem.modelo }}</td>
+
+                        <td>
+                          <select class="form-select form-select-sm" #tipoBem>
+                            @for (t of bemTipoEnvolvimento; track t.key) {
+                            <option [value]="t.key">{{ t.value }}</option>
+                            }
+                          </select>
+                        </td>
+
+                        <td>
+                          <input type="text" class="form-control form-control-sm" placeholder="Opcional" #obsBem>
+                        </td>
+
+                        <td class="text-center">
+                          <button type="button" class="btn btn-success btn-sm"
+                            (click)="adicionarBem(bem, tipoBem.value); obsBem.value = ''">
+                            Adicionar
+                          </button>
+                        </td>
+                      </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+                } @else if (filtrosBem().descricao || filtrosBem().marca || filtrosBem().tipo) {
+                <p class="text-muted text-center fst-italic">Nenhum bem encontrado.</p>
+                }
+
+                <h6 class="mb-2 mt-4">Bens Envolvidos no Inquérito:</h6>
+                <div formArrayName="bensEnvolvidos">
+                  @if (bensArray().length > 0) {
+                  <div class="table-responsive">
+                    <table class="table table-sm table-striped align-middle">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Descrição do Bem</th>
+                          <th>Tipo de Envolvimento</th>
+                          <th>Observação</th>
+                          <th class="text-center">Ação</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (ctrl of bensArray().controls; let i = $index; track i) {
+                        <tr [formGroupName]="i">
+                          <!-- DESCRIÇÃO (via getBemDescricao) -->
+                          <td class="text-truncate" style="max-width: 250px;">
+                            {{ getBemDescricao(ctrl.get('bemId')?.value) }}
+                          </td>
+
+                          <!-- TIPO DE ENVOLVIMENTO -->
+                          <td>
+                            <select formControlName="tipoEnvolvimento" class="form-select form-select-sm">
+                              @for (t of bemTipoEnvolvimento; track t.key) {
+                              <option [value]="t.key">{{ t.value }}</option>
+                              }
+                            </select>
+                          </td>
+
+                          <!-- OBSERVAÇÃO -->
+                          <td>
+                            <input formControlName="observacao" type="text" class="form-control form-control-sm"
+                              placeholder="Opcional">
+                          </td>
+
+                          <!-- REMOVER -->
+                          <td class="text-center">
+                            <button type="button" class="btn btn-outline-danger btn-sm" (click)="removerBem(i)">
+                              Remover
+                            </button>
+                          </td>
+                        </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                  } @else {
+                  <p class="text-muted fst-italic">Nenhum bem adicionado ao inquérito.</p>
+                  }
+                </div>
               </div>
 
             </div>
@@ -231,10 +401,13 @@
           <!-- Footer -->
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn btn-success">Salvar</button>
+            <button type="submit" class="btn btn-success" [disabled]="inqueritoForm.invalid">
+              {{ isEdicao() ? 'Atualizar' : 'Salvar' }}
+            </button>
           </div>
-        </form>
 
+        </form>
       </div>
     </div>
   </div>
+</div>

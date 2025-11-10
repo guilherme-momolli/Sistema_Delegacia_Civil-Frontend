@@ -18,7 +18,7 @@ export interface PessoaEnvolvimento {
 })
 export class PessoaEnvolvimentoService {
 
-  private apiUrl = `${environment.apiUrl}/pessoa-envolvida`;
+  private apiUrl = `${environment.apiUrl}/pessoa_envolvimento`;
 
   constructor(private http: HttpClient, private auth: AuthService) { }
 

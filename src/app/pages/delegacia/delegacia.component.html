@@ -39,8 +39,6 @@
             <span>Sem imagem</span>
             }
           </td>
-
-
           <td>{{ delegacia.secretaria }}</td>
           <td>{{ delegacia.nome }}</td>
           <td>{{ delegacia.email }}</td>
@@ -49,7 +47,7 @@
           <td>
             <div>
               <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#formModal"
-                (click)="abrirModalEdicao(delegacia)"><i class="bi bi-pencil"></i>Editar</button>
+              (click)="abrirModalEdicao(delegacia)"><i class="bi bi-pencil"></i>Editar</button>
               <button class="btn btn-sm btn-danger" (click)="confirmarExclusao(delegacia)"><i class="bi bi-trash"></i>Excluir</button>
             </div>
           </td>
