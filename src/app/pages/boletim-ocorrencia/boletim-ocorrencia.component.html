@@ -1,240 +1,365 @@
-<div class="container">
-  <h1>Boletins de Ocorrência</h1>
+<div class="container py-4">
+  <h1 class="h3 mb-4">Boletins de Ocorrência</h1>
 
-  <div>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#formModal" (click)="resetarFormulario()">
+  <div class="mb-3">
+    <button class="btn btn-primary" (click)="abrirModal()">
       Cadastrar Boletim
     </button>
   </div>
 
-  @if (successMessage) {
-  <div class="alert alert-success mt-3">{{ successMessage }}</div>
-  }
-  @if (errorMessage) {
-  <div class="alert alert-danger mt-3">{{ errorMessage }}</div>
-  }
-
   <div class="table-responsive">
-    <table class="table table-dark table-striped table-bordered text-center align-middle">
-      <thead>
+    <table class="table table-striped table-hover align-middle">
+      <thead class="table-dark">
         <tr>
           <th>Nº BO</th>
           <th>Data/Hora</th>
           <th>Natureza</th>
           <th>Local</th>
+          <th>Pessoas</th>
+          <th>Bens</th>
           <th>Ações</th>
         </tr>
       </thead>
       <tbody>
-        @for (boletim of boletins; track boletim) {
+        @for (bo of boletins(); track bo.id) {
         <tr>
-          <td>{{ boletim.boletim }}</td>
-          <td>{{ boletim.dataOcorrencia | date:'dd/MM/yyyy HH:mm' }}</td>
-          <td>{{ boletim.natureza }}</td>
-          <td>{{ boletim.endereco?.logradouro }}</td>
+          <td><strong>{{ bo.boletim }}</strong></td>
+          <td>{{ bo.dataOcorrencia | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td>{{ bo.natureza }}</td>
+          <td>{{ bo.endereco?.logradouro || '—' }}</td>
+          <td>{{ bo.pessoasEnvolvidas?.length || 0 }}</td>
+          <td>{{ bo.bensEnvolvidos?.length || 0 }}</td>
           <td>
-            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#formModal"
-              (click)="abrirModalEdicao(boletim)">Editar</button>
-            <button class="btn btn-danger btn-sm" (click)="confirmarExclusao(boletim)">Excluir</button>
+            <button class="btn btn-warning btn-sm me-1" (click)="abrirModal(bo)" title="Editar">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-danger btn-sm" (click)="confirmarExclusao(bo)" title="Excluir">
+              <i class="bi bi-trash"></i>
+            </button>
           </td>
+        </tr>
+        } @empty {
+        <tr>
+          <td colspan="7" class="text-center text-muted">Nenhum boletim cadastrado.</td>
         </tr>
         }
       </tbody>
     </table>
   </div>
 
-  <!-- Modal Boletim de Ocorrência -->
-  <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-      <div class="modal-content dark-mode-modal">
+  <div class="modal fade" id="boletimModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <form [formGroup]="boletimForm" (ngSubmit)="salvar()">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              {{ isEdicao() ? 'Editar' : 'Novo' }} Boletim de Ocorrência
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
 
-        <div class="modal-header">
-          <h5 class="modal-title" id="formModalLabel">
-            {{ isEdicao ? 'Editar Boletim de Ocorrência' : 'Novo Boletim de Ocorrência' }}
-          </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-        </div>
-
-        <form [formGroup]="boletimForm" (ngSubmit)="salvarBoletim()">
           <div class="modal-body">
-
-            <!-- Nav tabs -->
             <ul class="nav nav-tabs mb-3" role="tablist">
-              <li class="nav-item" role="presentation">
-                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-boletim" type="button"
-                  role="tab">
-                  Boletim
-                </button>
+              <li class="nav-item">
+                <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-boletim">Boletim</button>
               </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-endereco" type="button" role="tab">
-                  Endereço
-                </button>
+              <li class="nav-item">
+                <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-endereco">Endereço</button>
               </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-pessoas" type="button" role="tab">
-                  Pessoas Envolvidas
-                </button>
+              <li class="nav-item">
+                <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-pessoas">Pessoas</button>
               </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-bens" type="button" role="tab">
-                  Bens
-                </button>
+              <li class="nav-item">
+                <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-bens">Bens</button>
               </li>
             </ul>
 
-            <!-- Tab panes -->
             <div class="tab-content">
 
-              <!-- TAB - BOLETIM -->
-              <div class="tab-pane fade show active" id="tab-boletim" role="tabpanel">
+              <div class="tab-pane fade show active" id="tab-boletim">
                 <div class="row g-3">
-
                   <div class="col-md-6">
-                    <label class="form-label">Número do Boletim</label>
-                    <input formControlName="boletim" type="text" class="form-control" />
+                    <label class="form-label">Nº do Boletim *</label>
+                    <input formControlName="boletim" class="form-control" placeholder="BO-2025-001" />
                   </div>
-
                   <div class="col-md-6">
-                    <label class="form-label">Data/Hora da Ocorrência</label>
+                    <label class="form-label">Data/Hora *</label>
                     <input formControlName="dataOcorrencia" type="datetime-local" class="form-control" />
                   </div>
-
                   <div class="col-md-6">
-                    <label class="form-label">Natureza</label>
-                    <input formControlName="natureza" type="text" class="form-control" />
+                    <label class="form-label">Natureza *</label>
+                    <input formControlName="natureza" class="form-control" />
                   </div>
-
                   <div class="col-md-6">
                     <label class="form-label">Representação</label>
-                    <input formControlName="representacao" type="text" class="form-control" />
+                    <input formControlName="representacao" class="form-control" />
                   </div>
-
                   <div class="col-md-6">
-                    <label class="form-label">Origem da Força Policial</label>
+                    <label class="form-label">Origem da Força *</label>
                     <select formControlName="origemForcaPolicial" class="form-select">
                       <option value="">Selecione...</option>
-                      <option *ngFor="let origem of origens" [value]="origem.key">
-                        {{ origem.value }}
-                      </option>
+                      @for (o of origens; track o.key) {
+                      <option [value]="o.key">{{ o.value }}</option>
+                      }
                     </select>
                   </div>
                 </div>
               </div>
 
-              <!-- TAB - ENDEREÇO -->
-              <div class="tab-pane fade" id="tab-endereco" role="tabpanel">
+              <div class="tab-pane fade" id="tab-endereco">
                 <div formGroupName="endereco" class="row g-3">
-
-                  <div class="col-md-4">
-                    <label class="form-label">UF</label>
-                    <select formControlName="uf" type="text" class="form-control" maxlength="2">
-                      <option *ngFor="let uf of ufs" [value]="uf.key">
-                        {{ uf.value }}
-                      </option>
+                  <div class="col-md-3">
+                    <label class="form-label">CEP *</label>
+                    <input formControlName="cep" class="form-control" placeholder="00000-000" maxlength="9"
+                      (input)="formatarCep($event)" />
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">UF *</label>
+                    <select formControlName="uf" class="form-select">
+                      <option value="">UF</option>
+                      @for (u of ufs; track u.key) {
+                      <option [value]="u.key">{{ u.value }}</option>
+                      }
                     </select>
                   </div>
-
                   <div class="col-md-6">
-                    <label class="form-label">Município</label>
-                    <input formControlName="municipio" type="text" class="form-control" />
+                    <label class="form-label">Município *</label>
+                    <input formControlName="municipio" class="form-control" />
                   </div>
-
                   <div class="col-md-6">
-                    <label class="form-label">Bairro</label>
-                    <input formControlName="bairro" type="text" class="form-control" />
+                    <label class="form-label">Bairro *</label>
+                    <input formControlName="bairro" class="form-control" />
                   </div>
-
-                  <div class="col-md-6">
-                    <label class="form-label">Logradouro</label>
-                    <input formControlName="logradouro" type="text" class="form-control" />
+                  <div class="col-md-8">
+                    <label class="form-label">Logradouro *</label>
+                    <input formControlName="logradouro" class="form-control" />
                   </div>
-
-                  <div class="col-md-3">
-                    <label class="form-label">Número</label>
-                    <input formControlName="numero" type="text" class="form-control" />
-                  </div>
-
-                  <div class="col-md-3">
-                    <label class="form-label">CEP</label>
-                    <input formControlName="cep" type="text" class="form-control" placeholder="00000-000" />
+                  <div class="col-md-4">
+                    <label class="form-label">Número *</label>
+                    <input formControlName="numero" class="form-control" />
                   </div>
                 </div>
               </div>
 
-              <!-- TAB - PESSOAS -->
-              <div class="tab-pane fade" id="tab-pessoas" role="tabpanel">
-                <div class="row">
-
-                  <!-- Filtros -->
-                  <div class="col-12 mb-3">
-                    <div class="input-group">
-                      <input type="text" class="form-control" placeholder="Pesquisar por nome..."
-                        [formControl]="filtroNome">
-                      <input type="text" class="form-control" placeholder="Pesquisar por CPF..."
-                        [formControl]="filtroCpf">
-                      <select class="form-select" [formControl]="filtroGenero">
-                        <option value="">Todos os gêneros</option>
-                        <option *ngFor="let g of generos" [value]="g.key">{{ g.value }}</option>
-                      </select>
-                      <button type="button" class="btn btn-primary" (click)="buscarPessoas()">Pesquisar</button>
-                    </div>
+              <div class="tab-pane fade" id="tab-pessoas">
+                <div class="row g-2 mb-3">
+                  <div class="col-md-4">
+                    <input type="text" class="form-control form-control-sm" placeholder="Nome"
+                      (input)="atualizarFiltroPessoaNome($event)">
                   </div>
-
-                  <!-- Pessoas encontradas -->
-                  <div class="col-md-6 mb-3">
-                    <div class="card h-100">
-                      <div class="card-header">
-                        <h6 class="mb-0">Pessoas Cadastradas</h6>
-                      </div>
-                      <ul class="list-group list-group-flush">
-                        <li *ngFor="let pessoa of pessoasFiltradas"
-                          class="list-group-item d-flex justify-content-between align-items-center">
-                          <span>{{ pessoa.nome }} - {{ pessoa.cpf }}</span>
-                          <!-- <button type="button" class="btn btn-sm btn-success"
-                            (click)="adicionarPessoa(pessoa)">Adicionar</button> -->
-                        </li>
-                      </ul>
-                    </div>
+                  <div class="col-md-3">
+                    <input type="text" class="form-control form-control-sm" placeholder="CPF"
+                      (input)="atualizarFiltroPessoaCpf($event)">
                   </div>
+                  <div class="col-md-3">
+                    <select class="form-select form-select-sm" (change)="atualizarFiltroPessoaSexo($event)">
+                      <option value="">Todos os sexos</option>
+                      @for (g of generos; track g.key) {
+                      <option [value]="g.key">{{ g.value }}</option>
+                      }
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <button type="button" class="btn btn-primary btn-sm w-100" (click)="buscarPessoas()">Buscar</button>
+                  </div>
+                </div>
 
-                  <!-- Pessoas selecionadas -->
-                  <div class="col-md-6 mb-3">
-                    <div class="card h-100">
-                      <div class="card-header">
-                        <h6 class="mb-0">Pessoas Selecionadas</h6>
-                      </div>
-                      <ul class="list-group list-group-flush">
-                        <li *ngFor="let pessoa of pessoasSelecionadasDetalhes"
-                          class="list-group-item d-flex justify-content-between align-items-center">
-                          <span>
-                            {{ pessoa.nome || 'Nome não disponível' }} - {{ pessoa.cpf || 'CPF não disponível' }}
-                          </span>
-                          <button type="button" class="btn btn-sm btn-danger" (click)="removerPessoa(pessoa.id!)">
-                            Remover
+                @if (pessoasFiltradas().length > 0) {
+                <div class="table-responsive mb-3" style="max-height: 200px; overflow-y: auto;">
+                  <table class="table table-sm table-hover">
+                    <thead class="table-light sticky-top">
+                      <tr>
+                        <th>Nome</th>
+                        <th>CPF</th>
+                        <th>Tipo</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (p of pessoasFiltradas(); track p.id) {
+                      <tr>
+                        <td>{{ p.nome }}</td>
+                        <td>{{ p.cpf }}</td>
+                        <td>
+                          <select class="form-select form-select-sm" #tipoPessoa>
+                            @for (t of tiposEnvolvimento; track t.key) {
+                            <option [value]="t.key">{{ t.value }}</option>
+                            }
+                          </select>
+                        </td>
+                        <td>
+                          <button type="button" class="btn btn-success btn-sm" (click)="adicionarPessoa(p, tipoPessoa.value)">
+                            Adicionar
                           </button>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
+                        </td>
+                      </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+                } @else {
+                <p class="text-muted fst-italic">Nenhuma pessoa encontrada.</p>
+                }
 
+                <h6 class="mt-3">Pessoas Envolvidas:</h6>
+                <div formArrayName="pessoasEnvolvidas">
+                  @if (pessoasArray().length > 0) {
+                  <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+                    <table class="table table-sm table-striped">
+                      <thead class="table-light sticky-top">
+                        <tr>
+                          <th>Nome</th>
+                          <th>Tipo</th>
+                          <th>Observação</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (ctrl of pessoasArray().controls; let i = $index; track i) {
+                        <tr [formGroupName]="i">
+                          <td>{{ getPessoaNome(ctrl.get('pessoaId')?.value) }}</td>
+                          <td>
+                            <select formControlName="tipoEnvolvimento" class="form-select form-select-sm">
+                              @for (t of tiposEnvolvimento; track t.key) {
+                              <option [value]="t.key">{{ t.value }}</option>
+                              }
+                            </select>
+                          </td>
+                          <td>
+                            <input formControlName="observacao" class="form-control form-control-sm"
+                              placeholder="Opcional">
+                          </td>
+                          <td>
+                            <button type="button" class="btn btn-outline-danger btn-sm" (click)="removerPessoa(i)">
+                              Remover
+                            </button>
+                          </td>
+                        </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                  } @else {
+                  <p class="text-muted fst-italic">Nenhuma pessoa adicionada.</p>
+                  }
                 </div>
               </div>
 
-              <!-- TAB - BENS -->
-              <div class="tab-pane fade" id="tab-bens" role="tabpanel">
-                <h6>Bens</h6>
-                <p>Área de bens (implementar depois conforme necessidade)</p>
+              <div class="tab-pane fade" id="tab-bens">
+                <div class="row g-2 mb-3">
+                  <div class="col-md-4">
+                    <input type="text" class="form-control form-control-sm" placeholder="Descrição"
+                      (input)="atualizarFiltroBemDescricao($event)">
+                  </div>
+                  <div class="col-md-3">
+                    <input type="text" class="form-control form-control-sm" placeholder="Marca"
+                      (input)="atualizarFiltroBemMarca($event)">
+                  </div>
+                  <div class="col-md-3">
+                    <select class="form-select form-select-sm" (change)="atualizarFiltroBemTipo($event)">
+                      <option value="">Todos os tipos</option>
+                      @for (t of tiposBem; track t.key) {
+                      <option [value]="t.key">{{ t.value }}</option>
+                      }
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <button type="button" class="btn btn-primary btn-sm w-100" (click)="buscarBens()">Buscar</button>
+                  </div>
+                </div>
+
+                @if (bensFiltrados().length > 0) {
+                <div class="table-responsive mb-3" style="max-height: 200px; overflow-y: auto;">
+                  <table class="table table-sm table-hover">
+                    <thead class="table-light sticky-top">
+                      <tr>
+                        <th>Descrição</th>
+                        <th>Marca/Modelo</th>
+                        <th>Tipo</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (b of bensFiltrados(); track b.id) {
+                      <tr>
+                        <td>{{ b.descricao }}</td>
+                        <td>{{ b.marca }} {{ b.modelo }}</td>
+                        <td>
+                          <select class="form-select form-select-sm" #tipoBem>
+                            @for (t of bemTipoEnvolvimento; track t.key) {
+                            <option [value]="t.key">{{ t.value }}</option>
+                            }
+                          </select>
+                        </td>
+                        <td>
+                          <button type="button" class="btn btn-success btn-sm" (click)="adicionarBem(b, tipoBem.value)">
+                            Adicionar
+                          </button>
+                        </td>
+                      </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+                } @else {
+                <p class="text-muted fst-italic">Nenhum bem encontrado.</p>
+                }
+
+                <h6 class="mt-3">Bens Envolvidos:</h6>
+                <div formArrayName="bensEnvolvidos">
+                  @if (bensArray().length > 0) {
+                  <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+                    <table class="table table-sm table-striped">
+                      <thead class="table-light sticky-top">
+                        <tr>
+                          <th>Descrição</th>
+                          <th>Tipo</th>
+                          <th>Observação</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (ctrl of bensArray().controls; let i = $index; track i) {
+                        <tr [formGroupName]="i">
+                          <td>{{ getBemDescricao(ctrl.get('bemId')?.value) }}</td>
+                          <td>
+                            <select formControlName="tipoEnvolvimento" class="form-select form-select-sm">
+                              @for (t of bemTipoEnvolvimento; track t.key) {
+                              <option [value]="t.key">{{ t.value }}</option>
+                              }
+                            </select>
+                          </td>
+                          <td>
+                            <input formControlName="observacao" class="form-control form-control-sm"
+                              placeholder="Opcional">
+                          </td>
+                          <td>
+                            <button type="button" class="btn btn-outline-danger btn-sm" (click)="removerBem(i)">
+                              Remover
+                            </button>
+                          </td>
+                        </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                  } @else {
+                  <p class="text-muted fst-italic">Nenhum bem adicionado.</p>
+                  }
+                </div>
               </div>
+
             </div>
           </div>
 
-          <!-- Footer -->
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn btn-success">Salvar</button>
+            <button type="submit" class="btn btn-success" [disabled]="boletimForm.invalid">
+              {{ isEdicao() ? 'Atualizar' : 'Salvar' }}
+            </button>
           </div>
         </form>
       </div>
     </div>
   </div>
+</div>

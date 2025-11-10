@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -18,6 +18,11 @@ import { BoletimOcorrenciaResponseDTO } from '../../core/models/dto/boletim-ocor
 import { BoletimOcorrenciaMapper } from '../../core/mapper/boletim-ocorrencia/boletim-ocorrencia.mapper';
 import { DelegaciaResponseDTO } from '../../core/models/dto/delegacia/delegacia-response.dto';
 import { PessoaResponseDTO } from '../../core/models/dto/pessoa/pessoa-response.dto';
+import { BemService } from '../../core/service/bem/bem.service';
+import { ToastrService } from 'ngx-toastr';
+import { BemResponseDTO } from '../../core/models/dto/bem/bem-response.dto';
+import { TipoBem, TipoBemDescricao } from '../../core/enum/bem/tipo-bem.enum';
+import { BemTipoEnvolvimento, BemTipoEnvolvimentoDescricao } from '../../core/enum/bem/bem-tipo-envolvimento.enum';
 
 declare var bootstrap: any;
 
@@ -28,315 +33,333 @@ declare var bootstrap: any;
   templateUrl: './boletim-ocorrencia.component.html',
   styleUrls: ['./boletim-ocorrencia.component.css']
 })
-export class BoletimOcorrenciaComponent implements OnInit {
+export class BoletimOcorrenciaComponent {
+  // === INJECTIONS ===
+  private fb = inject(FormBuilder);
+  private boletimService = inject(BoletimOcorrenciaService);
+  private delegaciaService = inject(DelegaciaService);
+  private pessoaService = inject(PessoaService);
+  private bemService = inject(BemService);
+  private authService = inject(AuthService);
+  private enderecoService = inject(EnderecoService);
+  private toast = inject(ToastrService);
 
-  totalPages: number = 0;
-  totalElements: number = 0;
-  pageNumber: number = 0;
-  pageSize: number = 10;
-  successMessage: string = '';
-  errorMessage: string = '';
-  boletins: BoletimOcorrenciaResponseDTO[] = [];
-  pessoas: PessoaResponseDTO[] = [];
-  pessoasFiltradas: PessoaResponseDTO[] = [];
-  delegacias: DelegaciaResponseDTO[] = [];
-  isEdicao: boolean = false;
-  boletimSelecionado: BoletimOcorrenciaResponseDTO | null = null;
-  pessoasSelecionadas: number[] = [];
-  pessoasSelecionadasIds: number[] = [];
-  pessoasSelecionadasDetalhes: Pessoa[] = [];
-  envolvimentos: { [key: number]: string } = {};
-  delegaciaLogadaId: number | null = null;
-  pessoa: Pessoa | null = null;
+  // === SIGNALS ===
+  delegaciaId = signal<number | null>(null);
+  boletins = signal<BoletimOcorrenciaResponseDTO[]>([]);
+  delegacias = signal<DelegaciaResponseDTO[]>([]);
+  pessoasFiltradas = signal<PessoaResponseDTO[]>([]);
+  bensFiltrados = signal<BemResponseDTO[]>([]);
+  filtrosPessoa = signal<{ nome: string; cpf: string; sexo: string }>({ nome: '', cpf: '', sexo: '' });
+  filtrosBem = signal<{ descricao: string; tipo: string; marca: string }>({ descricao: '', tipo: '', marca: '' });
+  pessoaMap = new Map<number, PessoaResponseDTO>();
+  bemMap = new Map<number, BemResponseDTO>();
+
+  // === ENUMS ===
   ufs = enumToKeyValueArray(UF, UFDescricao);
   origens = enumToKeyValueArray(OrigemForcaPolicial, OrigemForcaPolicialDescricao);
-  tipoEnvolvimentos = enumToKeyValueArray(TipoEnvolvimento, TipoEnvolvimentoDescricao);
+  tiposEnvolvimento = enumToKeyValueArray(TipoEnvolvimento, TipoEnvolvimentoDescricao);
   generos = enumToKeyValueArray(Genero, GeneroDescricao);
+  tiposBem = enumToKeyValueArray(TipoBem, TipoBemDescricao);
+  bemTipoEnvolvimento = enumToKeyValueArray(BemTipoEnvolvimento, BemTipoEnvolvimentoDescricao);
 
-  boletimForm: FormGroup;
+  // === FORM ===
+  boletimForm = this.fb.group({
+    id: [null as number | null],
+    origemForcaPolicial: ['', Validators.required],
+    dataOcorrencia: ['', Validators.required],
+    boletim: ['', Validators.required],
+    natureza: ['', Validators.required],
+    representacao: [''],
+    delegaciaId: [null as number | null, Validators.required],
 
-  filtroPessoa: string[] = [];
+    endereco: this.fb.group({
+      pais: ['BRASIL'],
+      uf: [''],
+      municipio: [''],
+      bairro: [''],
+      logradouro: [''],
+      numero: [''],
+      cep: ['']
+    }),
 
-  filtroNome = new FormControl<string>('', { nonNullable: true });
-  filtroCpf = new FormControl<string>('', { nonNullable: true });
-  filtroGenero = new FormControl<string>('', { nonNullable: true });
+    pessoasEnvolvidas: this.fb.array([]),
+    bensEnvolvidos: this.fb.array([])
+  });
 
-  constructor(
-    private fb: FormBuilder,
-    private boletimService: BoletimOcorrenciaService,
-    private delegaciaService: DelegaciaService,
-    private pessoaService: PessoaService,
-    private authService: AuthService,
-    private enderecoService: EnderecoService
-  ) {
-    this.boletimForm = this.fb.group({
-      id: [null],
-      origemForcaPolicial: ['', Validators.required],
-      dataOcorrencia: ['', Validators.required],
-      boletim: ['', Validators.required],
-      natureza: ['', Validators.required],
-      representacao: [''],
-      delegaciaId: [null, Validators.required],
+  // === COMPUTED ===
+  pessoasArray = computed(() => this.boletimForm.get('pessoasEnvolvidas') as FormArray);
+  bensArray = computed(() => this.boletimForm.get('bensEnvolvidos') as FormArray);
+  isEdicao = signal(false);
 
-      endereco: this.fb.group({
-        pais: ['BRASIL', Validators.required],
-        uf: ['', Validators.required],
-        municipio: ['', Validators.required],
-        bairro: ['', Validators.required],
-        logradouro: ['', Validators.required],
-        numero: ['', Validators.required],
-        cep: [
-          '',
-          [Validators.required, Validators.pattern('^[0-9]{5}-[0-9]{3}$')]
-        ]
-      }),
-
-      pessoasEnvolvidas: this.fb.array([]) // já no padrão DTO
+  constructor() {
+    effect(() => {
+      const id = this.authService.getDelegaciaId();
+      this.delegaciaId.set(id);
+      if (id) {
+        this.boletimForm.patchValue({ delegaciaId: id });
+        this.carregarBoletins();
+      }
     });
 
+    this.carregarDelegacias();
+    this.setupCepAutoComplete();
   }
 
-  ngOnInit(): void {
-    this.delegaciaLogadaId = this.authService.getDelegaciaId();
-    if (this.delegaciaLogadaId) {
-      this.boletimForm.patchValue({ delegaciaId: this.delegaciaLogadaId });
-      this.carregarBoletins(this.delegaciaLogadaId);
+  // === FORM ARRAY ===
+  private criarPessoaFormGroup(dto?: { pessoaId?: number; tipoEnvolvimento?: string; observacao?: string }): FormGroup {
+    return this.fb.group({
+      pessoaId: [dto?.pessoaId ?? null, Validators.required],
+      tipoEnvolvimento: [dto?.tipoEnvolvimento ?? '', Validators.required],
+      observacao: [dto?.observacao ?? '']
+    });
+  }
+
+  private criarBemFormGroup(dto?: { bemId?: number; tipoEnvolvimento?: string; observacao?: string }): FormGroup {
+    return this.fb.group({
+      bemId: [dto?.bemId ?? null, Validators.required],
+      tipoEnvolvimento: [dto?.tipoEnvolvimento ?? '', Validators.required],
+      observacao: [dto?.observacao ?? '']
+    });
+  }
+
+  // === BUSCA ===
+  buscarPessoas(): void {
+    const { nome, cpf, sexo } = this.filtrosPessoa();
+    if (!nome && !cpf && !sexo) {
+      this.toast.info('Preencha ao menos um filtro.');
+      return; // ← SEM `return this.toast.info(...)`
     }
-    this.carregarDelegacias();
 
-    this.filtroNome.valueChanges.subscribe(() => this.aplicarFiltro());
-    this.filtroCpf.valueChanges.subscribe(() => this.aplicarFiltro());
-    this.filtroGenero.valueChanges.subscribe(() => this.aplicarFiltro());
+    this.pessoaService.getPessoasFiltradas({ nome, cpf, sexo }).subscribe({
+      next: (res) => this.pessoasFiltradas.set(res.content || []),
+      error: () => this.toast.error('Erro ao buscar pessoas.')
+    });
+  }
 
-    this.boletimForm.get('enderecoForm.cep')?.valueChanges
+  buscarBens(): void {
+    const { descricao, tipo, marca } = this.filtrosBem();
+    if (!descricao && !tipo && !marca) {
+      this.toast.info('Preencha ao menos um filtro.');
+      return;
+    }
+
+    this.bemService.getBensFiltrados({ descricao, tipoBem: tipo, marca }).subscribe({
+      next: (page) => this.bensFiltrados.set(page.content || []),
+      error: () => this.toast.error('Erro ao buscar bens.')
+    });
+  }
+
+  // === ADICIONAR / REMOVER ===
+  adicionarPessoa(pessoa: PessoaResponseDTO, tipo: string): void {
+    if (this.pessoasArray().controls.some(c => c.get('pessoaId')?.value === pessoa.id)) {
+      this.toast.warning('Pessoa já adicionada.');
+      return; // ← SEM `return this.toast.warning(...)`
+    }
+    this.pessoasArray().push(this.criarPessoaFormGroup({ pessoaId: pessoa.id!, tipoEnvolvimento: tipo }));
+  }
+
+  removerPessoa(index: number): void {
+    this.pessoasArray().removeAt(index);
+    this.toast.info('Pessoa removida.');
+  }
+
+  adicionarBem(bem: BemResponseDTO, tipo: string): void {
+    if (this.bensArray().controls.some(c => c.get('bemId')?.value === bem.id)) {
+      this.toast.warning('Bem já adicionado.');
+      return;
+    }
+    this.bensArray().push(this.criarBemFormGroup({ bemId: bem.id!, tipoEnvolvimento: tipo }));
+  }
+
+  removerBem(index: number): void {
+    this.bensArray().removeAt(index);
+  }
+
+  // === GET NOME / DESCRIÇÃO ===
+  getPessoaNome(pessoaId: number): string {
+    const p = this.pessoaMap.get(pessoaId) || this.pessoasFiltradas().find(p => p.id === pessoaId);
+    return p?.nome || '—';
+  }
+
+  getBemDescricao(bemId: number): string {
+    const b = this.bemMap.get(bemId) || this.bensFiltrados().find(b => b.id === bemId);
+    return b ? `${b.descricao} (${b.marca} ${b.modelo})`.trim() : '—';
+  }
+
+  // === CARREGAR DETALHES ===
+  private carregarDetalhesPessoas(ids: number[]): void {
+    if (!ids.length) { this.pessoaMap.clear(); return; }
+    this.pessoaService.getByIds(ids).subscribe(p => {
+      this.pessoaMap.clear();
+      p.forEach(x => this.pessoaMap.set(x.id!, x));
+    });
+  }
+
+  private carregarDetalhesBens(ids: number[]): void {
+    if (!ids.length) { this.bemMap.clear(); return; }
+    this.bemService.getByIds(ids).subscribe(b => {
+      this.bemMap.clear();
+      b.forEach(x => this.bemMap.set(x.id!, x));
+    });
+  }
+
+  // === DADOS ===
+  private carregarBoletins(): void {
+    const id = this.delegaciaId();
+    if (!id) return;
+    this.boletimService.getByDelegacia(id).subscribe({
+      next: (data) => this.boletins.set(data || []),
+      error: () => this.toast.error('Erro ao carregar boletins.')
+    });
+  }
+
+  private carregarDelegacias(): void {
+    this.delegaciaService.getDelegacias().subscribe(d => this.delegacias.set(d));
+  }
+
+  // === MODAL ===
+  abrirModal(boletim?: BoletimOcorrenciaResponseDTO): void {
+    this.resetar();
+
+    if (boletim) {
+      this.isEdicao.set(true);
+      this.boletimService.getById(boletim.id).subscribe({
+        next: (data) => {
+          const model = BoletimOcorrenciaMapper.toFormModel(data);
+          this.boletimForm.patchValue(model);
+
+          this.pessoasArray().clear();
+          model.pessoasEnvolvidas.forEach((p: any) => this.pessoasArray().push(this.criarPessoaFormGroup(p)));
+
+          this.bensArray().clear();
+          model.bensEnvolvidos?.forEach((b: any) => this.bensArray().push(this.criarBemFormGroup(b)));
+
+          const pessoaIds = model.pessoasEnvolvidas
+            .map((p: any) => p.pessoaId)
+            .filter((id: number | null): id is number => id != null);
+
+          const bemIds = model.bensEnvolvidos
+            ?.map((b: any) => b.bemId)
+            .filter((id: number | null): id is number => id != null) || [];
+
+          if (pessoaIds.length) this.carregarDetalhesPessoas(pessoaIds);
+          if (bemIds.length) this.carregarDetalhesBens(bemIds);
+
+          this.abrirModalBootstrap();
+        }
+      });
+    } else {
+      this.isEdicao.set(false);
+      this.boletimForm.patchValue({ delegaciaId: this.delegaciaId() });
+      this.abrirModalBootstrap();
+    }
+  }
+
+  private abrirModalBootstrap(): void {
+    const modal = document.getElementById('boletimModal');
+    if (modal) new bootstrap.Modal(modal).show();
+  }
+
+  private resetar(): void {
+    this.boletimForm.reset();
+    this.pessoasArray().clear();
+    this.bensArray().clear();
+    this.isEdicao.set(false);
+    this.filtrosPessoa.set({ nome: '', cpf: '', sexo: '' });
+    this.filtrosBem.set({ descricao: '', tipo: '', marca: '' });
+  }
+
+  // === SALVAR ===
+  salvar(): void {
+    if (this.boletimForm.invalid) {
+      this.boletimForm.markAllAsTouched();
+      this.toast.warning('Corrija os campos obrigatórios.');
+      return;
+    }
+
+    const formValue = this.boletimForm.getRawValue();
+
+    const pessoasInvalidas = formValue.pessoasEnvolvidas?.some((p: any) => !p.pessoaId);
+    const bensInvalidos = formValue.bensEnvolvidos?.some((b: any) => !b.bemId);
+
+    if (pessoasInvalidas || bensInvalidos) {
+      this.toast.error('Todos os envolvidos devem estar selecionados.');
+      return;
+    }
+
+    const payload = BoletimOcorrenciaMapper.toRequest(formValue);
+    const id = formValue.id;
+
+    if (id) {
+      this.boletimService.update(id, payload).subscribe({
+        next: () => {
+          this.toast.success('Boletim atualizado!');
+          this.resetar();
+          this.carregarBoletins();
+        },
+        error: () => this.toast.error('Erro ao atualizar.')
+      });
+    } else {
+      this.boletimService.create(payload).subscribe({
+        next: () => {
+          this.toast.success('Boletim criado!');
+          this.resetar();
+          this.carregarBoletins();
+        },
+        error: () => this.toast.error('Erro ao criar.')
+      });
+    }
+  }
+
+  confirmarExclusao(boletim: BoletimOcorrenciaResponseDTO): void {
+    if (!confirm(`Tem certeza que deseja excluir o BO ${boletim.boletim}?`)) return;
+
+    this.boletimService.delete(boletim.id).subscribe({
+      next: () => {
+        this.toast.success('Boletim excluído com sucesso!');
+        this.carregarBoletins();
+      },
+      error: () => this.toast.error('Erro ao excluir boletim.')
+    });
+  }
+  // === FILTROS ===
+  atualizarFiltroPessoaNome(e: Event) { this.filtrosPessoa.update(f => ({ ...f, nome: (e.target as HTMLInputElement).value })); }
+  atualizarFiltroPessoaCpf(e: Event) { this.filtrosPessoa.update(f => ({ ...f, cpf: (e.target as HTMLInputElement).value })); }
+  atualizarFiltroPessoaSexo(e: Event) { this.filtrosPessoa.update(f => ({ ...f, sexo: (e.target as HTMLSelectElement).value })); }
+
+  atualizarFiltroBemDescricao(e: Event) { this.filtrosBem.update(f => ({ ...f, descricao: (e.target as HTMLInputElement).value })); }
+  atualizarFiltroBemMarca(e: Event) { this.filtrosBem.update(f => ({ ...f, marca: (e.target as HTMLInputElement).value })); }
+  atualizarFiltroBemTipo(e: Event) { this.filtrosBem.update(f => ({ ...f, tipo: (e.target as HTMLSelectElement).value })); }
+
+  formatarCep(event: Event): void {
+    let value = (event.target as HTMLInputElement).value.replace(/\D/g, '');
+    if (value.length > 5) value = value.slice(0, 5) + '-' + value.slice(5, 8);
+    this.boletimForm.get('endereco.cep')?.setValue(value, { emitEvent: false });
+  }
+  private setupCepAutoComplete(): void {
+    this.boletimForm.get('endereco.cep')?.valueChanges
       .pipe(
         debounceTime(300),
         distinctUntilChanged(),
-        filter(cep => cep && cep.replace(/\D/g, '').length === 8)
+        filter((cep): cep is string => !!cep && /^\d{5}-\d{3}$/.test(cep))
       )
       .subscribe(cep => {
         const cepLimpo = cep.replace(/\D/g, '');
         this.enderecoService.getEnderecoByCep(cepLimpo).subscribe({
           next: (data) => {
-            const enderecoForm = this.boletimForm.get('enderecoForm');
-            enderecoForm?.patchValue({
-              logradouro: data.logradouro,
-              bairro: data.bairro,
-              municipio: data.localidade,
-              uf: data.uf,
-              pais: 'Brasil'
+            this.boletimForm.get('endereco')?.patchValue({
+              logradouro: data.logradouro ?? '',
+              bairro: data.bairro ?? '',
+              municipio: data.localidade ?? '',
+              uf: data.uf ?? '',
+              pais: 'BRASIL',
+              numero: '',
+              cep: cep
             });
           },
-          error: (err) => {
-            console.error('Erro ao buscar CEP', err);
-          }
+          error: () => this.toast.error('Erro ao buscar CEP.')
         });
       });
-  }
-
-  get pessoasEnvolvidasIds(): FormArray {
-    return this.boletimForm.get('pessoasEnvolvidasIds') as FormArray;
-  }
-
-  private aplicarFiltro(): void {
-    const nome = (this.filtroNome.value ?? '').toLowerCase();
-    const cpf = (this.filtroCpf.value ?? '').replace(/\D/g, '');
-    const genero = this.filtroGenero.value ?? '';
-    this.pessoasFiltradas = this.pessoas.filter(p =>
-      (!nome || p.nome?.toLowerCase().includes(nome)) &&
-      (!cpf || (p.cpf ?? '').replace(/\D/g, '') === cpf) &&
-      (!genero || p.sexo === genero)
-    );
-  }
-
-  carregarBoletins(delegaciaId: number): void {
-    this.boletimService.getByDelegacia(delegaciaId).subscribe({
-      next: (boletins: BoletimOcorrenciaResponseDTO[]) => {
-        this.boletins = (boletins || []).map((bo: any) => {
-          const { pessoasEnvolvidas, pessoasEnvolvidasResumo } = this.mapearEnvolvidos(bo.pessoasEnvolvidas);
-
-          return {
-            ...bo,
-            dataOcorrencia: this.formatarData(bo.dataOcorrencia),
-            pessoasEnvolvidas,
-            pessoasEnvolvidasResumo,
-            delegaciaNome: bo.delegacia?.nome || 'Não informado'
-          };
-        });
-        console.log('📑 Boletins carregados (com resumo):', this.boletins);
-      },
-      error: (err) => {
-        this.errorMessage = 'Erro ao carregar boletins: ' + err.message;
-        console.error('❌ Erro ao carregar boletins:', err);
-      }
-    });
-  }
-
-  private mapearEnvolvidos(envolvidos: any[]): { pessoasEnvolvidas: any[], pessoasEnvolvidasResumo: any[] } {
-    const pessoasEnvolvidas = (envolvidos || []).map((env: any) => ({
-      id: env.id,
-      tipoEnvolvimento: env.tipoEnvolvimento,
-      observacao: env.observacao,
-      pessoa: env.pessoa || {}
-    }));
-
-    const pessoasEnvolvidasResumo = pessoasEnvolvidas.map(e => ({
-      id: e.pessoa?.id,
-      nome: e.pessoa?.nome,
-      cpf: e.pessoa?.cpf,
-      tipoEnvolvimento: e.tipoEnvolvimento
-    }));
-
-    return { pessoasEnvolvidas, pessoasEnvolvidasResumo };
-  }
-
-  private formatarData(data: any): string {
-    if (Array.isArray(data)) {
-      const [ano, mes, dia, hora = 0, minuto = 0] = data;
-      if ([ano, mes, dia].some(v => v == null)) {
-        console.warn('Data inválida recebida:', data);
-        return '';
-      }
-      return new Date(ano, mes - 1, dia, hora, minuto).toISOString();
-    } else if (data) {
-      const date = new Date(data);
-      if (!isNaN(date.getTime())) return date.toISOString();
-      console.warn('Data inválida recebida:', data);
-      return '';
-    }
-    return '';
-  }
-
-  carregarDelegacias(): void {
-    this.delegaciaService.getDelegacias().subscribe({
-      next: (data) => this.delegacias = data,
-      error: (err) => alert(err.message)
-    });
-  }
-
-  adicionarPessoa(pessoa: Pessoa): void {
-    if (!this.pessoasSelecionadas.includes(pessoa.id!)) {
-      this.pessoasSelecionadas.push(pessoa.id!);
-      this.pessoasSelecionadasDetalhes.push(pessoa);
-      this.envolvimentos[pessoa.id!] = 'VITIMA'; // default
-    }
-  }
-
-  removerPessoa(pessoaId: number): void {
-    this.pessoasSelecionadas = this.pessoasSelecionadas.filter(id => id !== pessoaId);
-    this.pessoasSelecionadasDetalhes = this.pessoasSelecionadasDetalhes.filter(p => p.id !== pessoaId);
-    delete this.envolvimentos[pessoaId];
-  }
-
-  abrirModalEdicao(boletim: BoletimOcorrenciaResponseDTO): void {
-    this.isEdicao = true;
-    this.boletimSelecionado = boletim;
-
-    this.boletimForm.patchValue({
-      id: boletim.id,
-      boletim: boletim.boletim,
-      dataOcorrencia: boletim.dataOcorrencia,
-      natureza: boletim.natureza,
-      representacao: boletim.representacao,
-      origemForcaPolicial: boletim.origemForcaPolicial,
-    });
-
-    if (boletim.endereco) {
-      this.boletimForm.get('enderecoForm')?.patchValue({
-        id: boletim.endereco.id,
-        logradouro: boletim.endereco.logradouro,
-        numero: boletim.endereco.numero,
-        bairro: boletim.endereco.bairro,
-        municipio: boletim.endereco.municipio,
-        uf: boletim.endereco.uf,
-        pais: boletim.endereco.pais,
-        cep: boletim.endereco.cep
-      });
-    }
-
-    this.pessoasSelecionadas = boletim.pessoasEnvolvidas?.map(p => p.pessoaId) || [];
-    this.pessoasSelecionadasDetalhes = boletim.pessoasEnvolvidas?.map(p => ({
-      id: p.pessoaId,
-      nome: (p as any).pessoa?.nome || '',
-      cpf: (p as any).pessoa?.cpf || '',
-      tipoEnvolvimento: p.tipoEnvolvimento
-    })) || [];
-
-    this.envolvimentos = {};
-    (boletim.pessoasEnvolvidas || []).forEach(p => {
-      this.envolvimentos[p.pessoaId] = p.tipoEnvolvimento;
-    });
-  }
-
-  resetarFormulario(): void {
-    this.boletimForm.reset();
-    this.pessoasSelecionadas = [];
-    this.pessoasSelecionadasDetalhes = [];
-    this.envolvimentos = {};
-    this.isEdicao = false;
-    this.boletimSelecionado = null;
-  }
-
-  salvarBoletim(): void {
-    const formValue = this.boletimForm.value;
-    const payload = BoletimOcorrenciaMapper.formToRequest(formValue);
-
-    console.log('➡️ Payload enviado:', payload);
-    if (this.isEdicao && this.boletimSelecionado?.id) {
-      this.boletimService.update(this.boletimSelecionado.id, payload).subscribe({
-        next: () => {
-          this.carregarBoletins(this.delegaciaLogadaId!);
-          this.resetarFormulario();
-          this.successMessage = 'Boletim atualizado com sucesso!';
-        },
-        error: err => this.errorMessage = err.message
-      });
-    } else {
-      this.boletimService.create(payload).subscribe({
-        next: () => {
-          this.carregarBoletins(this.delegaciaLogadaId!);
-          this.resetarFormulario();
-          this.successMessage = 'Boletim criado com sucesso!';
-        },
-        error: err => this.errorMessage = err.message
-      });
-    }
-  }
-
-
-  buscarPessoas(page: number = 0, size: number = 10): void {
-    const filtros = {
-      nome: this.filtroNome.value?.trim() || undefined,
-      cpf: (this.filtroCpf.value || '').replace(/\D/g, '') || undefined,
-      sexo: this.filtroGenero.value || undefined
-    };
-
-    console.log('➡️ Filtros enviados:', filtros);
-
-    this.pessoaService.getPessoasFiltradas(filtros, page, size).subscribe({
-      next: (res) => {
-        console.log('✅ Resposta completa da API:', res);
-        this.pessoasFiltradas = res.content;
-        this.totalPages = res.totalPages;
-        this.totalElements = res.totalElements;
-        this.pageNumber = res.pageable.pageNumber;
-        this.pageSize = res.pageable.pageSize;
-        console.log('👤 Pessoas filtradas:', this.pessoasFiltradas);
-      },
-      error: (err) => console.error('❌ Erro ao buscar pessoas:', err)
-    });
-  }
-
-  confirmarExclusao(boletim: BoletimOcorrenciaResponseDTO): void {
-    this.boletimSelecionado = boletim;
-  }
-
-  excluirBoletim(): void {
-    if (this.boletimSelecionado?.id) {
-      this.boletimService.delete(this.boletimSelecionado.id).subscribe({
-        next: () => { this.carregarBoletins(this.delegaciaLogadaId!); this.resetarFormulario(); alert('Boletim excluído com sucesso!'); },
-        error: err => alert(err.message)
-      });
-    }
   }
 }

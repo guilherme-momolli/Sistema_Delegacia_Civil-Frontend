@@ -17,6 +17,8 @@
           <th>Data</th>
           <th>Peça</th>
           <th>Situação</th>
+          <th>Pessoas</th>
+          <th>Bens</th>
           <th>Ações</th>
         </tr>
       </thead>
@@ -28,6 +30,8 @@
           <td>{{ inq.data | date: 'dd/MM/yyyy' }}</td>
           <td>{{ getDescricaoPeca(inq.peca ?? '') }}</td>
           <td>{{ getDescricaoSituacao(inq.situacaoInquerito ?? '') }}</td>
+          <td>{{inq.pessoasEnvolvidas.length || 0}}</td>
+          <td>{{inq.bensEnvolvidos?.length || 0}}</td>
           <td class="text-center">
             <button class="btn btn-warning btn-sm me-1" (click)="abrirModal(inq)" title="Editar">
               <i class="bi bi-pencil"></i>
