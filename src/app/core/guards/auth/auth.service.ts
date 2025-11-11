@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { StorageService } from '../../service/storage/storage.service';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
+import { Privilegio } from '../../enum/usuario/privilegio.enum';
 
 interface AuthRequestDTO {
   email: string;
@@ -43,7 +44,7 @@ export class AuthService {
         if (response.token) {
           this.salvarToken(response.token);
           this.storage.setItem('email', request.email);
-  
+
           const decoded = this.decodeToken();
           this.storage.setItem('usuarioNome', decoded.usuarioNome);
           this.storage.setItem('delegaciaId', decoded.delegaciaId.toString());
@@ -55,7 +56,7 @@ export class AuthService {
       })
     )
   }
-  
+
   logout(): void {
     this.storage.removeItem('authToken');
     this.storage.removeItem('delegaciaId');
@@ -65,7 +66,7 @@ export class AuthService {
     this.storage.removeItem('privilegio')
     this.authStatus.next(false);
     this.router.navigate(['/login']);
-  }  
+  }
 
   public getAuthHeaders(): HttpHeaders {
     const token = this.getToken();
@@ -76,7 +77,7 @@ export class AuthService {
       Authorization: `Bearer ${token}`
     });
   }
-  
+
   public getToken(): string | null {
     return this.storage.getItem<string>('authToken');
   }
@@ -85,21 +86,34 @@ export class AuthService {
     const decoded = this.decodeToken();
     return decoded?.usuarioNome || null;
   }
-  
+
   public getDelegaciaId(): number | null {
     const decoded = this.decodeToken();
     return decoded?.delegaciaId || null;
   }
-  
+
   public getDelegaciaNome(): string | null {
     const decoded = this.decodeToken();
     return decoded?.delegaciaNome || null;
   }
 
-  public getPrivilegio(): string | null {
+  public getPrivilegio(): Privilegio | null {
     const decoded = this.decodeToken();
-    return decoded?.privilegio || null;
+    const privilegioStr = decoded?.privilegio;
+
+    if (!privilegioStr || typeof privilegioStr !== 'string') {
+      return null;
+    }
+
+    if (Object.values(Privilegio).includes(privilegioStr as Privilegio)) {
+      return privilegioStr as Privilegio;
+    }
+
+    console.warn('Privilégio inválido no token:', privilegioStr);
+    return null;
   }
+
+
 
   public getEmail(): string | null {
     return this.storage.getItem<string>('email');
@@ -108,7 +122,7 @@ export class AuthService {
   public isAuthenticated(): boolean {
     const token = this.getToken();
     if (!token) return false;
-  
+
     try {
       const decoded: any = jwtDecode(token);
       const exp = decoded.exp;
@@ -136,7 +150,7 @@ export class AuthService {
   private decodeToken(): any | null {
     const token = this.getToken();
     if (!token) return null;
-  
+
     try {
       return jwtDecode(token);
     } catch (error) {

@@ -34,8 +34,11 @@
           <td>R$ {{ bem.valorEstimado || '0,00' }}</td>
           <td>{{ getDescricaoSituacaoBem(bem.situacaoBem) || '-' }}</td>
           <td>
-            <button class="btn btn-sm btn-warning me-2" (click)="openModal(bem)">Editar</button>
-            <button class="btn btn-sm btn-danger" (click)="deletar(bem)">Excluir</button>
+            <div class="d-flex gap-2 justify-content-center">
+              <button class="btn btn-sm btn-warning me-2" (click)="openModal(bem)"><i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-danger" (click)="deletar(bem)"><i class="bi bi-trash"></i></button>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -65,16 +68,37 @@
           <!-- ============================================================= -->
           <h5 class="mt-3 border-bottom pb-2">Informações Gerais</h5>
 
-          <!-- <div class="mb-3">
-            <label class="form-label">Dono do Bem (Pessoa)</label>
-            <input type="text" class="form-control" placeholder="Digite nome ou CPF" [formControl]="pessoaControl"
-              [ngbTypeahead]="buscarPessoas" [resultFormatter]="formatarPessoa" [inputFormatter]="formatarPessoa"
-              (selectItem)="onPessoaSelecionada($event.item)">
-          </div> -->
+          <div class="mb-3 position-relative">
+            <label class="form-label">Pessoa Vinculada</label>
+            <input type="text" class="form-control" placeholder="Digite o nome ou CPF..." [formControl]="pessoaControl"
+              (blur)="onPessoaBlur()" />
 
-          <!-- <div *ngIf="pessoaSelecionada" class="mt-2">
-            <strong>Selecionado:</strong> {{ pessoaSelecionada.nome }} ({{ pessoaSelecionada.cpf | cpfMask }})
-          </div> -->
+            <!-- Dropdown de sugestões -->
+            <ul class="dropdown-menu autocomplete-list w-100"
+              [class.show]="pessoasFiltradas.length > 0 && pessoaControl.value">
+              <li *ngFor="let pessoa of pessoasFiltradas" class="dropdown-item" (mousedown)="selecionarPessoa(pessoa)">
+                <div>
+                  <strong>{{ pessoa.nome }}</strong>
+                  <small class="text-muted d-block">
+                    {{ pessoa.cpf}}
+                  </small>
+                </div>
+              </li>
+            </ul>
+
+            <!-- Pessoa selecionada (exibição) -->
+            <div *ngIf="pessoaSelecionada"
+              class="mt-2 p-2 border rounded bg-light d-flex justify-content-between align-items-center">
+              <div>
+                <strong>Vinculada:</strong>
+                {{ pessoaSelecionada.nome }}
+                <span class="text-muted">({{ pessoaSelecionada.cpf }})</span>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline-danger" (click)="removerPessoa()">
+                Remover
+              </button>
+            </div>
+          </div>
 
 
 

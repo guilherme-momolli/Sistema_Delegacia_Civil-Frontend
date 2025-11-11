@@ -4,6 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../../guards/auth/auth.service';
 import { FormsModule } from '@angular/forms';
+import { Privilegio } from '../../enum/usuario/privilegio.enum';
 
 @Component({
   selector: 'app-header',
@@ -15,9 +16,9 @@ import { FormsModule } from '@angular/forms';
 export class HeaderComponent implements OnInit, OnDestroy {
   isLoggedIn = false;
   usuarioNome: string = '';
-  privilegio: string | null = null;
+  privilegio: Privilegio | null = null;
   nomeDelegacia: string | null = null;
-  isDarkMode: boolean = false; // Adicionado para controlar o estado do modo escuro
+  isDarkMode: boolean = false; 
 
   private destroy$ = new Subject<void>();
 
@@ -32,11 +33,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(isLogged => {
         this.isLoggedIn = isLogged;
-        isLogged ? this.carregarDadosUsuario() : this.resetarDadosUsuario();
+        if (isLogged) {
+          this.carregarDadosUsuario();
+        } else {
+          this.resetarDadosUsuario();
+        }
       });
-  
+
     this.aplicarModoEscuro();
   }
+
+
 
   ngOnDestroy() {
     this.destroy$.next();
@@ -66,7 +73,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.usuarioNome = this.authService.getUsuarioNome() || 'Usuário';
     this.nomeDelegacia = this.authService.getDelegaciaNome();
     this.privilegio = this.authService.getPrivilegio();
-    console.log('privilegio', this.privilegio);
   }
 
   private resetarDadosUsuario() {
@@ -79,6 +85,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.isDarkMode = true;
       document.body.classList.add('dark-mode');
     }
+  }
+
+  temAcessoDelegacia(): boolean {
+    return this.privilegio === Privilegio.CONTROLE_MESTRE;
+  }
+
+  podeVerListaUsuarios(): boolean {
+    return this.privilegio !== Privilegio.USUARIO;
   }
 
   private isModoEscuroHabilitado(): boolean {

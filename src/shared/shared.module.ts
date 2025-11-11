@@ -5,13 +5,19 @@ import { PesquisaPessoaComponent } from './components/pesquisa-pessoa/pesquisa-p
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
-  declarations: [],
   imports: [
-    PesquisaPessoaComponent,
     CommonModule,
-    CpfMaskPipe,
     ReactiveFormsModule,
-    FormsModule
+    FormsModule,
+    CpfMaskPipe,           // ← IMPORTA AQUI
+    PesquisaPessoaComponent // ← SE TAMBÉM FOR STANDALONE
+  ],
+  exports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    CpfMaskPipe,           // ← EXPORTA AQUI
+    PesquisaPessoaComponent
   ]
 })
 export class SharedModule {}

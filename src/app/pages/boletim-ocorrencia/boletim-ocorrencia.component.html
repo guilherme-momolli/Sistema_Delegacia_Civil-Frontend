@@ -30,12 +30,14 @@
           <td>{{ bo.pessoasEnvolvidas?.length || 0 }}</td>
           <td>{{ bo.bensEnvolvidos?.length || 0 }}</td>
           <td>
-            <button class="btn btn-warning btn-sm me-1" (click)="abrirModal(bo)" title="Editar">
-              <i class="bi bi-pencil"></i>
-            </button>
-            <button class="btn btn-danger btn-sm" (click)="confirmarExclusao(bo)" title="Excluir">
-              <i class="bi bi-trash"></i>
-            </button>
+            <div class="d-flex gap-2 justify-content-center">
+              <button class="btn btn-warning btn-sm me-1" (click)="abrirModal(bo)" title="Editar">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-danger btn-sm" (click)="confirmarExclusao(bo)" title="Excluir">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
           </td>
         </tr>
         } @empty {
@@ -61,13 +63,16 @@
           <div class="modal-body">
             <ul class="nav nav-tabs mb-3" role="tablist">
               <li class="nav-item">
-                <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-boletim">Boletim</button>
+                <button type="button" class="nav-link active" data-bs-toggle="tab"
+                  data-bs-target="#tab-boletim">Boletim</button>
               </li>
               <li class="nav-item">
-                <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-endereco">Endereço</button>
+                <button type="button" class="nav-link" data-bs-toggle="tab"
+                  data-bs-target="#tab-endereco">Endereço</button>
               </li>
               <li class="nav-item">
-                <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-pessoas">Pessoas</button>
+                <button type="button" class="nav-link" data-bs-toggle="tab"
+                  data-bs-target="#tab-pessoas">Pessoas</button>
               </li>
               <li class="nav-item">
                 <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-bens">Bens</button>
@@ -188,7 +193,8 @@
                           </select>
                         </td>
                         <td>
-                          <button type="button" class="btn btn-success btn-sm" (click)="adicionarPessoa(p, tipoPessoa.value)">
+                          <button type="button" class="btn btn-success btn-sm"
+                            (click)="adicionarPessoa(p, tipoPessoa.value)">
                             Adicionar
                           </button>
                         </td>

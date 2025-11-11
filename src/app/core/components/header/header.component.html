@@ -45,7 +45,9 @@
               </a>
             </li>
             <li>
-              <a class="dropdown-item" routerLink="/delegacia" (click)="closeDropdown($event)">
+              <a class="dropdown-item" routerLink="/delegacia"
+               (click)="closeDropdown($event)"
+               *ngIf="temAcessoDelegacia()">
                 Delegacia
               </a>
             </li>
@@ -74,7 +76,7 @@
           <ul class="dropdown-menu dropdown-menu-dark">
             <li class="dropdown-header fw-bold">{{ nomeDelegacia }}</li>
             <li><hr class="dropdown-divider"></li>
-            <li>
+            <li *ngIf="podeVerListaUsuarios()">
               <a class="dropdown-item" routerLink="/usuario" (click)="closeDropdown($event)">
                 <i class="bi bi-person-lines-fill me-1"></i> Listar Usuário
               </a>
